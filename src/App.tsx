@@ -74,9 +74,9 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">
-                Thống Kê 11 & 12
+                Thống Kê 11 & 12 - Thầy Nguyễn Đắc Tuấn -0835606162
               </h1>
-              <p className="text-xs text-slate-500 font-medium">Kết Nối Tri Thức</p>
+              <p className="text-xs text-slate-500 font-medium">ứng dụng toán thống kê kiểm tra kết quả nhanh chóng</p>
             </div>
           </div>
           <button
