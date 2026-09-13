@@ -61,7 +61,7 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
 - Tiếng Anh: Bổ sung "Paraphrase & Upgrade" (cấu trúc viết lại câu, collocations xịn).`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: message,
       config: {
         systemInstruction,
@@ -73,13 +73,13 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
   } catch (error: any) {
     console.error('Chat API Error:', error);
     
-    const errorMessage = error?.message || '';
+    const errorMessage = error?.message || String(error);
     if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID')) {
       return res.status(400).json({ 
         error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng vào mục Settings (hoặc Secrets) của nền tảng để cấu hình lại GEMINI_API_KEY nhé!' 
       });
     }
 
-    res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
+    res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé! Chi tiết lỗi: ' + errorMessage });
   }
 }
