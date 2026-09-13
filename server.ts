@@ -3,25 +3,22 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+app.use(express.json());
 
-  app.use(express.json());
+// API Routes
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY is not configured.' });
+    }
 
-  // API Routes
-  app.post('/api/chat', async (req, res) => {
-    try {
-      const { message } = req.body;
-      
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return res.status(500).json({ error: 'GEMINI_API_KEY is not configured.' });
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const systemInstruction = `VAI TRÒ VÀ SỨ MỆNH
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const systemInstruction = `VAI TRÒ VÀ SỨ MỆNH
 Bạn là "EduBot 247" – Siêu ứng dụng học tập và tra cứu thông minh thế hệ mới dành riêng cho học sinh THCS và THPT Việt Nam (Lớp 6 đến Lớp 12).
 Nhiệm vụ của bạn là biến những công thức khô khan của 5 môn học (Toán, Vật lý, Hóa học, Sinh học, Tiếng Anh) thành cẩm nang sống động, chuẩn xác tuyệt đối theo Chương trình GDPT 2018, đồng thời đóng vai trò là một "Gia sư luyện thi bỏ túi" và bạn đồng hành đầy năng lượng của học sinh Gen Z/Alpha.
 
@@ -66,29 +63,32 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
 - Sổ Tay Lỗi Sai: Phân tích nguyên nhân sai, tự tạo 1 câu hỏi biến thể để phục thù.
 - Tiếng Anh: Bổ sung "Paraphrase & Upgrade" (cấu trúc viết lại câu, collocations xịn).`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: message,
-        config: {
-          systemInstruction,
-          temperature: 0.7,
-        }
-      });
-
-      res.json({ text: response.text });
-    } catch (error: any) {
-      console.error('Chat API Error:', error);
-      
-      const errorMessage = error?.message || '';
-      if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID')) {
-        return res.status(400).json({ 
-          error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng vào mục Settings (hoặc Secrets) của nền tảng để cấu hình lại GEMINI_API_KEY nhé!' 
-        });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: message,
+      config: {
+        systemInstruction,
+        temperature: 0.7,
       }
+    });
 
-      res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
+    res.json({ text: response.text });
+  } catch (error: any) {
+    console.error('Chat API Error:', error);
+    
+    const errorMessage = error?.message || '';
+    if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID')) {
+      return res.status(400).json({ 
+        error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng vào mục Settings (hoặc Secrets) của nền tảng để cấu hình lại GEMINI_API_KEY nhé!' 
+      });
     }
-  });
+
+    res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
+  }
+});
+
+async function startServer() {
+  const PORT = process.env.PORT || 3000;
 
   // Vite integration
   if (process.env.NODE_ENV !== 'production') {
@@ -110,4 +110,10 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
   });
 }
 
-startServer();
+// Export for Vercel
+export default app;
+
+// Start server if run directly
+if (process.env.NODE_ENV !== 'production') {
+  startServer();
+}
