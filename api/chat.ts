@@ -61,7 +61,7 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
 - Tiếng Anh: Bổ sung "Paraphrase & Upgrade" (cấu trúc viết lại câu, collocations xịn).`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.6-flash',
       contents: message,
       config: {
         systemInstruction,
