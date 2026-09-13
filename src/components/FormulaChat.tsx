@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, X, Loader2, Sparkles } from 'lucide-react';
+import { Bot, Send, X, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -15,19 +15,47 @@ interface FormulaChatProps {
 }
 
 export function FormulaChat() {
-  const [messages, setMessages] = useState<Message[]>([
+  const defaultMessages: Message[] = [
     {
       id: '1',
       role: 'assistant',
       content: 'Chào cậu! Tớ là **EduBot 247** đây! 🚀 Sẵn sàng giải mã mọi công thức Toán, Lý, Hóa, Sinh, Anh và "hack" điểm thi cùng cậu. Gõ ngay chủ đề cậu muốn tra cứu nhé!'
     }
-  ]);
+  ];
+
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('chat-history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse chat history', e);
+      }
+    }
+    return defaultMessages;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('chat-history', JSON.stringify(messages));
+  }, [messages]);
+
+  const handleClearHistory = () => {
+    if (window.confirm('Cậu có chắc muốn xóa lịch sử trò chuyện không?')) {
+      setMessages(defaultMessages);
+      localStorage.removeItem('chat-history');
+    }
+  };
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   useEffect(() => {
@@ -93,10 +121,21 @@ export function FormulaChat() {
             <p className="text-sm text-indigo-100 font-medium">Gia sư luyện thi bỏ túi</p>
           </div>
         </div>
+        <button 
+          onClick={handleClearHistory}
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+          title="Xóa lịch sử trò chuyện"
+        >
+          <Trash2 className="w-5 h-5" />
+          <span className="hidden sm:inline text-sm font-medium">Xóa lịch sử</span>
+        </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50"
+      >
         {messages.map((msg) => (
           <div 
             key={msg.id} 
@@ -138,7 +177,6 @@ export function FormulaChat() {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
