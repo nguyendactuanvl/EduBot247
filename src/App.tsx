@@ -8,6 +8,7 @@ import { DataInput } from './components/DataInput';
 import { ResultView } from './components/ResultView';
 import { HistoryModal } from './components/HistoryModal';
 import { FormulaChat } from './components/FormulaChat';
+import { PWAInstallButton } from './components/PWAInstallButton';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
 import { History, Calculator, Sparkles, BookOpen, Menu, X } from 'lucide-react';
@@ -150,6 +151,7 @@ export default function App() {
                 SĐT: <span className="text-blue-600">083 560 6162</span>
               </p>
             </div>
+            <PWAInstallButton />
           </div>
         </div>
       </aside>
