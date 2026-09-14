@@ -17,9 +17,11 @@ export default defineConfig(() => {
           name: 'EduBot 247',
           short_name: 'EduBot',
           description: 'Gia sư luyện thi bỏ túi Toán, Lý, Hóa, Sinh, Anh.',
-          theme_color: '#ffffff',
-          background_color: '#f8fafc',
+          theme_color: '#7C3AED',
+          background_color: '#7C3AED',
           display: 'standalone',
+          orientation: 'portrait',
+          categories: ['education', 'books'],
           start_url: '/',
           scope: '/',
           icons: [
