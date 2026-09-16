@@ -1,11 +1,14 @@
 import React, { useRef, useState } from 'react';
 import { CalculationResult } from '../types';
 import { StepByStep } from './StepByStep';
-import { Printer, Presentation, Download } from 'lucide-react';
+import { Printer, Presentation, Download, BookOpen, Loader2 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { SlideshowModal } from './SlideshowModal';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 interface ResultViewProps {
   result: CalculationResult;
@@ -16,6 +19,9 @@ export function ResultView({ result }: ResultViewProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  
+  const [isGeneratingPractice, setIsGeneratingPractice] = useState(false);
+  const [practiceContent, setPracticeContent] = useState('');
 
   const reactToPrintFn = useReactToPrint({
     contentRef: contentRef,
@@ -40,6 +46,37 @@ export function ResultView({ result }: ResultViewProps) {
       console.error('Error generating PDF:', error);
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const generatePractice = async () => {
+    setIsGeneratingPractice(true);
+    setPracticeContent('');
+    
+    try {
+      const intervalsStr = result.intervals.map(i => `[${i.start}; ${i.end}): tần số ${i.frequency}`).join(', ');
+      
+      const prompt = `Tôi có mẫu số liệu ghép nhóm sau: ${intervalsStr}.
+Hãy đóng vai một giáo viên Toán lớp 12, sinh ra 3 bài tập luyện tập tương tự liên quan đến mẫu số liệu ghép nhóm (tìm khoảng tứ phân vị, phương sai, độ lệch chuẩn, số trung bình, trung vị...).
+Yêu cầu:
+- Viết rõ ràng bằng tiếng Việt.
+- Sử dụng format Markdown và LaTeX cho công thức toán.
+- Mỗi bài tập nên có hoàn cảnh thực tế (ví dụ: điểm kiểm tra, chiều cao, thời gian...)
+- Mỗi bài cần có bảng số liệu và yêu cầu tính toán cụ thể.`;
+      
+      const apiKey = localStorage.getItem('edubot-api-key');
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, userApiKey: apiKey })
+      });
+      
+      const data = await response.json();
+      setPracticeContent(data.text);
+    } catch (e) {
+      setPracticeContent('Có lỗi xảy ra khi tạo bài tập luyện tập. Vui lòng thử lại sau.');
+    } finally {
+      setIsGeneratingPractice(false);
     }
   };
 
@@ -130,6 +167,32 @@ export function ResultView({ result }: ResultViewProps) {
           <div className="print:break-before-page">
             <StepByStep result={result} />
           </div>
+        </div>
+        
+        {/* Luyện tập thêm */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-6 print:hidden">
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <div>
+                 <h2 className="text-xl font-semibold text-slate-800">Luyện tập thêm</h2>
+                 <p className="text-slate-500 text-sm mt-1">Tạo 3 bài tập tương tự mẫu số liệu vừa nhập để thực hành</p>
+              </div>
+              <button
+                onClick={generatePractice}
+                disabled={isGeneratingPractice}
+                className="mt-4 sm:mt-0 flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors font-medium text-sm shadow-sm disabled:opacity-50"
+              >
+                {isGeneratingPractice ? <Loader2 className="w-5 h-5 animate-spin" /> : <BookOpen className="w-5 h-5" />}
+                <span>{isGeneratingPractice ? 'Đang tạo bài tập...' : 'Tạo bài tập'}</span>
+              </button>
+           </div>
+           
+           {practiceContent && (
+             <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 markdown-body prose prose-slate max-w-none [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>h1]:font-bold [&>h1]:text-2xl [&>h2]:font-bold [&>h2]:text-xl [&>h3]:font-bold [&>h3]:text-lg">
+                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  {practiceContent}
+                </ReactMarkdown>
+             </div>
+           )}
         </div>
       </div>
       
