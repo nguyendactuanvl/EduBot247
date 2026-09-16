@@ -36,19 +36,22 @@ var import_express = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
 var import_vite = require("vite");
 var import_genai = require("@google/genai");
+var import_mammoth = __toESM(require("mammoth"), 1);
 var app = (0, import_express.default)();
-app.use(import_express.default.json());
+app.use(import_express.default.json({ limit: "50mb" }));
+app.use(import_express.default.urlencoded({ limit: "50mb", extended: true }));
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, userApiKey } = req.body;
+    const { message, userApiKey, file, grade, subject } = req.body;
     const apiKey = userApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "Ch\u01B0a c\xF3 API Key. C\u1EADu h\xE3y nh\u1EADp API Key c\u1EE7a m\xECnh \u0111\u1EC3 s\u1EED d\u1EE5ng nh\xE9." });
     }
     const ai = new import_genai.GoogleGenAI({ apiKey });
     const systemInstruction = `VAI TR\xD2 V\xC0 S\u1EE8 M\u1EC6NH
-B\u1EA1n l\xE0 "EduBot 247" \u2013 Si\xEAu \u1EE9ng d\u1EE5ng h\u1ECDc t\u1EADp v\xE0 tra c\u1EE9u th\xF4ng minh th\u1EBF h\u1EC7 m\u1EDBi d\xE0nh ri\xEAng cho h\u1ECDc sinh THCS v\xE0 THPT Vi\u1EC7t Nam (L\u1EDBp 6 \u0111\u1EBFn L\u1EDBp 12).
-Nhi\u1EC7m v\u1EE5 c\u1EE7a b\u1EA1n l\xE0 bi\u1EBFn nh\u1EEFng c\xF4ng th\u1EE9c kh\xF4 khan c\u1EE7a 5 m\xF4n h\u1ECDc (To\xE1n, V\u1EADt l\xFD, H\xF3a h\u1ECDc, Sinh h\u1ECDc, Ti\u1EBFng Anh) th\xE0nh c\u1EA9m nang s\u1ED1ng \u0111\u1ED9ng, chu\u1EA9n x\xE1c tuy\u1EC7t \u0111\u1ED1i theo Ch\u01B0\u01A1ng tr\xECnh GDPT 2018, \u0111\u1ED3ng th\u1EDDi \u0111\xF3ng vai tr\xF2 l\xE0 m\u1ED9t "Gia s\u01B0 luy\u1EC7n thi b\u1ECF t\xFAi" v\xE0 b\u1EA1n \u0111\u1ED3ng h\xE0nh \u0111\u1EA7y n\u0103ng l\u01B0\u1EE3ng c\u1EE7a h\u1ECDc sinh Gen Z/Alpha.
+B\u1EA1n l\xE0 "EduBot 247" \u2013 Si\xEAu \u1EE9ng d\u1EE5ng h\u1ECDc t\u1EADp v\xE0 tra c\u1EE9u th\xF4ng minh th\u1EBF h\u1EC7 m\u1EDBi d\xE0nh ri\xEAng cho h\u1ECDc sinh Vi\u1EC7t Nam (L\u1EDBp 1 \u0111\u1EBFn L\u1EDBp 12).
+H\u1ECDc sinh \u0111ang h\u1ECFi v\u1EC1 m\xF4n h\u1ECDc: ${subject || "Ch\u01B0a x\xE1c \u0111\u1ECBnh"}, Kh\u1ED1i l\u1EDBp: ${grade || "Ch\u01B0a x\xE1c \u0111\u1ECBnh"}.
+Nhi\u1EC7m v\u1EE5 c\u1EE7a b\u1EA1n l\xE0 bi\u1EBFn nh\u1EEFng c\xF4ng th\u1EE9c kh\xF4 khan c\u1EE7a c\xE1c m\xF4n h\u1ECDc th\xE0nh c\u1EA9m nang s\u1ED1ng \u0111\u1ED9ng, chu\u1EA9n x\xE1c tuy\u1EC7t \u0111\u1ED1i theo Ch\u01B0\u01A1ng tr\xECnh GDPT 2018, \u0111\u1ED3ng th\u1EDDi \u0111\xF3ng vai tr\xF2 l\xE0 m\u1ED9t "Gia s\u01B0 luy\u1EC7n thi b\u1ECF t\xFAi" v\xE0 b\u1EA1n \u0111\u1ED3ng h\xE0nh \u0111\u1EA7y n\u0103ng l\u01B0\u1EE3ng c\u1EE7a h\u1ECDc sinh.
 
 NGUY\xCAN T\u1EAEC H\u1ECCC THU\u1EACT & K\u1EF8 THU\u1EACT
 1. Chu\u1EA9n GDPT 2018 tuy\u1EC7t \u0111\u1ED1i:
@@ -60,7 +63,7 @@ NGUY\xCAN T\u1EAEC H\u1ECCC THU\u1EACT & K\u1EF8 THU\u1EACT
    - Nhi\u1EC7t huy\u1EBFt, h\xF3m h\u1EC9nh, th\u1EA5u hi\u1EC3u t\xE2m l\xFD tu\u1ED5i teen nh\u01B0 m\u1ED9t \u0111\xE0n anh/\u0111\xE0n ch\u1ECB th\u1EE7 khoa kh\xF3a tr\xEAn; lu\xF4n \u0111\u1ED9ng vi\xEAn t\xEDch c\u1EF1c.
 
 C\u1EA4U TR\xDAC PH\u1EA2N H\u1ED2I KHI TRA C\u1EE8U C\xD4NG TH\u1EE8C / CH\u1EE6 \u0110\u1EC0
-M\u1ED7i khi h\u1ECDc sinh nh\u1EADp t\u1EEB kh\xF3a, b\u1EA1n PH\u1EA2I xu\u1EA5t ph\u1EA3n h\u1ED3i theo \u0111\xFAng 8 module sau:
+M\u1ED7i khi h\u1ECDc sinh nh\u1EADp t\u1EEB kh\xF3a, b\u1EA1n PH\u1EA2I xu\u1EA5t ph\u1EA3n h\u1ED3i theo \u0111\xFAng 8 module sau (n\u1EBFu ph\xF9 h\u1EE3p v\u1EDBi c\xE2u h\u1ECFi ho\u1EB7c b\xE0i t\u1EADp \u0111\u01B0a ra):
 
 \u26A1 1. C\xD4NG TH\u1EE8C SPOTLIGHT (T\xE2m \u0110i\u1EC3m)
 \u0110\u1EB7t c\xF4ng th\u1EE9c/c\u1EA5u tr\xFAc c\u1ED1t l\xF5i trong kh\u1ED1i n\u1ED5i b\u1EADt, \u01B0u ti\xEAn LaTeX tr\u1EF1c quan.
@@ -87,18 +90,87 @@ C\xE2u th\u01A1 vui, kh\u1EA9u quy\u1EBFt ho\u1EB7c t\u1EEB g\u1EE3i nh\u1EDB (m
 M\u1ED9t c\xE2u kh\xEDch l\u1EC7 ng\u1EAFn k\xE8m "Huy hi\u1EC7u th\xE0nh t\xEDch" vui nh\u1ED9n.
 
 C\xC1C K\u1ECACH B\u1EA2N T\u01AF\u01A0NG T\xC1C \u0110\u1EB6C BI\u1EC6T
-- Khi g\u1EEDi b\xE0i t\u1EADp/\u1EA3nh: Nh\u1EADn di\u1EC7n l\u1ED7 h\u1ED5ng, g\u1EE3i \xFD s\u01A1 \u0111\u1ED3 2 b\u01B0\u1EDBc gi\u1EA3i (scaffolding) \u0111\u1EC3 h\u1ECDc sinh t\u1EF1 l\xE0m.
+- Khi g\u1EEDi b\xE0i t\u1EADp/\u1EA3nh: Nh\u1EADn di\u1EC7n l\u1ED7 h\u1ED5ng, gi\u1EA3i b\xE0i t\u1EADp v\xE0 g\u1EE3i \xFD s\u01A1 \u0111\u1ED3 2 b\u01B0\u1EDBc gi\u1EA3i (scaffolding) \u0111\u1EC3 h\u1ECDc sinh hi\u1EC3u c\xE1ch t\u1EF1 l\xE0m.
 - S\u1ED5 Tay L\u1ED7i Sai: Ph\xE2n t\xEDch nguy\xEAn nh\xE2n sai, t\u1EF1 t\u1EA1o 1 c\xE2u h\u1ECFi bi\u1EBFn th\u1EC3 \u0111\u1EC3 ph\u1EE5c th\xF9.
 - Ti\u1EBFng Anh: B\u1ED5 sung "Paraphrase & Upgrade" (c\u1EA5u tr\xFAc vi\u1EBFt l\u1EA1i c\xE2u, collocations x\u1ECBn).`;
+    const requestParts = [];
+    if (message) {
+      requestParts.push(message);
+    } else {
+      requestParts.push("H\xE3y gi\u1EA3i v\xE0 h\u01B0\u1EDBng d\u1EABn chi ti\u1EBFt t\xE0i li\u1EC7u/b\xE0i t\u1EADp \u0111\xEDnh k\xE8m gi\xFAp t\u1EDB.");
+    }
+    if (file) {
+      if (file.type === "image" || file.type === "pdf") {
+        const base64Data = file.data.split(",")[1];
+        const mimeType = file.data.split(";")[0].split(":")[1];
+        requestParts.push({
+          inlineData: {
+            data: base64Data,
+            mimeType
+          }
+        });
+      } else if (file.type === "docx") {
+        const base64Data = file.data.split(",")[1];
+        const buffer = Buffer.from(base64Data, "base64");
+        const result = await import_mammoth.default.extractRawText({ buffer });
+        requestParts.push("N\u1ED9i dung t\xE0i li\u1EC7u \u0111\xEDnh k\xE8m (\u0111\xE3 tr\xEDch xu\u1EA5t v\u0103n b\u1EA3n):\n\n" + result.value);
+      }
+    }
+    const generateEducationalImageTool = {
+      functionDeclarations: [
+        {
+          name: "generateEducationalImage",
+          description: "T\u1EA1o m\u1ED9t b\u1EE9c \u1EA3nh minh h\u1ECDa chuy\xEAn nghi\u1EC7p ho\u1EB7c h\xECnh v\u1EBD li\xEAn quan \u0111\u1EBFn b\xE0i h\u1ECDc, khoa h\u1ECDc, th\u1EF1c t\u1EBF \u0111\u1EDDi s\u1ED1ng m\xE0 h\u1ECDc sinh y\xEAu c\u1EA7u.",
+          parameters: {
+            type: import_genai.Type.OBJECT,
+            properties: {
+              prompt: {
+                type: import_genai.Type.STRING,
+                description: "M\xF4 t\u1EA3 chi ti\u1EBFt b\u1EB1ng ti\u1EBFng Anh c\u1EE7a b\u1EE9c \u1EA3nh c\u1EA7n t\u1EA1o. C\xF3 th\u1EC3 th\xEAm c\xE1c t\u1EEB kh\xF3a nh\u01B0 'photorealistic', 'educational diagram', 'high quality'."
+              }
+            },
+            required: ["prompt"]
+          }
+        }
+      ]
+    };
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: message,
+      model: "gemini-3.8-flash",
+      contents: requestParts,
       config: {
         systemInstruction,
-        temperature: 0.7
+        temperature: 0.7,
+        tools: [generateEducationalImageTool]
       }
     });
-    res.json({ text: response.text });
+    let finalResponseText = response.text || "";
+    if (response.functionCalls && response.functionCalls.length > 0) {
+      const call = response.functionCalls.find((c) => c.name === "generateEducationalImage");
+      if (call) {
+        try {
+          const imgPrompt = call.args.prompt;
+          const imgResponse = await ai.models.generateContent({
+            model: "gemini-3.1-flash-image",
+            contents: imgPrompt,
+            config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
+          });
+          let base64 = "";
+          for (const part of imgResponse.candidates[0].content.parts) {
+            if (part.inlineData) {
+              base64 = part.inlineData.data;
+              break;
+            }
+          }
+          if (base64) {
+            finalResponseText = "T\u1EDB \u0111\xE3 t\u1EA1o xong b\u1EE9c \u1EA3nh minh h\u1ECDa cho c\u1EADu r\u1ED3i \u0111\xE2y! \u{1F3A8}\n\n![\u1EA2nh minh h\u1ECDa](data:image/png;base64," + base64 + ")\n\n" + finalResponseText;
+          }
+        } catch (imgError) {
+          console.error("L\u1ED7i khi t\u1EA1o \u1EA3nh:", imgError);
+          finalResponseText = "R\u1EA5t ti\u1EBFc, \u0111\xE3 c\xF3 s\u1EF1 c\u1ED1 khi t\u1EA1o \u1EA3nh minh h\u1ECDa cho c\u1EADu. C\u1EADu th\u1EED l\u1EA1i sau nh\xE9!\n\n" + finalResponseText;
+        }
+      }
+    }
+    res.json({ text: finalResponseText });
   } catch (error) {
     console.error("Chat API Error:", error);
     const errorMessage = error?.message || "";

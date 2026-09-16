@@ -9,13 +9,19 @@ import { ResultView } from './components/ResultView';
 import { HistoryModal } from './components/HistoryModal';
 import { FormulaChat } from './components/FormulaChat';
 import { PWAInstallButton } from './components/PWAInstallButton';
+import { WorksheetGenerator } from './components/WorksheetGenerator';
+import { VideoGenerator } from './components/VideoGenerator';
+import { TTSPlayer } from './components/TTSPlayer';
+import { PhotoIDMaker } from './components/PhotoIDMaker';
+import { Timetable } from './components/Timetable';
+import { ClassGames } from './components/ClassGames';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
-import { History, Calculator, Sparkles, BookOpen, Menu, X } from 'lucide-react';
+import { History, Calculator, Sparkles, BookOpen, Menu, X, FileText, Video, Mic, Image as ImageIcon, Calendar, Gamepad2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics'>('edubot');
+  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics' | 'worksheets' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('edubot');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [intervals, setIntervals] = useState<Interval[]>([
@@ -142,6 +148,96 @@ export default function App() {
                 Toán học Lớp 11 & 12
               </span>
             </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('worksheets');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'worksheets'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <FileText className={`w-5 h-5 ${activeTab === 'worksheets' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Tạo Phiếu học tập</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('video');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'video'
+                  ? 'bg-rose-50 border-rose-200 text-rose-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <Video className={`w-5 h-5 ${activeTab === 'video' ? 'text-rose-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Tạo Bài giảng Video</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('tts');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'tts'
+                  ? 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <Mic className={`w-5 h-5 ${activeTab === 'tts' ? 'text-amber-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Đọc văn bản (TTS)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('photos');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'photos'
+                  ? 'bg-cyan-50 border-cyan-200 text-cyan-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <ImageIcon className={`w-5 h-5 ${activeTab === 'photos' ? 'text-cyan-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Tạo Ảnh thẻ 3x4, 4x6</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('timetable');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'timetable'
+                  ? 'bg-violet-50 border-violet-200 text-violet-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <Calendar className={`w-5 h-5 ${activeTab === 'timetable' ? 'text-violet-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Thời khóa biểu</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('games');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'games'
+                  ? 'bg-fuchsia-50 border-fuchsia-200 text-fuchsia-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <Gamepad2 className={`w-5 h-5 ${activeTab === 'games' ? 'text-fuchsia-600' : 'text-slate-400'}`} />
+              <span className="text-left text-base">Trò chơi Lớp học</span>
+            </button>
           </nav>
           
           <div className="p-4 border-t border-slate-100 bg-slate-50/50">
@@ -168,7 +264,14 @@ export default function App() {
               <Menu className="w-6 h-6" />
             </button>
             <span className="font-semibold text-slate-800 text-lg">
-              {activeTab === 'edubot' ? 'Tra cứu công thức' : 'Tính toán thống kê'}
+              {activeTab === 'edubot' && 'Tra cứu công thức'}
+              {activeTab === 'statistics' && 'Tính toán thống kê'}
+              {activeTab === 'worksheets' && 'Tạo Phiếu học tập'}
+              {activeTab === 'video' && 'Bài giảng Video'}
+              {activeTab === 'tts' && 'Đọc văn bản (TTS)'}
+              {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
+              {activeTab === 'timetable' && 'Thời khóa biểu'}
+              {activeTab === 'games' && 'Trò chơi Lớp học'}
             </span>
           </div>
           {activeTab === 'statistics' && (
@@ -183,13 +286,15 @@ export default function App() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-hidden relative">
-          {activeTab === 'edubot' ? (
+          {activeTab === 'edubot' && (
             <div className="absolute inset-0 p-4 md:p-6 lg:p-8">
               <div className="max-w-4xl mx-auto h-full">
                 <FormulaChat />
               </div>
             </div>
-          ) : (
+          )}
+          
+          {activeTab === 'statistics' && (
             <div className="absolute inset-0 overflow-y-auto">
               <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
                 <div className="hidden lg:flex items-center justify-between mb-8">
@@ -232,6 +337,37 @@ export default function App() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'worksheets' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <WorksheetGenerator />
+            </div>
+          )}
+          {activeTab === 'video' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <VideoGenerator />
+            </div>
+          )}
+          {activeTab === 'tts' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <TTSPlayer />
+            </div>
+          )}
+          {activeTab === 'photos' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <PhotoIDMaker />
+            </div>
+          )}
+          {activeTab === 'timetable' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <Timetable />
+            </div>
+          )}
+          {activeTab === 'games' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <ClassGames />
             </div>
           )}
         </div>

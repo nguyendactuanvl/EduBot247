@@ -1,15 +1,18 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
+import mammoth from 'mammoth';
 
 const app = express();
-app.use(express.json());
+// Cấu hình giới hạn payload lớn hơn để nhận file đính kèm
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // API Routes
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, userApiKey } = req.body;
+    const { message, userApiKey, file, grade, subject } = req.body;
     
     const apiKey = userApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -19,8 +22,9 @@ app.post('/api/chat', async (req, res) => {
     const ai = new GoogleGenAI({ apiKey });
     
     const systemInstruction = `VAI TRÒ VÀ SỨ MỆNH
-Bạn là "EduBot 247" – Siêu ứng dụng học tập và tra cứu thông minh thế hệ mới dành riêng cho học sinh THCS và THPT Việt Nam (Lớp 6 đến Lớp 12).
-Nhiệm vụ của bạn là biến những công thức khô khan của 5 môn học (Toán, Vật lý, Hóa học, Sinh học, Tiếng Anh) thành cẩm nang sống động, chuẩn xác tuyệt đối theo Chương trình GDPT 2018, đồng thời đóng vai trò là một "Gia sư luyện thi bỏ túi" và bạn đồng hành đầy năng lượng của học sinh Gen Z/Alpha.
+Bạn là "EduBot 247" – Siêu ứng dụng học tập và tra cứu thông minh thế hệ mới dành riêng cho học sinh Việt Nam (Lớp 1 đến Lớp 12).
+Học sinh đang hỏi về môn học: ${subject || 'Chưa xác định'}, Khối lớp: ${grade || 'Chưa xác định'}.
+Nhiệm vụ của bạn là biến những công thức khô khan của các môn học thành cẩm nang sống động, chuẩn xác tuyệt đối theo Chương trình GDPT 2018, đồng thời đóng vai trò là một "Gia sư luyện thi bỏ túi" và bạn đồng hành đầy năng lượng của học sinh.
 
 NGUYÊN TẮC HỌC THUẬT & KỸ THUẬT
 1. Chuẩn GDPT 2018 tuyệt đối:
@@ -32,7 +36,7 @@ NGUYÊN TẮC HỌC THUẬT & KỸ THUẬT
    - Nhiệt huyết, hóm hỉnh, thấu hiểu tâm lý tuổi teen như một đàn anh/đàn chị thủ khoa khóa trên; luôn động viên tích cực.
 
 CẤU TRÚC PHẢN HỒI KHI TRA CỨU CÔNG THỨC / CHỦ ĐỀ
-Mỗi khi học sinh nhập từ khóa, bạn PHẢI xuất phản hồi theo đúng 8 module sau:
+Mỗi khi học sinh nhập từ khóa, bạn PHẢI xuất phản hồi theo đúng 8 module sau (nếu phù hợp với câu hỏi hoặc bài tập đưa ra):
 
 ⚡ 1. CÔNG THỨC SPOTLIGHT (Tâm Điểm)
 Đặt công thức/cấu trúc cốt lõi trong khối nổi bật, ưu tiên LaTeX trực quan.
@@ -59,20 +63,95 @@ Câu thơ vui, khẩu quyết hoặc từ gợi nhớ (mnemonic). Kèm 1 ví d�
 Một câu khích lệ ngắn kèm "Huy hiệu thành tích" vui nhộn.
 
 CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
-- Khi gửi bài tập/ảnh: Nhận diện lỗ hổng, gợi ý sơ đồ 2 bước giải (scaffolding) để học sinh tự làm.
+- Khi gửi bài tập/ảnh: Nhận diện lỗ hổng, giải bài tập và gợi ý sơ đồ 2 bước giải (scaffolding) để học sinh hiểu cách tự làm.
 - Sổ Tay Lỗi Sai: Phân tích nguyên nhân sai, tự tạo 1 câu hỏi biến thể để phục thù.
 - Tiếng Anh: Bổ sung "Paraphrase & Upgrade" (cấu trúc viết lại câu, collocations xịn).`;
 
+    const requestParts: any[] = [];
+    if (message) {
+      requestParts.push(message);
+    } else {
+      requestParts.push("Hãy giải và hướng dẫn chi tiết tài liệu/bài tập đính kèm giúp tớ.");
+    }
+
+    if (file) {
+      if (file.type === 'image' || file.type === 'pdf') {
+        const base64Data = file.data.split(',')[1];
+        const mimeType = file.data.split(';')[0].split(':')[1];
+        requestParts.push({
+          inlineData: {
+            data: base64Data,
+            mimeType: mimeType
+          }
+        });
+      } else if (file.type === 'docx') {
+        const base64Data = file.data.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        const result = await mammoth.extractRawText({ buffer });
+        requestParts.push("Nội dung tài liệu đính kèm (đã trích xuất văn bản):\n\n" + result.value);
+      }
+    }
+
+    const generateEducationalImageTool = {
+      functionDeclarations: [
+        {
+          name: "generateEducationalImage",
+          description: "Tạo một bức ảnh minh họa chuyên nghiệp hoặc hình vẽ liên quan đến bài học, khoa học, thực tế đời sống mà học sinh yêu cầu.",
+          parameters: {
+            type: Type.OBJECT,
+            properties: {
+              prompt: {
+                type: Type.STRING,
+                description: "Mô tả chi tiết bằng tiếng Anh của bức ảnh cần tạo. Có thể thêm các từ khóa như 'photorealistic', 'educational diagram', 'high quality'."
+              }
+            },
+            required: ["prompt"]
+          }
+        }
+      ]
+    };
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
-      contents: message,
+      model: 'gemini-3.8-flash',
+      contents: requestParts,
       config: {
         systemInstruction,
         temperature: 0.7,
+        tools: [generateEducationalImageTool]
       }
     });
 
-    res.json({ text: response.text });
+    let finalResponseText = response.text || "";
+
+    if (response.functionCalls && response.functionCalls.length > 0) {
+       const call = response.functionCalls.find((c: any) => c.name === 'generateEducationalImage');
+       if (call) {
+          try {
+             const imgPrompt = call.args.prompt;
+             const imgResponse = await ai.models.generateContent({
+                model: 'gemini-3.1-flash-image',
+                contents: imgPrompt,
+                config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
+             });
+             
+             let base64 = "";
+             for (const part of imgResponse.candidates[0].content.parts) {
+                if (part.inlineData) {
+                   base64 = part.inlineData.data;
+                   break;
+                }
+             }
+             if (base64) {
+                 finalResponseText = "Tớ đã tạo xong bức ảnh minh họa cho cậu rồi đây! 🎨\n\n![Ảnh minh họa](data:image/png;base64," + base64 + ")\n\n" + finalResponseText;
+             }
+          } catch (imgError) {
+             console.error("Lỗi khi tạo ảnh:", imgError);
+             finalResponseText = "Rất tiếc, đã có sự cố khi tạo ảnh minh họa cho cậu. Cậu thử lại sau nhé!\n\n" + finalResponseText;
+          }
+       }
+    }
+
+    res.json({ text: finalResponseText });
   } catch (error: any) {
     console.error('Chat API Error:', error);
     
