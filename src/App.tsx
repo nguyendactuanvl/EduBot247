@@ -15,13 +15,15 @@ import { TTSPlayer } from './components/TTSPlayer';
 import { PhotoIDMaker } from './components/PhotoIDMaker';
 import { Timetable } from './components/Timetable';
 import { ClassGames } from './components/ClassGames';
+import { MTBT2026NDTPRO } from './components/MTBT2026NDTPRO';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
-import { History, Calculator, Sparkles, BookOpen, Menu, X, FileText, Video, Mic, Image as ImageIcon, Calendar, Gamepad2 } from 'lucide-react';
+import { History, Calculator, Sparkles, BookOpen, Menu, X, FileText, Video, Mic, Image as ImageIcon, Calendar, Gamepad2, Monitor } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics' | 'worksheets' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('edubot');
+  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics' | 'calculator' | 'worksheets' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('edubot');
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [intervals, setIntervals] = useState<Interval[]>([
@@ -151,6 +153,26 @@ export default function App() {
 
             <button
               onClick={() => {
+                setActiveTab('calculator');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'calculator'
+                  ? 'bg-slate-800 border-slate-700 text-white shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Monitor className={`w-5 h-5 ${activeTab === 'calculator' ? 'text-slate-200' : 'text-slate-400'}`} />
+                <span className="text-left text-base">Máy tính MTBT2026</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'calculator' ? 'text-slate-300' : 'text-slate-400'}`}>
+                Siêu máy tính đa năng
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
                 setActiveTab('worksheets');
                 setIsSidebarOpen(false);
               }}
@@ -266,6 +288,7 @@ export default function App() {
             <span className="font-semibold text-slate-800 text-lg">
               {activeTab === 'edubot' && 'Tra cứu công thức'}
               {activeTab === 'statistics' && 'Tính toán thống kê'}
+              {activeTab === 'calculator' && 'Máy tính MTBT2026'}
               {activeTab === 'worksheets' && 'Tạo Phiếu học tập'}
               {activeTab === 'video' && 'Bài giảng Video'}
               {activeTab === 'tts' && 'Đọc văn bản (TTS)'}
@@ -337,6 +360,12 @@ export default function App() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'calculator' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <MTBT2026NDTPRO />
             </div>
           )}
 
