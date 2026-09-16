@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, X, Loader2, Sparkles, Trash2 } from 'lucide-react';
+import { Bot, Send, X, Loader2, Sparkles, Trash2, Key } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -15,6 +15,9 @@ interface FormulaChatProps {
 }
 
 export function FormulaChat() {
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('edubot-api-key') || '');
+  const [showApiKeyModal, setShowApiKeyModal] = useState(!localStorage.getItem('edubot-api-key'));
+  const [tempKey, setTempKey] = useState(apiKey);
   const defaultMessages: Message[] = [
     {
       id: '1',
@@ -79,7 +82,7 @@ export function FormulaChat() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: input, userApiKey: apiKey })
       });
 
       const data = await response.json();
@@ -109,7 +112,7 @@ export function FormulaChat() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="flex flex-col relative h-full bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex justify-between items-center text-white shrink-0">
         <div className="flex items-center space-x-3">
@@ -121,14 +124,24 @@ export function FormulaChat() {
             <p className="text-sm text-indigo-100 font-medium">Gia sư luyện thi bỏ túi</p>
           </div>
         </div>
-        <button 
-          onClick={handleClearHistory}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
-          title="Xóa lịch sử trò chuyện"
-        >
-          <Trash2 className="w-5 h-5" />
-          <span className="hidden sm:inline text-sm font-medium">Xóa lịch sử</span>
-        </button>
+        <div className="flex items-center space-x-1 sm:space-x-2">
+          <button 
+            onClick={() => setShowApiKeyModal(true)}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+            title="Cài đặt API Key"
+          >
+            <Key className="w-5 h-5" />
+            <span className="hidden sm:inline text-sm font-medium">API Key</span>
+          </button>
+          <button 
+            onClick={handleClearHistory}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
+            title="Xóa lịch sử trò chuyện"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span className="hidden sm:inline text-sm font-medium">Xóa lịch sử</span>
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -204,6 +217,65 @@ export function FormulaChat() {
           </button>
         </div>
       </div>
+
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-4 bg-indigo-50 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-700">
+                <Key className="w-5 h-5" />
+                <h3 className="font-semibold">Cài đặt API Key Gemini</h3>
+              </div>
+              {apiKey && (
+                <button 
+                  onClick={() => setShowApiKeyModal(false)}
+                  className="p-1 text-indigo-400 hover:text-indigo-700 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-slate-600">
+                Để sử dụng Gia sư AI mượt mà, không bị giới hạn (quá tải), cậu hãy nhập <strong>Gemini API Key</strong> của mình vào đây nhé. Key này chỉ lưu trên máy cậu, rất an toàn!
+              </p>
+              <div>
+                <input 
+                  type="password" 
+                  value={tempKey}
+                  onChange={(e) => setTempKey(e.target.value)}
+                  placeholder="AIzaSy..." 
+                  className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                />
+              </div>
+              <div className="text-xs text-slate-500">
+                Chưa có Key? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-medium hover:underline">Lấy miễn phí tại đây</a>.
+              </div>
+              <div className="pt-2 flex gap-3">
+                <button 
+                  onClick={() => {
+                    setApiKey(tempKey);
+                    localStorage.setItem('edubot-api-key', tempKey);
+                    setShowApiKeyModal(false);
+                  }}
+                  className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+                >
+                  Lưu API Key
+                </button>
+                {!apiKey && (
+                   <button 
+                   onClick={() => setShowApiKeyModal(false)}
+                   className="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                 >
+                   Dùng thử mặc định
+                 </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,11 +9,11 @@ app.use(express.json());
 // API Routes
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, userApiKey } = req.body;
     
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = userApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY is not configured.' });
+      return res.status(500).json({ error: 'Chưa có API Key. Cậu hãy nhập API Key của mình để sử dụng nhé.' });
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -83,12 +83,18 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
       });
     }
 
+    if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
+      return res.status(429).json({ 
+        error: 'Ôi, có vẻ như "Gia sư" đang bị quá tải do hết lượt tra cứu miễn phí từ Google Gemini (API Quota Exceeded). Cậu hãy thử lại sau ít phút hoặc nâng cấp gói API Key nhé! 😥' 
+      });
+    }
+
     res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
   }
 });
 
 async function startServer() {
-  const PORT = process.env.PORT || 3000;
+  const PORT = parseInt(process.env.PORT || '3000', 10);
 
   // Vite integration
   if (process.env.NODE_ENV !== 'production') {

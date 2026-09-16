@@ -40,10 +40,10 @@ var app = (0, import_express.default)();
 app.use(import_express.default.json());
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const { message, userApiKey } = req.body;
+    const apiKey = userApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY is not configured." });
+      return res.status(500).json({ error: "Ch\u01B0a c\xF3 API Key. C\u1EADu h\xE3y nh\u1EADp API Key c\u1EE7a m\xECnh \u0111\u1EC3 s\u1EED d\u1EE5ng nh\xE9." });
     }
     const ai = new import_genai.GoogleGenAI({ apiKey });
     const systemInstruction = `VAI TR\xD2 V\xC0 S\u1EE8 M\u1EC6NH
@@ -107,11 +107,16 @@ C\xC1C K\u1ECACH B\u1EA2N T\u01AF\u01A0NG T\xC1C \u0110\u1EB6C BI\u1EC6T
         error: "L\u1ED7i API Key: API Key c\u1EE7a Gemini kh\xF4ng h\u1EE3p l\u1EC7 ho\u1EB7c ch\u01B0a \u0111\u01B0\u1EE3c thi\u1EBFt l\u1EADp. B\u1EA1n vui l\xF2ng v\xE0o m\u1EE5c Settings (ho\u1EB7c Secrets) c\u1EE7a n\u1EC1n t\u1EA3ng \u0111\u1EC3 c\u1EA5u h\xECnh l\u1EA1i GEMINI_API_KEY nh\xE9!"
       });
     }
+    if (errorMessage.includes("429") || errorMessage.includes("quota") || errorMessage.includes("RESOURCE_EXHAUSTED")) {
+      return res.status(429).json({
+        error: '\xD4i, c\xF3 v\u1EBB nh\u01B0 "Gia s\u01B0" \u0111ang b\u1ECB qu\xE1 t\u1EA3i do h\u1EBFt l\u01B0\u1EE3t tra c\u1EE9u mi\u1EC5n ph\xED t\u1EEB Google Gemini (API Quota Exceeded). C\u1EADu h\xE3y th\u1EED l\u1EA1i sau \xEDt ph\xFAt ho\u1EB7c n\xE2ng c\u1EA5p g\xF3i API Key nh\xE9! \u{1F625}'
+      });
+    }
     res.status(500).json({ error: "\u0110\xE3 c\xF3 l\u1ED7i x\u1EA3y ra t\u1EEB m\xE1y ch\u1EE7 khi g\u1ECDi AI. C\u1EADu th\u1EED l\u1EA1i sau nh\xE9!" });
   }
 });
 async function startServer() {
-  const PORT = process.env.PORT || 3e3;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
   if (process.env.NODE_ENV !== "production") {
     const vite = await (0, import_vite.createServer)({
       server: { middlewareMode: true },

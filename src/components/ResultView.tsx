@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { CalculationResult } from '../types';
 import { StepByStep } from './StepByStep';
-import { Printer, Presentation } from 'lucide-react';
+import { Printer, Presentation, Download } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { SlideshowModal } from './SlideshowModal';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface ResultViewProps {
   result: CalculationResult;
@@ -13,24 +15,55 @@ export function ResultView({ result }: ResultViewProps) {
   const round = (num: number) => Math.round(num * 100) / 100;
   const contentRef = useRef<HTMLDivElement>(null);
   const [showSlideshow, setShowSlideshow] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const reactToPrintFn = useReactToPrint({
     contentRef: contentRef,
     documentTitle: 'Loi-Giai-Toan-Thong-Ke-12',
   });
 
+  const exportToPDF = async () => {
+    if (!contentRef.current) return;
+    setIsExporting(true);
+    try {
+      const element = contentRef.current;
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('ket-qua-thong-ke.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <h2 className="text-xl font-semibold text-slate-800">Kết quả tính toán</h2>
-          <div className="flex space-x-3 mt-4 sm:mt-0">
+          <div className="flex flex-wrap gap-3 mt-4 sm:mt-0">
             <button 
               onClick={() => reactToPrintFn()}
               className="flex items-center space-x-2 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors font-medium text-sm"
+              title="In kết quả"
             >
               <Printer className="w-4 h-4" />
-              <span>Xuất PDF</span>
+              <span className="hidden sm:inline">In kết quả</span>
+            </button>
+            <button 
+              onClick={exportToPDF}
+              disabled={isExporting}
+              className="flex items-center space-x-2 px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg transition-colors font-medium text-sm border border-green-200 disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              <span>{isExporting ? 'Đang tạo PDF...' : 'Tải PDF'}</span>
             </button>
             <button 
               onClick={() => setShowSlideshow(true)}
