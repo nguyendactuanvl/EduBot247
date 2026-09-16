@@ -38,7 +38,12 @@ export function FormulaChat() {
     const saved = localStorage.getItem('chat-history');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Filter out ugly raw API errors from history
+        const cleaned = parsed.filter((m: Message) => 
+          !(m.role === 'assistant' && (m.content.includes('type.googleapis.com') || m.content.includes('Quota exceeded') || m.content.includes('RESOURCE_EXHAUSTED') || m.content.includes('API_KEY_INVALID')))
+        );
+        return cleaned.length > 0 ? cleaned : defaultMessages;
       } catch (e) {
         console.error('Failed to parse chat history', e);
       }
@@ -143,10 +148,24 @@ export function FormulaChat() {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error: any) {
       console.error(error);
+      
+      let errorText = 'Ối, có lỗi gì đó rồi! Cậu thử lại sau một chút nhé. 😥';
+      const rawError = error?.message || '';
+      
+      if (rawError.includes('Quota exceeded') || rawError.includes('429') || rawError.includes('RESOURCE_EXHAUSTED')) {
+         errorText = 'Hệ thống AI đang bị quá tải hoặc API Key của cậu đã hết hạn ngạch (Quota Exceeded). Cậu hãy kiểm tra lại API Key hoặc đợi một chút rồi thử lại nhé! 🚦';
+      } else if (rawError.includes('API key not valid') || rawError.includes('API_KEY_INVALID')) {
+         errorText = 'API Key của cậu không hợp lệ hoặc đã bị khóa. Hãy nhấn vào biểu tượng 🔑 phía trên để cập nhật lại nhé!';
+      } else if (rawError.length > 150) {
+         errorText = 'Có lỗi xảy ra từ máy chủ AI (Lỗi hệ thống). Cậu vui lòng thử lại sau nhé! 🛠️';
+      } else if (rawError) {
+         errorText = `Lỗi: ${rawError}`;
+      }
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: error.message || 'Ối, có lỗi gì đó rồi! Cậu thử lại sau một chút nhé. 😥'
+        content: errorText
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
