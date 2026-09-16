@@ -16,13 +16,14 @@ import { PhotoIDMaker } from './components/PhotoIDMaker';
 import { Timetable } from './components/Timetable';
 import { ClassGames } from './components/ClassGames';
 import { MTBT2026NDTPRO } from './components/MTBT2026NDTPRO';
+import { VirtualLabs } from './components/VirtualLabs';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
-import { History, Calculator, Sparkles, BookOpen, Menu, X, FileText, Video, Mic, Image as ImageIcon, Calendar, Gamepad2, Monitor } from 'lucide-react';
+import { History, Calculator, Sparkles, BookOpen, Menu, X, FileText, Video, Mic, Image as ImageIcon, Calendar, Gamepad2, Monitor, Beaker } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics' | 'calculator' | 'worksheets' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('edubot');
+  const [activeTab, setActiveTab] = useState<'edubot' | 'statistics' | 'calculator' | 'worksheets' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'virtuallabs'>('edubot');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -170,6 +171,26 @@ export default function App() {
                 Siêu máy tính đa năng
               </span>
             </button>
+            
+            <button
+              onClick={() => {
+                setActiveTab('virtuallabs');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'virtuallabs'
+                  ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm'
+                  : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-200'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Beaker className={`w-5 h-5 ${activeTab === 'virtuallabs' ? 'text-blue-600' : 'text-slate-400'}`} />
+                <span className="text-left text-base">Thí nghiệm Ảo</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'virtuallabs' ? 'text-blue-500' : 'text-slate-400'}`}>
+                Mô phỏng Hóa học & Vật lý
+              </span>
+            </button>
 
             <button
               onClick={() => {
@@ -295,6 +316,7 @@ export default function App() {
               {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
               {activeTab === 'timetable' && 'Thời khóa biểu'}
               {activeTab === 'games' && 'Trò chơi Lớp học'}
+              {activeTab === 'virtuallabs' && 'Thí nghiệm Ảo'}
             </span>
           </div>
           {activeTab === 'statistics' && (
@@ -366,6 +388,12 @@ export default function App() {
           {activeTab === 'calculator' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
               <MTBT2026NDTPRO />
+            </div>
+          )}
+          
+          {activeTab === 'virtuallabs' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
+              <VirtualLabs />
             </div>
           )}
 
