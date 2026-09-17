@@ -71,6 +71,12 @@ export function PhotoIDMaker() {
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
   };
 
+  React.useEffect(() => {
+    if (imageSrc) {
+      processImage();
+    }
+  }, [size, bgColor, imageSrc]);
+
   return (
     <div className="max-w-4xl mx-auto mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
       <div className="flex items-center gap-3 mb-6">
@@ -109,7 +115,7 @@ export function PhotoIDMaker() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Phông nền</label>
-              <div className="flex gap-3">
+              <div className="flex gap-3 mb-2">
                 <button 
                   onClick={() => setBgColor('blue')}
                   className={`flex-1 py-2 rounded-xl font-medium border flex items-center justify-center gap-2 ${bgColor === 'blue' ? 'bg-slate-50 border-cyan-500 text-slate-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
@@ -125,16 +131,20 @@ export function PhotoIDMaker() {
                   Trắng
                 </button>
               </div>
+              <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100">
+                * Lưu ý: Để đổi được màu phông nền, vui lòng tải lên ảnh đã được tách nền (định dạng PNG trong suốt).
+              </p>
             </div>
           </div>
           
+          {/* Nút Tạo ảnh thẻ đã có useEffect tự động cập nhật, có thể ẩn bớt hoặc đổi tên thành Cập nhật thủ công nếu cần */}
           {imageSrc && (
             <button
               onClick={processImage}
               className="w-full flex items-center justify-center gap-2 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-medium transition-colors"
             >
               <Crop className="w-5 h-5" />
-              Tạo ảnh thẻ
+              Chỉnh sửa & Làm mới ảnh
             </button>
           )}
         </div>
