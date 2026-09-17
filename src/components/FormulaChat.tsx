@@ -156,6 +156,8 @@ export function FormulaChat() {
          errorText = 'Hệ thống AI đang bị quá tải hoặc API Key của cậu đã hết hạn ngạch (Quota Exceeded). Cậu hãy kiểm tra lại API Key hoặc đợi một chút rồi thử lại nhé! 🚦';
       } else if (rawError.includes('API key not valid') || rawError.includes('API_KEY_INVALID')) {
          errorText = 'API Key của cậu không hợp lệ hoặc đã bị khóa. Hãy nhấn vào biểu tượng 🔑 phía trên để cập nhật lại nhé!';
+      } else if (rawError.includes('503') || rawError.includes('high demand') || rawError.includes('UNAVAILABLE')) {
+         errorText = 'Máy chủ AI của Google đang bị quá tải do có quá nhiều người sử dụng cùng lúc (Lỗi 503). Sự cố này thường chỉ là tạm thời, cậu vui lòng chờ một lát rồi thử lại nhé! 🚦';
       } else if (rawError.length > 150) {
          errorText = 'Có lỗi xảy ra từ máy chủ AI (Lỗi hệ thống). Cậu vui lòng thử lại sau nhé! 🛠️';
       } else if (rawError) {
