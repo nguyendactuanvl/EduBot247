@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Image as ImageIcon, Upload, Download, Crop } from 'lucide-react';
+import { Image as ImageIcon, Upload, Download, Crop, Scissors, Loader2 } from 'lucide-react';
+import { removeBackground } from '@imgly/background-removal';
 
 export function PhotoIDMaker() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [size, setSize] = useState<'3x4' | '4x6'>('3x4');
   const [bgColor, setBgColor] = useState<'blue' | 'white'>('blue');
+  const [isRemovingBg, setIsRemovingBg] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -16,6 +18,21 @@ export function PhotoIDMaker() {
         setImageSrc(event.target?.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveBackground = async () => {
+    if (!imageSrc) return;
+    setIsRemovingBg(true);
+    try {
+      const imageBlob = await removeBackground(imageSrc);
+      const url = URL.createObjectURL(imageBlob);
+      setImageSrc(url);
+    } catch (error) {
+      console.error("Lỗi tách nền:", error);
+      alert("Đã xảy ra lỗi khi tách nền. Vui lòng thử lại.");
+    } finally {
+      setIsRemovingBg(false);
     }
   };
 
@@ -131,21 +148,35 @@ export function PhotoIDMaker() {
                   Trắng
                 </button>
               </div>
-              <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100">
-                * Lưu ý: Để đổi được màu phông nền, vui lòng tải lên ảnh đã được tách nền (định dạng PNG trong suốt).
+              <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100 mt-2">
+                * Lưu ý: Để đổi màu nền đẹp nhất, bạn cần tách nền ảnh trước. Hãy dùng nút "Tách nền tự động bằng AI" bên dưới nếu ảnh chưa được tách nền.
               </p>
             </div>
           </div>
           
-          {/* Nút Tạo ảnh thẻ đã có useEffect tự động cập nhật, có thể ẩn bớt hoặc đổi tên thành Cập nhật thủ công nếu cần */}
           {imageSrc && (
-            <button
-              onClick={processImage}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-medium transition-colors"
-            >
-              <Crop className="w-5 h-5" />
-              Chỉnh sửa & Làm mới ảnh
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleRemoveBackground}
+                disabled={isRemovingBg}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors"
+              >
+                {isRemovingBg ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Scissors className="w-5 h-5" />
+                )}
+                {isRemovingBg ? 'Đang tách nền AI...' : 'Tách nền tự động bằng AI'}
+              </button>
+
+              <button
+                onClick={processImage}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-medium transition-colors"
+              >
+                <Crop className="w-5 h-5" />
+                Cập nhật màu nền & Kích thước
+              </button>
+            </div>
           )}
         </div>
 

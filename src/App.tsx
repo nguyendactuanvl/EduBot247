@@ -8,7 +8,6 @@ import { DataInput } from './components/DataInput';
 import { ResultView } from './components/ResultView';
 import { HistoryModal } from './components/HistoryModal';
 import { FormulaChat } from './components/FormulaChat';
-import { PWAInstallButton } from './components/PWAInstallButton';
 import { WorksheetGenerator } from './components/WorksheetGenerator';
 import { VideoGenerator } from './components/VideoGenerator';
 import { TTSPlayer } from './components/TTSPlayer';
@@ -290,7 +289,6 @@ export default function App() {
                 SĐT: <span className="text-blue-600">083 560 6162</span>
               </p>
             </div>
-            <PWAInstallButton />
           </div>
         </div>
       </aside>
