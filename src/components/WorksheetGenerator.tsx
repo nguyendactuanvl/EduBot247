@@ -70,9 +70,21 @@ Yêu cầu:
       });
       
       const data = await response.json();
-      setResult(data.text);
-    } catch (e) {
-      setResult('Có lỗi xảy ra. Vui lòng thử lại sau.');
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'API error');
+      }
+      
+      setResult(data.text || 'Không có kết quả trả về.');
+    } catch (e: any) {
+      console.error(e);
+      if (e.message?.includes('Quota') || e.message?.includes('429') || e.message?.includes('RESOURCE_EXHAUSTED')) {
+        setResult('Hệ thống AI đang bị quá tải hoặc API Key của bạn đã hết hạn ngạch (Quota Exceeded). Vui lòng kiểm tra lại API Key hoặc đợi một chút rồi thử lại!');
+      } else if (e.message?.includes('API_KEY_INVALID')) {
+        setResult('API Key của bạn không hợp lệ hoặc đã bị khóa. Vui lòng cập nhật lại API Key!');
+      } else {
+        setResult(`Có lỗi xảy ra: ${e.message || 'Lỗi mạng hoặc máy chủ'}. Vui lòng thử lại sau.`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,14 +115,35 @@ ${result.substring(0, 3000)}`;
       });
       
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'API Error');
+      }
+
+      if (!data.text) {
+        throw new Error('No text returned from API');
+      }
+
       const match = data.text.match(/\[[\s\S]*\]/);
       if (match) {
-        setQuizData(JSON.parse(match[0]));
+        try {
+          // Attempt to parse the JSON array
+          const parsed = JSON.parse(match[0]);
+          setQuizData(parsed);
+        } catch (parseError) {
+          console.error("Lỗi parse JSON:", parseError, "Raw string:", match[0]);
+          alert("Lỗi định dạng đề thi từ AI. Vui lòng thử lại!");
+        }
       } else {
-        alert("Không thể tạo đề online lúc này, vui lòng thử lại!");
+        alert("Không thể tạo đề online lúc này, AI không trả về đúng định dạng. Vui lòng thử lại!");
       }
-    } catch (e) {
-      alert("Lỗi kết nối khi tạo đề online.");
+    } catch (e: any) {
+      console.error(e);
+      if (e.message?.includes('Quota') || e.message?.includes('429')) {
+        alert("Hệ thống AI đang quá tải hoặc hết hạn ngạch. Vui lòng thử lại sau!");
+      } else {
+        alert("Lỗi kết nối khi tạo đề online. Vui lòng kiểm tra API Key hoặc mạng.");
+      }
     } finally {
       setIsGeneratingQuiz(false);
     }
