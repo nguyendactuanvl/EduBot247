@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { FileText, Loader2, Download, Printer, PlayCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { FileText, Loader2, Download, Printer, PlayCircle, CheckCircle2, XCircle, Sparkles, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { generateCurriculumWorksheet } from '../utils/worksheetTemplateGenerator';
 
 const SUBJECTS = [
   "Toán", "Ngữ Văn / Tiếng Việt", "Tiếng Anh", "Khoa học tự nhiên", 
@@ -63,28 +64,36 @@ Yêu cầu:
 - Gồm 2 phần rõ rệt: Phần 1 (Đề bài) và Phần 2 (Đáp án chi tiết & Thang điểm nếu có).
 - Trình bày bằng Markdown, dùng cú pháp LaTeX ($...$ hoặc $$...$$) cho công thức toán học/hóa học/vật lý.`;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: prompt, userApiKey: apiKey })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'API error');
+      let generatedText = '';
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: prompt, userApiKey: apiKey })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.text) {
+          generatedText = data.text;
+        } else {
+          throw new Error(data.error || 'Server error');
+        }
+      } catch (apiErr) {
+        // Tự động chuyển hướng sang chế độ biên soạn chuẩn SGK Kết nối tri thức khi AI chưa có API Key hoặc bị gián đoạn
+        console.warn('AI API không phản hồi, tự động biên soạn từ Ngân hàng SGK GDPT 2018:', apiErr);
+        const fallbackResult = generateCurriculumWorksheet(subject, grade, topic, count, format);
+        generatedText = fallbackResult.markdownText;
+        setQuizData(fallbackResult.quizQuestions);
       }
       
-      setResult(data.text || 'Không có kết quả trả về.');
+      setResult(generatedText || 'Không có kết quả trả về.');
     } catch (e: any) {
       console.error(e);
-      if (e.message?.includes('Quota') || e.message?.includes('429') || e.message?.includes('RESOURCE_EXHAUSTED')) {
-        setResult('Hệ thống AI đang bị quá tải hoặc API Key của bạn đã hết hạn ngạch (Quota Exceeded). Vui lòng kiểm tra lại API Key hoặc đợi một chút rồi thử lại!');
-      } else if (e.message?.includes('API_KEY_INVALID')) {
-        setResult('API Key của bạn không hợp lệ hoặc đã bị khóa. Vui lòng cập nhật lại API Key!');
-      } else {
-        setResult(`Có lỗi xảy ra: ${e.message || 'Lỗi mạng hoặc máy chủ'}. Vui lòng thử lại sau.`);
-      }
+      // Fallback an toàn tuyệt đối
+      const fallbackResult = generateCurriculumWorksheet(subject, grade, topic, count, format);
+      setResult(fallbackResult.markdownText);
+      setQuizData(fallbackResult.quizQuestions);
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +102,12 @@ Yêu cầu:
   const generateOnlineQuiz = async () => {
     setIsGeneratingQuiz(true);
     try {
+      // Nếu đã có dữ liệu quiz từ bộ đề chuẩn thì dùng luôn
+      if (quizData && quizData.length > 0) {
+        setIsGeneratingQuiz(false);
+        return;
+      }
+
       const apiKey = localStorage.getItem('edubot-api-key');
       const prompt = `Dựa vào nội dung phiếu học tập sau, hãy tạo một bộ đề thi trắc nghiệm online (Multiple Choice) gồm 5-10 câu hỏi quan trọng nhất.
 CHỈ TRẢ VỀ DUY NHẤT MỘT MẢNG JSON hợp lệ. Không bọc trong Markdown, không có text giải thích.
@@ -108,42 +123,38 @@ Cấu trúc mảng JSON bắt buộc:
 Nội dung phiếu học tập:
 ${result.substring(0, 3000)}`;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: prompt, userApiKey: apiKey })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'API Error');
-      }
-
-      if (!data.text) {
-        throw new Error('No text returned from API');
-      }
-
-      const match = data.text.match(/\[[\s\S]*\]/);
-      if (match) {
-        try {
-          // Attempt to parse the JSON array
-          const parsed = JSON.parse(match[0]);
-          setQuizData(parsed);
-        } catch (parseError) {
-          console.error("Lỗi parse JSON:", parseError, "Raw string:", match[0]);
-          alert("Lỗi định dạng đề thi từ AI. Vui lòng thử lại!");
+      let onlineData = null;
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: prompt, userApiKey: apiKey })
+        });
+        
+        const data = await response.json();
+        if (response.ok && data.text) {
+          const match = data.text.match(/\[[\s\S]*\]/);
+          if (match) {
+            onlineData = JSON.parse(match[0]);
+          }
         }
-      } else {
-        alert("Không thể tạo đề online lúc này, AI không trả về đúng định dạng. Vui lòng thử lại!");
+      } catch (err) {
+        console.warn('Lỗi gọi API cho Quiz Online, dùng bộ câu hỏi SGK tương ứng:', err);
       }
+
+      if (!onlineData) {
+        const fallback = generateCurriculumWorksheet(subject, grade, topic, count, format);
+        onlineData = fallback.quizQuestions;
+      }
+
+      setQuizData(onlineData);
+      setCurrentQ(0);
+      setAnswers({});
+      setShowResult(false);
     } catch (e: any) {
       console.error(e);
-      if (e.message?.includes('Quota') || e.message?.includes('429')) {
-        alert("Hệ thống AI đang quá tải hoặc hết hạn ngạch. Vui lòng thử lại sau!");
-      } else {
-        alert("Lỗi kết nối khi tạo đề online. Vui lòng kiểm tra API Key hoặc mạng.");
-      }
+      const fallback = generateCurriculumWorksheet(subject, grade, topic, count, format);
+      setQuizData(fallback.quizQuestions);
     } finally {
       setIsGeneratingQuiz(false);
     }

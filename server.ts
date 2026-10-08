@@ -156,19 +156,19 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
     console.error('Chat API Error:', error);
     
     const errorMessage = error?.message || '';
-    if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID')) {
+    if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API_KEY')) {
       return res.status(400).json({ 
-        error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng vào mục Settings (hoặc Secrets) của nền tảng để cấu hình lại GEMINI_API_KEY nhé!' 
+        error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng kiểm tra lại GEMINI_API_KEY hoặc nhập API Key cá nhân trong cài đặt nhé!' 
       });
     }
 
     if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
       return res.status(429).json({ 
-        error: 'Ôi, có vẻ như "Gia sư" đang bị quá tải do hết lượt tra cứu miễn phí từ Google Gemini (API Quota Exceeded). Cậu hãy thử lại sau ít phút hoặc nâng cấp gói API Key nhé! 😥' 
+        error: 'Ôi, có vẻ như "Gia sư" đang bị quá tải do hết lượt tra cứu miễn phí từ Google Gemini (API Quota Exceeded). Cậu hãy thử lại sau ít phút hoặc nhập API Key cá nhân nhé! 😥' 
       });
     }
 
-    res.status(500).json({ error: 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
+    res.status(500).json({ error: errorMessage || 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
   }
 });
 
