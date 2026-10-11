@@ -1,6 +1,6 @@
 {
-  "name": "Giải Toán Thống Kê lớp 11 và 12 - Thầy Nguyễn Đắc Tuấn - 0835606162",
-  "description": "Ứng dụng giải toán thống kê lớp 11 và 12 (kết nối tri thức) cho mẫu số liệu ghép nhóm.",
+  "name": "EDUBOT247",
+  "description": "Ứng dụng học tập thông minh",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

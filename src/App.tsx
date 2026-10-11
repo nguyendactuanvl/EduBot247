@@ -163,28 +163,7 @@ export default function App() {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-            {/* 1. Luyện tập SGK Kết nối & Luyện thi */}
-            <button
-              onClick={() => {
-                setActiveTab('exam');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'exam'
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Trophy className={`w-5 h-5 ${activeTab === 'exam' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
-                <span className="text-left text-base">Luyện tập SGK & Thi thử</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'exam' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                Tiểu học, THCS, THPT (KNTT)
-              </span>
-            </button>
-
-            {/* 2. Công cụ học tập Đa năng */}
+            {/* 1. Công cụ học tập Đa năng */}
             <button
               onClick={() => {
                 setActiveTab('studytoolkit');
@@ -284,7 +263,7 @@ export default function App() {
               </span>
             </button>
 
-            {/* 7. Tra cứu công thức (chuyển xuống trước Tạo Bài giảng Video theo yêu cầu) */}
+            {/* Tra cứu công thức */}
             <button
               onClick={() => {
                 setActiveTab('edubot');
@@ -302,6 +281,27 @@ export default function App() {
               </div>
               <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'edubot' ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
                 Toán - Lý - Hóa - Sinh - Anh
+              </span>
+            </button>
+
+            {/* Luyện tập SGK & Thi thử */}
+            <button
+              onClick={() => {
+                setActiveTab('exam');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'exam'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Trophy className={`w-5 h-5 ${activeTab === 'exam' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                <span className="text-left text-base">Luyện tập SGK & Thi thử</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'exam' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Tiểu học, THCS, THPT (KNTT)
               </span>
             </button>
 
@@ -386,7 +386,7 @@ export default function App() {
             </button>
           </nav>
           
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-2">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
             <button
               onClick={toggleDarkMode}
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition-colors"
@@ -399,12 +399,6 @@ export default function App() {
                 {isDarkMode ? 'Bật' : 'Tắt'}
               </span>
             </button>
-            <div className="bg-white dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-slate-700 shadow-sm">
-              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium text-center">
-                GV: <span className="font-bold text-slate-800 dark:text-slate-200">Thầy Nguyễn Đắc Tuấn</span><br/>
-                SĐT: <span className="text-blue-600 dark:text-blue-400 font-semibold">083 560 6162</span>
-              </p>
-            </div>
           </div>
         </div>
       </aside>
