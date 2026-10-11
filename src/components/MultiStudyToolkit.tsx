@@ -14,10 +14,11 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { FunctionGrapher } from './FunctionGrapher';
+import { InequalitySystemSolver } from './InequalitySystemSolver';
 import { MathView } from './MathView';
 
 type MainTab = 'math' | 'chemistry' | 'physics';
-type MathSubTab = 'grapher' | 'formulas';
+type MathSubTab = 'grapher' | 'inequality' | 'formulas';
 
 interface MathFormulaItem {
   id: string;
@@ -207,7 +208,7 @@ export function MultiStudyToolkit() {
         <div className="space-y-6">
           {/* Sub-nav for Math */}
           <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => setMathSubTab('grapher')}
                 className={`pb-2.5 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${
@@ -217,7 +218,19 @@ export function MultiStudyToolkit() {
                 }`}
               >
                 <LineChart className="w-4 h-4" />
-                1. Công cụ vẽ đồ thị & khảo sát hàm số
+                1. Khảo sát & Vẽ đồ thị hàm số
+              </button>
+
+              <button
+                onClick={() => setMathSubTab('inequality')}
+                className={`pb-2.5 px-2 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${
+                  mathSubTab === 'inequality'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Compass className="w-4 h-4" />
+                2. Miền nghiệm & Tối ưu hóa $F(x,y)$
               </button>
 
               <button
@@ -229,11 +242,11 @@ export function MultiStudyToolkit() {
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                2. Tra cứu công thức & định lí KNTT
+                3. Tra cứu công thức & định lí KNTT
               </button>
             </div>
 
-            <span className="text-xs text-slate-400 hidden sm:inline">
+            <span className="text-xs text-slate-400 hidden lg:inline">
               Bám sát khung chương trình Bộ GD&ĐT
             </span>
           </div>
@@ -243,7 +256,12 @@ export function MultiStudyToolkit() {
             <FunctionGrapher />
           )}
 
-          {/* SubTab 2: Math Formulas Library */}
+          {/* SubTab 2: Inequality System & Optimization */}
+          {mathSubTab === 'inequality' && (
+            <InequalitySystemSolver />
+          )}
+
+          {/* SubTab 3: Math Formulas Library */}
           {mathSubTab === 'formulas' && (
             <div className="space-y-5">
               {/* Filter and Search Bar */}
