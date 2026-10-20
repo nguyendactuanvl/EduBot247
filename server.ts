@@ -9,10 +9,10 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Phục vụ file app-ads.txt và ads.txt trực tiếp từ thư mục public
+// Phục vụ file app-ads.txt và ads.txt trực tiếp cho AdMob/AdSense
 app.get(['/app-ads.txt', '/ads.txt'], (_req, res) => {
-  res.setHeader('Content-Type', 'text/plain');
-  res.sendFile(path.join(process.cwd(), 'public', 'app-ads.txt'));
+  res.type('text/plain');
+  res.send('google.com, pub-5320880447374751, DIRECT, f08c47fec0942fa0');
 });
 
 // API Routes
