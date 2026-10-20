@@ -9,6 +9,12 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Phục vụ file app-ads.txt và ads.txt trực tiếp từ thư mục public
+app.get(['/app-ads.txt', '/ads.txt'], (_req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(path.join(process.cwd(), 'public', 'app-ads.txt'));
+});
+
 // API Routes
 app.post('/api/chat', async (req, res) => {
   try {
