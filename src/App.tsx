@@ -45,7 +45,9 @@ import {
   FlaskConical,
   Dna,
   Languages,
-  StickyNote
+  StickyNote,
+  Swords,
+  Cpu
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
@@ -56,10 +58,13 @@ import { PhysicsToolkit } from './components/PhysicsToolkit';
 import { ChemistryToolkit } from './components/ChemistryToolkit';
 import { BiologyToolkit } from './components/BiologyToolkit';
 import { EnglishToolkit } from './components/EnglishToolkit';
+import { GamificationBanner } from './components/GamificationBanner';
 import { StickyNotes } from './components/StickyNotes';
+import { TeamArena } from './components/TeamArena';
+import { CalculatorSkillsHub } from './components/CalculatorSkillsHub';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
+  const [activeTab, setActiveTab] = useState<'exam' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
@@ -181,7 +186,47 @@ export default function App() {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-            {/* 1. Công cụ học tập Đa năng */}
+            {/* 🏆 Giải đấu Đội nhóm (Team Arena) */}
+            <button
+              onClick={() => {
+                setActiveTab('teamarena');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'teamarena'
+                  ? 'bg-purple-50 dark:bg-purple-950/50 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Swords className={`w-5 h-5 ${activeTab === 'teamarena' ? 'text-purple-600 dark:text-purple-400' : 'text-purple-500'}`} />
+                <span className="text-left text-base font-bold">Giải đấu Đội nhóm (Team Arena)</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'teamarena' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Thi đua 2, 3, 4, 5 người & Thăng Rank
+              </span>
+            </button>
+
+            {/* 🧮 Skill Bấm Máy Tính (Toán - Lý - Hóa - Sinh) */}
+            <button
+              onClick={() => {
+                setActiveTab('calcskills');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'calcskills'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Cpu className={`w-5 h-5 ${activeTab === 'calcskills' ? 'text-indigo-600 dark:text-indigo-400' : 'text-indigo-500'}`} />
+                <span className="text-left text-base font-bold">Skill Bấm Máy Tính THPT</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'calcskills' ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Tuyệt kỹ Casio Toán-Lý-Hóa-Sinh
+              </span>
+            </button>
             <button
               onClick={() => {
                 setActiveTab('studytoolkit');
@@ -554,6 +599,8 @@ export default function App() {
             </button>
             <span className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
+              {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
+              {activeTab === 'calcskills' && 'Skill Bấm Máy Tính THPT'}
               {activeTab === 'studytoolkit' && 'Công cụ học tập Đa năng'}
               {activeTab === 'physics' && 'Vật lý THPT'}
               {activeTab === 'chemistry' && 'Hóa học THPT'}
@@ -616,6 +663,18 @@ export default function App() {
             </div>
           )}
 
+          {activeTab === 'teamarena' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <TeamArena />
+            </div>
+          )}
+
+          {activeTab === 'calcskills' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <CalculatorSkillsHub />
+            </div>
+          )}
+
           {activeTab === 'studytoolkit' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <MultiStudyToolkit />
@@ -623,25 +682,29 @@ export default function App() {
           )}
 
           {activeTab === 'physics' && (
-            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+              <GamificationBanner />
               <PhysicsToolkit />
             </div>
           )}
 
           {activeTab === 'chemistry' && (
-            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+              <GamificationBanner />
               <ChemistryToolkit />
             </div>
           )}
 
           {activeTab === 'biology' && (
-            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+              <GamificationBanner />
               <BiologyToolkit />
             </div>
           )}
 
           {activeTab === 'english' && (
-            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+              <GamificationBanner />
               <EnglishToolkit />
             </div>
           )}
