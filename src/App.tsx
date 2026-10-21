@@ -44,7 +44,8 @@ import {
   Zap,
   FlaskConical,
   Dna,
-  Languages
+  Languages,
+  StickyNote
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
@@ -55,9 +56,10 @@ import { PhysicsToolkit } from './components/PhysicsToolkit';
 import { ChemistryToolkit } from './components/ChemistryToolkit';
 import { BiologyToolkit } from './components/BiologyToolkit';
 import { EnglishToolkit } from './components/EnglishToolkit';
+import { StickyNotes } from './components/StickyNotes';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('exam');
+  const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
@@ -405,6 +407,27 @@ export default function App() {
               </span>
             </button>
 
+            {/* Ghi chú cá nhân (Sticky Notes) */}
+            <button
+              onClick={() => {
+                setActiveTab('stickynotes');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'stickynotes'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <StickyNote className={`w-5 h-5 ${activeTab === 'stickynotes' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-500'}`} />
+                <span className="text-left text-base">Ghi chú cá nhân</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
+                Sticky Notes
+              </span>
+            </button>
+
             {/* 8. Tạo Bài giảng Video */}
             <button
               onClick={() => {
@@ -546,6 +569,7 @@ export default function App() {
               {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
               {activeTab === 'timetable' && 'Thời khóa biểu'}
               {activeTab === 'games' && 'Trò chơi Lớp học'}
+              {activeTab === 'stickynotes' && 'Ghi chú cá nhân (Sticky Notes)'}
             </span>
           </div>
           <div className="flex items-center space-x-1">
@@ -708,6 +732,11 @@ export default function App() {
           {activeTab === 'games' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
               <ClassGames />
+            </div>
+          )}
+          {activeTab === 'stickynotes' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <StickyNotes />
             </div>
           )}
         </div>

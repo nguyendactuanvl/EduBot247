@@ -28,7 +28,11 @@ import {
   X,
   Search,
   School,
-  ExternalLink
+  ExternalLink,
+  Zap,
+  StickyNote,
+  Shuffle,
+  Flame
 } from 'lucide-react';
 import { MathView } from './MathView';
 import { 
@@ -50,7 +54,11 @@ import { AdMobNativeCard } from './AdMobNativeCard';
 
 export function KNTTPracticeHub() {
   // Navigation Modes
-  const [hubMode, setHubMode] = useState<'topic-practice' | 'timed-exam' | 'handbook'>('topic-practice');
+  const [hubMode, setHubMode] = useState<'topic-practice' | 'timed-exam' | 'quick-quiz' | 'handbook'>('topic-practice');
+
+  // Sticky Notes & Toast notification states
+  const [savedNoteIds, setSavedNoteIds] = useState<Record<string, boolean>>({});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Filters
   const [selectedTier, setSelectedTier] = useState<EducationalTier | 'all'>('all');
@@ -76,6 +84,67 @@ export function KNTTPracticeHub() {
   const [timeLeftSeconds, setTimeLeftSeconds] = useState(0);
   const [totalTimeSeconds, setTotalTimeSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Quick Quiz (Luyện thi cấp tốc) State
+  const [quickQuestionCount, setQuickQuestionCount] = useState<number>(10);
+  const [quickQuizSeed, setQuickQuizSeed] = useState<number>(() => Date.now());
+  const [quickCurrentIdx, setQuickCurrentIdx] = useState(0);
+  const [quickAnswers, setQuickAnswers] = useState<Record<string, string>>({});
+  const [quickCheckedStatus, setQuickCheckedStatus] = useState<Record<string, boolean>>({});
+  const [quickFinished, setQuickFinished] = useState(false);
+  const [quickTimeMinutes, setQuickTimeMinutes] = useState<number>(10); // 0 = no limit, 5, 10, 15
+  const [quickTimeLeftSeconds, setQuickTimeLeftSeconds] = useState<number>(600);
+  const quickTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper to save any question to Sticky Notes (localStorage + custom event)
+  const saveToStickyNotes = (q: PracticeQuestion) => {
+    let mappedSubject: 'Toán' | 'Vật lý' | 'Hóa học' | 'Sinh học' | 'Tiếng Anh' | 'Khác' = 'Toán';
+    if (q.subject === 'math') {
+      mappedSubject = 'Toán';
+    } else if (q.subject === 'english') {
+      mappedSubject = 'Tiếng Anh';
+    } else {
+      const text = `${q.topicName} ${q.lessonName} ${q.subjectLabel}`.toLowerCase();
+      if (text.includes('hóa')) mappedSubject = 'Hóa học';
+      else if (text.includes('sinh') || text.includes('gen') || text.includes('adn')) mappedSubject = 'Sinh học';
+      else mappedSubject = 'Vật lý';
+    }
+
+    const title = `[${q.gradeLabel}] ${q.topicName} - ${q.lessonName}`;
+    const content = `${q.content}\n\n- Đáp án đúng: $${q.correctOptionId}$\n- Lời giải chi tiết:\n${q.explanation}`;
+
+    const newNote = {
+      id: `note-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      title,
+      content,
+      subject: mappedSubject,
+      color: mappedSubject === 'Toán' ? 'yellow' : mappedSubject === 'Vật lý' ? 'blue' : mappedSubject === 'Hóa học' ? 'green' : mappedSubject === 'Tiếng Anh' ? 'purple' : 'pink',
+      isPinned: true,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    try {
+      const saved = localStorage.getItem('edubot_sticky_notes');
+      const list = saved ? JSON.parse(saved) : [];
+      list.unshift(newNote);
+      localStorage.setItem('edubot_sticky_notes', JSON.stringify(list));
+    } catch (e) {
+      console.error('Failed to save to localStorage', e);
+    }
+
+    window.dispatchEvent(new CustomEvent('edubot_add_sticky_note', {
+      detail: {
+        title,
+        content,
+        subject: mappedSubject,
+        color: newNote.color
+      }
+    }));
+
+    setSavedNoteIds(prev => ({ ...prev, [q.id]: true }));
+    setToastMessage(`Đã lưu "${q.lessonName}" vào Ghi chú cá nhân (Sticky Notes)!`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   // Combined Unified Questions (THPT + KNTT Grades)
   const unifiedQuestions = useMemo(() => {
@@ -155,6 +224,106 @@ export function KNTTPracticeHub() {
 
   // Current question in Timed Exam
   const currentExamQ = examQuestions[examCurrentIdx] || examQuestions[0];
+
+  // Quick Quiz Questions (Tự động tạo bộ câu hỏi ngẫu nhiên từ kiến thức đã chọn)
+  const quickQuizQuestions = useMemo(() => {
+    let pool = unifiedQuestions.filter(q => {
+      const matchTier = selectedTier === 'all' || q.tier === selectedTier;
+      const matchGrade = selectedGrade === 'all' || q.gradeId === selectedGrade;
+      const matchSubj = selectedSubject === 'all' || q.subject === selectedSubject;
+      const matchTopic = selectedTopicId === 'all' || q.topicId === selectedTopicId;
+      return matchTier && matchGrade && matchSubj && matchTopic;
+    });
+
+    if (pool.length === 0) {
+      pool = unifiedQuestions.filter(q => {
+        const matchTier = selectedTier === 'all' || q.tier === selectedTier;
+        const matchSubj = selectedSubject === 'all' || q.subject === selectedSubject;
+        return matchTier && matchSubj;
+      });
+    }
+
+    if (pool.length === 0) {
+      pool = [...unifiedQuestions];
+    }
+
+    // Deterministic pseudo-random shuffle with seed
+    const shuffled = [...pool];
+    let seed = quickQuizSeed;
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const rnd = seed / 233280;
+      const j = Math.floor(rnd * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled.slice(0, quickQuestionCount);
+  }, [unifiedQuestions, selectedTier, selectedGrade, selectedSubject, selectedTopicId, quickQuestionCount, quickQuizSeed]);
+
+  const currentQuickQ = quickQuizQuestions[quickCurrentIdx] || quickQuizQuestions[0];
+
+  // Quick Quiz Results
+  const quickQuizResult = useMemo(() => {
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    quickQuizQuestions.forEach(q => {
+      const ans = quickAnswers[q.id];
+      if (!ans) {
+        unansweredCount++;
+      } else if (ans === q.correctOptionId) {
+        correctCount++;
+      } else {
+        wrongCount++;
+      }
+    });
+
+    const total = quickQuizQuestions.length;
+    const score = total > 0 ? Number(((correctCount / total) * 10).toFixed(2)) : 0;
+
+    return {
+      correctCount,
+      wrongCount,
+      unansweredCount,
+      total,
+      score
+    };
+  }, [quickQuizQuestions, quickAnswers]);
+
+  // Quick timer countdown
+  useEffect(() => {
+    if (hubMode === 'quick-quiz' && !quickFinished && quickTimeMinutes > 0) {
+      quickTimerRef.current = setInterval(() => {
+        setQuickTimeLeftSeconds(prev => {
+          if (prev <= 1) {
+            clearInterval(quickTimerRef.current as NodeJS.Timeout);
+            setQuickFinished(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (quickTimerRef.current) clearInterval(quickTimerRef.current);
+    }
+
+    return () => {
+      if (quickTimerRef.current) clearInterval(quickTimerRef.current);
+    };
+  }, [hubMode, quickFinished, quickTimeMinutes]);
+
+  const handleStartNewQuickQuiz = (newCount?: number) => {
+    if (newCount) setQuickQuestionCount(newCount);
+    setQuickQuizSeed(Date.now());
+    setQuickAnswers({});
+    setQuickCheckedStatus({});
+    setQuickFinished(false);
+    setQuickCurrentIdx(0);
+    if (quickTimeMinutes > 0) {
+      setQuickTimeLeftSeconds(quickTimeMinutes * 60);
+    }
+  };
 
   // Handle timed exam start
   const handleStartExam = () => {
@@ -285,13 +454,29 @@ export function KNTTPracticeHub() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 bg-white/15 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-center">
-            <div className="w-12 h-12 rounded-xl bg-yellow-400/20 flex items-center justify-center text-yellow-300">
-              <GraduationCap className="w-7 h-7" />
-            </div>
-            <div className="text-xs">
-              <p className="font-bold text-white text-sm">Tiểu học - THCS - THPT</p>
-              <p className="text-emerald-200">Đầy đủ 12 khối lớp SGK KNTT</p>
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-center">
+            <button
+              onClick={() => {
+                setHubMode('quick-quiz');
+                handleStartNewQuickQuiz();
+              }}
+              className="px-5 py-3 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 rounded-2xl font-black text-sm shadow-lg shadow-yellow-500/25 flex items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 shrink-0 border border-yellow-200"
+            >
+              <Zap className="w-5 h-5 fill-slate-950 text-slate-950" />
+              <div className="text-left">
+                <div className="text-[10px] uppercase tracking-wider font-extrabold text-amber-900 leading-none">Tạo đề tự động</div>
+                <div className="text-sm font-black leading-tight">Luyện thi cấp tốc ⚡</div>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-3 bg-white/15 backdrop-blur-md p-3 rounded-2xl border border-white/20">
+              <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center text-yellow-300">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <div className="text-xs">
+                <p className="font-bold text-white text-xs">Tiểu học - THCS - THPT</p>
+                <p className="text-emerald-200 text-[11px]">Đầy đủ 12 khối lớp SGK KNTT</p>
+              </div>
             </div>
           </div>
         </div>
@@ -333,6 +518,21 @@ export function KNTTPracticeHub() {
         >
           <BookMarked className="w-4 h-4" />
           <span>3. Sổ tay Tóm tắt Lý thuyết & Công thức</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setHubMode('quick-quiz');
+            handleStartNewQuickQuiz();
+          }}
+          className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-bold text-sm transition-all ${
+            hubMode === 'quick-quiz'
+              ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
+              : 'text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+          }`}
+        >
+          <Zap className="w-4 h-4 fill-amber-500 text-amber-500" />
+          <span>4. Luyện thi cấp tốc ⚡ (Ngẫu nhiên)</span>
         </button>
       </div>
 
@@ -638,13 +838,25 @@ export function KNTTPracticeHub() {
               </div>
 
               {/* Topic & Lesson Name */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <span className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Chủ đề bài học</span>
                   <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm">
                     {currentTopicQ.topicName} — <span className="text-emerald-600 dark:text-emerald-400">{currentTopicQ.lessonName}</span>
                   </p>
                 </div>
+                <button
+                  onClick={() => saveToStickyNotes(currentTopicQ)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+                    savedNoteIds[currentTopicQ.id]
+                      ? 'bg-amber-100 dark:bg-amber-950/70 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                  }`}
+                  title="Lưu bài tập và công thức vào Ghi chú cá nhân (Sticky Notes)"
+                >
+                  <StickyNote className={`w-3.5 h-3.5 ${savedNoteIds[currentTopicQ.id] ? 'text-amber-600 fill-amber-400' : 'text-amber-500'}`} />
+                  <span>{savedNoteIds[currentTopicQ.id] ? 'Đã lưu ghi chú ✓' : 'Lưu vào Ghi chú'}</span>
+                </button>
               </div>
 
               {/* Question Content */}
@@ -1210,6 +1422,501 @@ export function KNTTPracticeHub() {
         </div>
       )}
 
+      {/* =========================================================================
+          MODE 4: LUYỆN THI CẤP TỐC (TỰ ĐỘNG TẠO ĐỀ TRẮC NGHIỆM NGẪU NHIÊN)
+          ========================================================================= */}
+      {hubMode === 'quick-quiz' && (
+        <div className="space-y-6">
+          {/* Quick Quiz Header Card */}
+          <div className="bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-orange-500/10 dark:from-amber-950/40 dark:via-yellow-950/20 dark:to-orange-950/30 rounded-3xl p-6 border border-amber-200/80 dark:border-amber-800/60 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 text-xs font-bold mb-2">
+                  <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                  <span>Bộ tạo đề trắc nghiệm ngẫu nhiên thông minh</span>
+                </div>
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-xl flex items-center gap-2">
+                  Luyện thi cấp tốc ⚡
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  Đề thi được tạo tự động ngẫu nhiên theo kiến thức đang chọn: {selectedTier === 'all' ? 'Tất cả các cấp' : selectedTier === 'elementary' ? 'Tiểu học' : selectedTier === 'middle' ? 'THCS' : 'THPT'} • {selectedGrade === 'all' ? 'Tất cả các lớp' : selectedGrade} • {selectedSubject === 'all' ? 'Tất cả các môn' : selectedSubject === 'math' ? 'Toán học' : selectedSubject === 'science' ? 'Khoa học tự nhiên' : selectedSubject === 'english' ? 'Tiếng Anh' : 'Ngữ văn'}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  onClick={() => handleStartNewQuickQuiz()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 rounded-xl font-bold text-xs shadow-md shadow-amber-500/20 flex items-center gap-2 transition-all active:scale-95"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  <span>Tạo đề ngẫu nhiên khác</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Settings Bar: Số câu hỏi & Thời gian */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-amber-200/60 dark:border-amber-800/40 text-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <ListOrdered className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  Số lượng câu:
+                </span>
+                {[5, 10, 15, 20].map(count => (
+                  <button
+                    key={count}
+                    onClick={() => handleStartNewQuickQuiz(count)}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all border ${
+                      quickQuestionCount === count
+                        ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                    }`}
+                  >
+                    {count} câu
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Timer className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  Thời gian:
+                </span>
+                {[
+                  { label: 'Tự do', val: 0 },
+                  { label: '5 phút', val: 5 },
+                  { label: '10 phút', val: 10 },
+                  { label: '15 phút', val: 15 }
+                ].map(item => (
+                  <button
+                    key={item.val}
+                    onClick={() => {
+                      setQuickTimeMinutes(item.val);
+                      if (item.val > 0) setQuickTimeLeftSeconds(item.val * 60);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all border ${
+                      quickTimeMinutes === item.val
+                        ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-amber-50 dark:hover:bg-amber-950/40'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* QUICK QUIZ CONTENT */}
+          {quickQuizQuestions.length > 0 ? (
+            !quickFinished ? (
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                {/* Status Bar: Câu hỏi số X/Y, Timer, Nộp bài button */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <span className="px-3.5 py-1 bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 rounded-full font-black text-xs">
+                      Câu {quickCurrentIdx + 1} / {quickQuizQuestions.length}
+                    </span>
+                    <span className="text-xs px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
+                      {currentQuickQ.gradeLabel} • {currentQuickQ.subjectLabel}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-medium">
+                      {currentQuickQ.difficulty}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {quickTimeMinutes > 0 && (
+                      <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl font-mono font-bold text-xs border ${
+                        quickTimeLeftSeconds <= 60
+                          ? 'bg-rose-50 text-rose-600 border-rose-300 animate-pulse'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                      }`}>
+                        <Timer className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{formatTime(quickTimeLeftSeconds)}</span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => setQuickFinished(true)}
+                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors"
+                    >
+                      Nộp bài & Chấm điểm
+                    </button>
+                  </div>
+                </div>
+
+                {/* Question Bubbles Quick Navigator */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                  {quickQuizQuestions.map((q, idx) => {
+                    const isAnswered = !!quickAnswers[q.id];
+                    const isCurrent = idx === quickCurrentIdx;
+                    return (
+                      <button
+                        key={q.id}
+                        onClick={() => setQuickCurrentIdx(idx)}
+                        className={`w-8 h-8 rounded-xl text-xs font-bold transition-all shrink-0 border ${
+                          isCurrent
+                            ? 'bg-amber-500 text-slate-950 border-amber-600 ring-2 ring-amber-400/50 shadow-xs'
+                            : isAnswered
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Topic info and Save to Sticky Note button */}
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Chuyên đề câu hỏi</span>
+                    <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm">
+                      {currentQuickQ.topicName} — <span className="text-amber-600 dark:text-amber-400">{currentQuickQ.lessonName}</span>
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => saveToStickyNotes(currentQuickQ)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+                      savedNoteIds[currentQuickQ.id]
+                        ? 'bg-amber-100 dark:bg-amber-950/70 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                    }`}
+                    title="Lưu câu hỏi này vào Ghi chú cá nhân (Sticky Notes)"
+                  >
+                    <StickyNote className={`w-3.5 h-3.5 ${savedNoteIds[currentQuickQ.id] ? 'text-amber-600 fill-amber-400' : 'text-amber-500'}`} />
+                    <span>{savedNoteIds[currentQuickQ.id] ? 'Đã lưu ghi chú ✓' : 'Lưu vào Ghi chú'}</span>
+                  </button>
+                </div>
+
+                {/* Question Content */}
+                <div className="text-slate-900 dark:text-slate-100 text-base md:text-lg font-medium leading-relaxed">
+                  <MathView content={currentQuickQ.content} />
+                </div>
+
+                {/* Options Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  {currentQuickQ.options.map(opt => {
+                    const isSelected = quickAnswers[currentQuickQ.id] === opt.id;
+                    const isChecked = !!quickCheckedStatus[currentQuickQ.id];
+                    const isCorrect = currentQuickQ.correctOptionId === opt.id;
+
+                    let optClass = 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700';
+
+                    if (isSelected && !isChecked) {
+                      optClass = 'bg-amber-50 dark:bg-amber-950/50 border-amber-500 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/30 font-semibold';
+                    } else if (isChecked) {
+                      if (isCorrect) {
+                        optClass = 'bg-emerald-100 dark:bg-emerald-900/60 border-emerald-500 text-emerald-900 dark:text-emerald-100 font-bold ring-2 ring-emerald-500';
+                      } else if (isSelected && !isCorrect) {
+                        optClass = 'bg-rose-100 dark:bg-rose-950/60 border-rose-500 text-rose-900 dark:text-rose-200 line-through';
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setQuickAnswers(prev => ({
+                            ...prev,
+                            [currentQuickQ.id]: opt.id
+                          }));
+                        }}
+                        className={`p-4 rounded-2xl border text-left text-sm transition-all flex items-start gap-3 ${optClass}`}
+                      >
+                        <span className="w-7 h-7 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                          {opt.id}
+                        </span>
+                        <div className="flex-1 pt-0.5">
+                          <MathView inline content={opt.text} />
+                        </div>
+                        {isChecked && isCorrect && (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        )}
+                        {isChecked && isSelected && !isCorrect && (
+                          <XCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Action buttons (Kiểm tra đáp án & Câu tiếp theo) */}
+                <div className="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <button
+                      disabled={!quickAnswers[currentQuickQ.id]}
+                      onClick={() => {
+                        setQuickCheckedStatus(prev => ({
+                          ...prev,
+                          [currentQuickQ.id]: true
+                        }));
+                      }}
+                      className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-slate-950 rounded-xl font-bold text-xs shadow-xs transition-colors flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Xem đáp án nhanh</span>
+                    </button>
+
+                    {quickCheckedStatus[currentQuickQ.id] && (
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 ${
+                        quickAnswers[currentQuickQ.id] === currentQuickQ.correctOptionId
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                      }`}>
+                        {quickAnswers[currentQuickQ.id] === currentQuickQ.correctOptionId ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-emerald-600" />
+                            <span>Chính xác!</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-4 h-4 text-rose-600" />
+                            <span>Chưa đúng! Đáp án: ${currentQuickQ.correctOptionId}$</span>
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={quickCurrentIdx === 0}
+                      onClick={() => setQuickCurrentIdx(prev => Math.max(0, prev - 1))}
+                      className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Câu trước</span>
+                    </button>
+                    <button
+                      disabled={quickCurrentIdx === quickQuizQuestions.length - 1}
+                      onClick={() => setQuickCurrentIdx(prev => Math.min(quickQuizQuestions.length - 1, prev + 1))}
+                      className="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5"
+                    >
+                      <span>Câu tiếp</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Detailed Explanation if Checked */}
+                {quickCheckedStatus[currentQuickQ.id] && (
+                  <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-xs sm:text-sm space-y-2 animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold">
+                        <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span>Lời giải chi tiết:</span>
+                      </div>
+                      <button
+                        onClick={() => saveToStickyNotes(currentQuickQ)}
+                        className="text-xs text-amber-700 dark:text-amber-300 font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <StickyNote className="w-3.5 h-3.5" />
+                        <span>Lưu vào Ghi chú</span>
+                      </button>
+                    </div>
+                    <div className="text-slate-700 dark:text-slate-300 leading-relaxed pl-6">
+                      <MathView content={currentQuickQ.explanation} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* QUICK QUIZ RESULT SUMMARY */
+              <div className="space-y-6 animate-fadeIn">
+                <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-600 rounded-3xl p-6 md:p-8 text-white shadow-xl">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold">
+                        <Trophy className="w-3.5 h-3.5 text-yellow-200" />
+                        <span>Kết quả Luyện thi cấp tốc</span>
+                      </div>
+                      <h3 className="text-2xl md:text-3xl font-black">
+                        {quickQuizResult.score >= 8 ? 'Xuất sắc! Bạn làm rất tốt 🎉' : quickQuizResult.score >= 5 ? 'Khá tốt! Cố gắng phát huy nhé 👍' : 'Cần ôn tập thêm kiến thức nhé 💪'}
+                      </h3>
+                      <p className="text-white/80 text-xs sm:text-sm">
+                        Đã hoàn thành bộ câu hỏi ngẫu nhiên từ {selectedSubject === 'all' ? 'các môn học' : selectedSubject}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-4 bg-white/15 backdrop-blur-md p-4 rounded-2xl border border-white/20 self-start md:self-center">
+                      <div className="text-center">
+                        <div className="text-3xl md:text-4xl font-black text-yellow-300">{quickQuizResult.score}</div>
+                        <div className="text-[11px] font-bold text-white/80 uppercase">Điểm số / 10</div>
+                      </div>
+                      <div className="w-px h-10 bg-white/20" />
+                      <div className="text-xs space-y-1">
+                        <div className="flex items-center gap-1.5 text-emerald-200 font-bold">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{quickQuizResult.correctCount} câu đúng</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-rose-200 font-bold">
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>{quickQuizResult.wrongCount} câu sai</span>
+                        </div>
+                        <div className="text-slate-200 text-[11px]">
+                          {quickQuizResult.unansweredCount} câu chưa trả lời
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-white/20 mt-6">
+                    <button
+                      onClick={() => handleStartNewQuickQuiz()}
+                      className="px-5 py-2.5 bg-white text-slate-900 hover:bg-yellow-50 rounded-xl font-extrabold text-xs shadow-md flex items-center gap-2 transition-transform active:scale-95"
+                    >
+                      <Shuffle className="w-4 h-4 text-amber-600" />
+                      <span>Tạo đề cấp tốc ngẫu nhiên khác</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setQuickAnswers({});
+                        setQuickCheckedStatus({});
+                        setQuickFinished(false);
+                        setQuickCurrentIdx(0);
+                        if (quickTimeMinutes > 0) setQuickTimeLeftSeconds(quickTimeMinutes * 60);
+                      }}
+                      className="px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white rounded-xl font-bold text-xs border border-white/20 flex items-center gap-2 transition-colors"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span>Làm lại bộ đề này</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* DETAILED ANSWER REVIEW WITH 1-CLICK STICKY NOTE SAVER */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-base flex items-center gap-2">
+                      <HelpCircle className="w-5 h-5 text-amber-500" />
+                      <span>Chi tiết đáp án & Lời giải bài tập (Bấm lưu vào Ghi chú bài bạn muốn nhớ)</span>
+                    </h4>
+                  </div>
+
+                  <div className="space-y-4">
+                    {quickQuizQuestions.map((q, idx) => {
+                      const userAns = quickAnswers[q.id];
+                      const isCorrect = userAns === q.correctOptionId;
+                      const isAnswered = !!userAns;
+
+                      return (
+                        <div
+                          key={q.id}
+                          className="p-5 rounded-2xl bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                Câu {idx + 1}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                {q.gradeLabel} • {q.lessonName}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => saveToStickyNotes(q)}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+                                  savedNoteIds[q.id]
+                                    ? 'bg-amber-100 dark:bg-amber-950/70 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                                }`}
+                                title="Lưu câu hỏi này vào Ghi chú cá nhân"
+                              >
+                                <StickyNote className={`w-3.5 h-3.5 ${savedNoteIds[q.id] ? 'text-amber-600 fill-amber-400' : 'text-amber-500'}`} />
+                                <span>{savedNoteIds[q.id] ? 'Đã lưu ghi chú ✓' : 'Lưu vào Ghi chú'}</span>
+                              </button>
+
+                              {!isAnswered ? (
+                                <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                                  Chưa làm
+                                </span>
+                              ) : isCorrect ? (
+                                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">
+                                  ✓ Đúng
+                                </span>
+                              ) : (
+                                <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold">
+                                  ✗ Sai
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="text-slate-800 dark:text-slate-200 font-medium text-sm sm:text-base">
+                            <MathView content={q.content} />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {q.options.map(opt => {
+                              const isRightAnswer = q.correctOptionId === opt.id;
+                              const isChosen = userAns === opt.id;
+
+                              let style = 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300';
+                              if (isRightAnswer) {
+                                style = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 font-bold';
+                              } else if (isChosen && !isRightAnswer) {
+                                style = 'border-rose-400 bg-rose-50 dark:bg-rose-950/50 text-rose-900 dark:text-rose-200 line-through';
+                              }
+
+                              return (
+                                <div key={opt.id} className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 ${style}`}>
+                                  <span className="font-bold shrink-0">{opt.id}.</span>
+                                  <div className="flex-1">
+                                    <MathView inline content={opt.text} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <div className="p-4 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/50 text-xs space-y-1.5">
+                            <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-200 font-bold">
+                              <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                              <span>Lời giải chi tiết:</span>
+                            </div>
+                            <div className="text-slate-600 dark:text-slate-300 leading-relaxed pl-5">
+                              <MathView content={q.explanation} />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-200 dark:border-slate-800 space-y-3">
+              <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base">
+                Chưa có câu hỏi phù hợp với bộ lọc
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Hãy chọn khối lớp hoặc môn học khác, hoặc nhấn nút bên dưới để tạo đề ngẫu nhiên toàn diện.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedTier('all');
+                  setSelectedGrade('all');
+                  setSelectedSubject('all');
+                  setSelectedTopicId('all');
+                  handleStartNewQuickQuiz();
+                }}
+                className="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs"
+              >
+                Đặt lại bộ lọc & Tạo đề ngay
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* MODAL XEM TÓM TẮT LÝ THUYẾT BÀI HỌC */}
       {viewingTopicModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
@@ -1264,6 +1971,20 @@ export function KNTTPracticeHub() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Toast Notification when saved to Sticky Notes */}
+      {toastMessage && (
+        <div className="fixed bottom-24 right-6 z-50 bg-slate-900/95 dark:bg-slate-800 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 border border-amber-500/40 text-xs backdrop-blur-md animate-bounce-short">
+          <StickyNote className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+          <span className="font-semibold text-slate-100">{toastMessage}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="p-1 text-slate-400 hover:text-white rounded-lg transition-colors ml-1"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>
