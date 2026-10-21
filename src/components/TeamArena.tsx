@@ -35,6 +35,7 @@ export interface Team {
   id: string;
   name: string;
   slogan: string;
+  joinCode: string; // Unique join code, e.g. "EDU-7X9K2"
   sizeLimit: 2 | 3 | 4 | 5;
   members: TeamMember[];
   totalXP: number;
@@ -57,6 +58,7 @@ const INITIAL_TEAMS: Team[] = [
     id: 'team-1',
     name: 'Siêu Chiến Binh KNTT',
     slogan: 'Quyết tâm thủ khoa GDPT 2018!',
+    joinCode: 'EDU-KNTT1',
     sizeLimit: 5,
     members: [
       { id: 'm1', name: 'Nguyễn Văn Minh', role: 'Trưởng đội', avatar: '👨‍🎓', contributionXP: 2400 },
@@ -74,6 +76,7 @@ const INITIAL_TEAMS: Team[] = [
     id: 'team-2',
     name: 'Liên Minh Bát Tử Octet',
     slogan: 'Hóa học THPT trong tầm tay',
+    joinCode: 'EDU-OCTET',
     sizeLimit: 4,
     members: [
       { id: 'm6', name: 'Đặng Tuấn Kiệt', role: 'Trưởng đội', avatar: '🧪', contributionXP: 1500 },
@@ -90,6 +93,7 @@ const INITIAL_TEAMS: Team[] = [
     id: 'team-3',
     name: 'Fresnel Quantum Squad',
     slogan: 'Xoay vectơ, giải nhanh Vật lý',
+    joinCode: 'EDU-WAVE3',
     sizeLimit: 3,
     members: [
       { id: 'm10', name: 'Trịnh Thanh Tùng', role: 'Trưởng đội', avatar: '⚡', contributionXP: 900 },
@@ -105,6 +109,7 @@ const INITIAL_TEAMS: Team[] = [
     id: 'team-4',
     name: 'Đội Mendel Di Truyền',
     slogan: 'Bảng Punnett không sợ sai',
+    joinCode: 'EDU-BIO99',
     sizeLimit: 2,
     members: [
       { id: 'm13', name: 'Mai Như Quỳnh', role: 'Trưởng đội', avatar: '🌱', contributionXP: 400 },
@@ -176,6 +181,10 @@ export function TeamArena() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [battleScore, setBattleScore] = useState(0);
   const [battleFinished, setBattleFinished] = useState(false);
+  // Join code states
+  const [isJoiningCodeOpen, setIsJoiningCodeOpen] = useState(false);
+  const [inputJoinCode, setInputJoinCode] = useState('');
+  const [copiedJoinCode, setCopiedJoinCode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -212,14 +221,21 @@ export function TeamArena() {
     return 'Tân thủ';
   };
 
+  const generateJoinCode = () => {
+    return `EDU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+  };
+
   const handleCreateTeam = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTeamName.trim()) return;
+
+    const generatedCode = generateJoinCode();
 
     const created: Team = {
       id: `team-${Date.now()}`,
       name: newTeamName.trim(),
       slogan: newSlogan.trim() || 'Cùng nhau chinh phục kỳ thi GDPT 2018!',
+      joinCode: generatedCode,
       sizeLimit: newSize,
       members: [
         { id: `m-${Date.now()}-1`, name: leaderName.trim() || 'Trưởng Đội', role: 'Trưởng đội', avatar: '👑', contributionXP: 500 }
@@ -235,6 +251,52 @@ export function TeamArena() {
     setIsCreating(false);
     setNewTeamName('');
     setNewSlogan('');
+  };
+
+  const handleJoinByCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = inputJoinCode.trim().toUpperCase();
+    if (!code) return;
+
+    const targetTeam = teams.find(t => t.joinCode.toUpperCase() === code);
+    if (!targetTeam) {
+      alert(`Khồng tìm thấy Team với mã Join Code: "${code}". Vui lòng kiểm tra lại!`);
+      return;
+    }
+
+    if (targetTeam.members.length >= targetTeam.sizeLimit) {
+      alert(`Team "${targetTeam.name}" đã đủ số lượng tối đa ${targetTeam.sizeLimit} người!`);
+      return;
+    }
+
+    const newMember: TeamMember = {
+      id: `m-${Date.now()}`,
+      name: 'Tôi (Thành viên Mới)',
+      role: 'Thành viên',
+      avatar: '🚀',
+      contributionXP: 300,
+    };
+
+    const updatedMembers = [...targetTeam.members, newMember];
+    const updatedXP = targetTeam.totalXP + 300;
+    const updatedTeam: Team = {
+      ...targetTeam,
+      members: updatedMembers,
+      totalXP: updatedXP,
+      rank: computeRank(updatedXP),
+    };
+
+    setMyTeam(updatedTeam);
+    setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+    setIsJoiningCodeOpen(false);
+    setInputJoinCode('');
+  };
+
+  const handleCopyJoinCode = () => {
+    if (!myTeam) return;
+    navigator.clipboard.writeText(myTeam.joinCode);
+    setCopiedJoinCode(true);
+    setTimeout(() => setCopiedJoinCode(false), 2000);
   };
 
   const handleAddDemoMember = () => {
@@ -331,13 +393,23 @@ export function TeamArena() {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsCreating(true)}
-              className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center space-x-2 active:scale-95"
-            >
-              <UserPlus className="w-5 h-5 text-purple-200" />
-              <span>Thành lập Team Mới</span>
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setIsJoiningCodeOpen(true)}
+                className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-700/50 font-bold text-xs rounded-2xl transition-all flex items-center space-x-1.5 active:scale-95"
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Nhập Mã Join Code Vô Team</span>
+              </button>
+
+              <button
+                onClick={() => setIsCreating(true)}
+                className="px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center space-x-2 active:scale-95"
+              >
+                <UserPlus className="w-5 h-5 text-purple-200" />
+                <span>Thành lập Team Mới</span>
+              </button>
+            </div>
           </div>
 
           <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
@@ -381,7 +453,15 @@ export function TeamArena() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs pt-1 text-slate-300">
+              <div className="flex flex-wrap items-center gap-3 text-xs pt-1 text-slate-300">
+                <button
+                  onClick={handleCopyJoinCode}
+                  className="font-mono bg-purple-950/80 px-3 py-1.5 rounded-xl border border-purple-700/60 text-purple-300 font-bold hover:bg-purple-900 transition-colors flex items-center space-x-1.5"
+                  title="Bấm để sao chép mã Join Code gửi cho bạn bè"
+                >
+                  <span>Mã Join Code: <strong className="text-amber-400">{myTeam.joinCode}</strong></span>
+                  {copiedJoinCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Edit3 className="w-3.5 h-3.5 text-purple-400" />}
+                </button>
                 <span className="font-mono bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
                   Thành viên: <strong className="text-purple-400">{myTeam.members.length}/{myTeam.sizeLimit} người</strong>
                 </span>
@@ -620,6 +700,53 @@ export function TeamArena() {
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-xs font-bold shadow-lg"
               >
                 Tạo Team Ngay
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Modal Join Team via Code */}
+      {isJoiningCodeOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+          <form onSubmit={handleJoinByCode} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5">
+            <div className="pb-3 border-b border-slate-800 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white flex items-center space-x-2">
+                <Zap className="w-5 h-5 text-amber-400" />
+                <span>Nhập Mã Join Code Vô Team</span>
+              </h3>
+              <button type="button" onClick={() => setIsJoiningCodeOpen(false)} className="text-slate-400 hover:text-white text-xs">✕ Đóng</button>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Nhập mã Join Code (Ví dụ: <span className="font-mono text-amber-300 font-bold">EDU-OCTET</span>) được bạn bè chia sẻ để tham gia thi đấu cùng đội.
+            </p>
+
+            <div>
+              <label className="block text-slate-300 font-bold text-xs mb-1">Mã Join Code:</label>
+              <input
+                type="text"
+                required
+                placeholder="VD: EDU-7X9K2"
+                value={inputJoinCode}
+                onChange={(e) => setInputJoinCode(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-amber-300 font-mono font-bold text-sm tracking-wider uppercase focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsJoiningCodeOpen(false)}
+                className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-gradient-to-r from-amber-600 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg"
+              >
+                Vào Team
               </button>
             </div>
           </form>

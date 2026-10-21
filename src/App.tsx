@@ -62,9 +62,10 @@ import { GamificationBanner } from './components/GamificationBanner';
 import { StickyNotes } from './components/StickyNotes';
 import { TeamArena } from './components/TeamArena';
 import { CalculatorSkillsHub } from './components/CalculatorSkillsHub';
+import { LeaderboardView } from './components/LeaderboardView';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
+  const [activeTab, setActiveTab] = useState<'exam' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
@@ -186,6 +187,26 @@ export default function App() {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+            {/* 👑 Bảng Xếp Hạng & Streak */}
+            <button
+              onClick={() => {
+                setActiveTab('leaderboard');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'leaderboard'
+                  ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Trophy className={`w-5 h-5 ${activeTab === 'leaderboard' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-500'}`} />
+                <span className="text-left text-base font-bold">Bảng Xếp Hạng & Streak</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'leaderboard' ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Top Tuần, Top Streak & Bảng Vàng Trường
+              </span>
+            </button>
             {/* 🏆 Giải đấu Đội nhóm (Team Arena) */}
             <button
               onClick={() => {
@@ -599,6 +620,7 @@ export default function App() {
             </button>
             <span className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
+              {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Streak'}
               {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
               {activeTab === 'calcskills' && 'Skill Bấm Máy Tính THPT'}
               {activeTab === 'studytoolkit' && 'Công cụ học tập Đa năng'}
@@ -660,6 +682,12 @@ export default function App() {
           {activeTab === 'exam' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <KNTTPracticeHub />
+            </div>
+          )}
+
+          {activeTab === 'leaderboard' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <LeaderboardView />
             </div>
           )}
 
