@@ -84,17 +84,113 @@ export const ADMOB_CONFIG = {
 };
 
 /**
- * Android Manifest Configuration snippet for Google AdMob SDK
+ * Android Manifest Configuration snippet for Google AdMob SDK & TWA
  */
-export const ANDROID_MANIFEST_SNIPPET = `<!-- Thêm vào bên trong thẻ <application> trong file AndroidManifest.xml -->
-<meta-data
-    android:name="com.google.android.gms.ads.APPLICATION_ID"
-    android:value="${ADMOB_CONFIG.appId}"/>
-`;
+export const ANDROID_MANIFEST_SNIPPET = `<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.vercel.edubot247.twa">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="EduBot 247"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.EduBot247">
+
+        <!-- Google AdMob Application ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${ADMOB_CONFIG.appId}"/>
+
+        <!-- Activity khởi chạy TWA -->
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                android:value="https://edubot247.vercel.app" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>`;
+
+/**
+ * Kotlin SplashActivity snippet for App Open Ads (Ads 2)
+ */
+export const SPLASH_ACTIVITY_KOTLIN_SNIPPET = `package app.vercel.edubot247.twa
+
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.appopen.AppOpenAd
+import com.google.androidbrowserhelper.trusted.LauncherActivity
+
+class SplashActivity : AppCompatActivity() {
+
+    private var appOpenAd: AppOpenAd? = null
+    private val AD_UNIT_ID = "ca-app-pub-5320880447374751/7345879147"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        MobileAds.initialize(this) {}
+
+        // Tải Quảng cáo Mở ứng dụng (Ads 2)
+        AppOpenAd.load(
+            this,
+            AD_UNIT_ID,
+            AdRequest.Builder().build(),
+            object : AppOpenAd.AppOpenAdLoadCallback() {
+                override fun onAdLoaded(ad: AppOpenAd) {
+                    appOpenAd = ad
+                    showAdAndNavigate()
+                }
+
+                override fun onAdFailedToLoad(loadAdError: com.google.android.gms.ads.LoadAdError) {
+                    navigateToTwa()
+                }
+            }
+        )
+
+        // Handler giới hạn tối đa 4s chờ
+        Handler(Looper.getMainLooper()).postDelayed({ navigateToTwa() }, 4000)
+    }
+
+    private fun showAdAndNavigate() {
+        appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() { navigateToTwa() }
+            override fun onAdFailedToShowFullScreenContent(adError: com.google.android.gms.ads.AdError) { navigateToTwa() }
+        }
+        appOpenAd?.show(this)
+    }
+
+    private fun navigateToTwa() {
+        startActivity(Intent(this, LauncherActivity::class.java))
+        finish()
+    }
+}`;
 
 /**
  * Gradle build configuration for Android
  */
 export const ANDROID_GRADLE_SNIPPET = `dependencies {
-    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    // Google Mobile Ads SDK (Bắt buộc cho App Open Ads & Interstitial)
+    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+
+    // Android Browser Helper (Thư viện TWA mở edubot247.vercel.app)
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
 }`;

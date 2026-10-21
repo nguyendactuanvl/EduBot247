@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Google AdMob Configuration for EduBot 247 Android App
+    Google AdMob & Trusted Web Activity (TWA) Manifest cho EduBot 247
+    Package: app.vercel.edubot247.twa
     App ID: ca-app-pub-5320880447374751~3167851635
-    Generated for: DactuanDHSP@gmail.com
+    URL Web: https://edubot247.vercel.app
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.edubot247.app">
+    package="app.vercel.edubot247.twa">
 
-    <!-- Quyền cần thiết cho Google Mobile Ads SDK -->
+    <!-- Quyền cần thiết cho mạng và Google Mobile Ads SDK -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -19,19 +20,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EduBot247">
 
-        <!-- Google AdMob Application ID (Ảnh 2) -->
+        <!-- Google AdMob Application ID (Bắt buộc cho SDK) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5320880447374751~3167851635"/>
 
-        <!-- 6 Đơn vị quảng cáo đã đăng ký trên AdMob Console (Ảnh 1 & 2):
-             1. Ads 1 (Native Advanced): ca-app-pub-5320880447374751/4003943665
-             2. Ads 2 (App Open):        ca-app-pub-5320880447374751/7345879147
-             3. Ads 3 (Banner):          ca-app-pub-5320880447374751/2768164873
-             4. Ads 4 (Rewarded Inter):  ca-app-pub-5320880447374751/3350793818
-             5. Ads 4 (Interstitial):    ca-app-pub-5320880447374751/5976957153
-             6. Reward (Rewarded):       ca-app-pub-5320880447374751/6933359339
-        -->
+        <!-- 1. SplashActivity: Màn hình chờ hiển thị Quảng cáo Mở ứng dụng (Ads 2: ca-app-pub-5320880447374751/7345879147) -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.EduBot247.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 2. LauncherActivity: Mở trang Web TWA chính chủ edubot247.vercel.app -->
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                android:value="https://edubot247.vercel.app" />
+        </activity>
 
     </application>
 </manifest>

@@ -16,7 +16,7 @@ import {
   Layers,
   Award
 } from 'lucide-react';
-import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, AdUnitConfig } from '../config/admob';
+import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, SPLASH_ACTIVITY_KOTLIN_SNIPPET, AdUnitConfig } from '../config/admob';
 
 interface AdMobManagerModalProps {
   isOpen: boolean;
@@ -222,19 +222,19 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                 <Smartphone className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-800 dark:text-amber-200 space-y-1">
                   <p className="font-semibold text-sm">
-                    Hướng dẫn tích hợp Google Mobile Ads SDK cho Android (Ảnh 2)
+                    Hướng dẫn tích hợp Google Mobile Ads SDK & TWA (Mã gói: app.vercel.edubot247.twa)
                   </p>
                   <p>
-                    Để phân phối quảng cáo chính thức lên ứng dụng Android (qua Capacitor, Android Studio hoặc TWA), bạn cần khai báo App ID <code className="font-bold text-amber-900 dark:text-amber-100">{ADMOB_CONFIG.appId}</code> vào file <code className="font-bold">AndroidManifest.xml</code>.
+                    Khai báo App ID <code className="font-bold text-amber-900 dark:text-amber-100">{ADMOB_CONFIG.appId}</code> vào <code className="font-bold">AndroidManifest.xml</code> và khởi chạy Quảng cáo Mở ứng dụng (Ads 2: <code className="font-bold">ca-app-pub-5320880447374751/7345879147</code>) trước khi TWA mở trang <code className="font-bold">https://edubot247.vercel.app</code>.
                   </p>
                 </div>
               </div>
 
-              {/* Code Snippet: AndroidManifest.xml */}
+              {/* Step 1: AndroidManifest.xml */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Code2 className="w-4 h-4 text-indigo-600" /> 1. Khai báo trong AndroidManifest.xml
+                    <Code2 className="w-4 h-4 text-indigo-600" /> Bước 1: Khai báo LauncherActivity trong AndroidManifest.xml
                   </span>
                   <button
                     onClick={() => copyToClipboard(ANDROID_MANIFEST_SNIPPET, 'android-manifest')}
@@ -244,16 +244,35 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                     <span>{copiedKey === 'android-manifest' ? 'Đã sao chép' : 'Sao chép đoạn mã'}</span>
                   </button>
                 </div>
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed">
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-60 scrollbar-thin">
                   {ANDROID_MANIFEST_SNIPPET}
                 </pre>
               </div>
 
-              {/* Code Snippet: build.gradle */}
+              {/* Step 2: SplashActivity.kt (App Open Ad - Ads 2) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Code2 className="w-4 h-4 text-indigo-600" /> 2. Khai báo dependency trong app/build.gradle
+                    <Code2 className="w-4 h-4 text-indigo-600" /> Bước 2: SplashActivity.kt (Quảng cáo mở ứng dụng - Ads 2)
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(SPLASH_ACTIVITY_KOTLIN_SNIPPET, 'splash-activity')}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    {copiedKey === 'splash-activity' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedKey === 'splash-activity' ? 'Đã sao chép' : 'Sao chép mã Kotlin'}</span>
+                  </button>
+                </div>
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-60 scrollbar-thin">
+                  {SPLASH_ACTIVITY_KOTLIN_SNIPPET}
+                </pre>
+              </div>
+
+              {/* Step 3: build.gradle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Code2 className="w-4 h-4 text-indigo-600" /> Bước 3: Khai báo Thư viện trong app/build.gradle
                   </span>
                   <button
                     onClick={() => copyToClipboard(ANDROID_GRADLE_SNIPPET, 'android-gradle')}

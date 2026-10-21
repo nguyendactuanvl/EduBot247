@@ -1,0 +1,49 @@
+// File: build.gradle (Module: app)
+// Cấu hình dependencies cho EduBot 247 Android TWA App
+
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    namespace 'app.vercel.edubot247.twa'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "app.vercel.edubot247.twa"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    // 1. Google Mobile Ads SDK (Bắt buộc cho AdMob App Open Ads & Interstitial)
+    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+
+    // 2. Android Browser Helper (Thư viện TWA mở trang edubot247.vercel.app)
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+
+    // 3. AndroidX & UI
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+}
