@@ -40,7 +40,7 @@ export function AdMobBanner({ onOpenAdManager }: AdMobBannerProps) {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1">
-            {onOpenAdManager && (
+            {import.meta.env.DEV && onOpenAdManager && (
               <button
                 onClick={onOpenAdManager}
                 className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 px-2 py-0.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-medium"

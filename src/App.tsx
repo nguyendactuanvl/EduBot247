@@ -395,18 +395,20 @@ export default function App() {
           </nav>
           
           <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-2">
-            <button
-              onClick={() => setIsAdManagerOpen(true)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold transition-colors border border-indigo-200 dark:border-indigo-800"
-            >
-              <span className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                Cấu hình 6 mã AdMob
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600 text-white font-mono">
-                AdMob
-              </span>
-            </button>
+            {import.meta.env.DEV && (
+              <button
+                onClick={() => setIsAdManagerOpen(true)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold transition-colors border border-indigo-200 dark:border-indigo-800"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  Cấu hình 6 mã AdMob
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600 text-white font-mono">
+                  Dev
+                </span>
+              </button>
+            )}
 
             <button
               onClick={toggleDarkMode}
@@ -451,13 +453,15 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setIsAdManagerOpen(true)}
-              className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              title="Cấu hình Google AdMob (6 mã)"
-            >
-              <ShieldCheck className="w-5 h-5" />
-            </button>
+            {import.meta.env.DEV && (
+              <button
+                onClick={() => setIsAdManagerOpen(true)}
+                className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                title="Cấu hình Google AdMob (6 mã)"
+              >
+                <ShieldCheck className="w-5 h-5" />
+              </button>
+            )}
             <button
               onClick={toggleDarkMode}
               className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
