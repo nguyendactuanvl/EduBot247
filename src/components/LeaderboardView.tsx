@@ -19,11 +19,13 @@ import {
 } from 'lucide-react';
 import { useEduBotUser, UserGrade } from '../hooks/useEduBotUser';
 import { MOCK_STUDENTS, MOCK_SCHOOLS } from '../data/mockLeaderboardData';
+import { DailyStreakCheckInModal } from './DailyStreakCheckInModal';
 
 export function LeaderboardView() {
   const { user, updateProfile } = useEduBotUser();
   const [activeTab, setActiveTab] = useState<'weekly' | 'streak' | 'school'>('weekly');
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
 
   // Registration modal form state
@@ -105,10 +107,14 @@ export function LeaderboardView() {
 
             {/* Streak & Rank Badges */}
             <div className="flex flex-wrap items-center gap-3 text-xs pt-1">
-              <span className="px-3 py-1.5 bg-amber-500/15 border border-amber-500/30 rounded-xl text-amber-300 font-bold flex items-center space-x-1.5">
+              <button
+                onClick={() => setIsStreakModalOpen(true)}
+                className="px-3.5 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 rounded-xl text-amber-300 font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Bấm để xem lịch điểm danh 7 ngày & nhận thưởng"
+              >
                 <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
-                <span>{user.streak.currentStreak} Ngày Streak 🔥</span>
-              </span>
+                <span>{user.streak.currentStreak} Ngày Streak 🔥 (Lịch Điểm Danh)</span>
+              </button>
 
               <span className="px-3 py-1.5 bg-purple-500/15 border border-purple-500/30 rounded-xl text-purple-300 font-bold flex items-center space-x-1.5">
                 <Trophy className="w-4 h-4 text-purple-400" />
@@ -469,6 +475,17 @@ export function LeaderboardView() {
           </form>
         </div>
       )}
+
+      {/* Daily Streak & Check-in Modal */}
+      <DailyStreakCheckInModal
+        isOpen={isStreakModalOpen}
+        onClose={() => setIsStreakModalOpen(false)}
+        onNavigateToLeaderboard={() => setIsStreakModalOpen(false)}
+        onOpenRegisterModal={() => {
+          setIsStreakModalOpen(false);
+          setIsRegisterModalOpen(true);
+        }}
+      />
 
     </div>
   );

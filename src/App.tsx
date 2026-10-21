@@ -47,7 +47,9 @@ import {
   Languages,
   StickyNote,
   Swords,
-  Cpu
+  Cpu,
+  Flame,
+  Crown
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
@@ -63,14 +65,30 @@ import { StickyNotes } from './components/StickyNotes';
 import { TeamArena } from './components/TeamArena';
 import { CalculatorSkillsHub } from './components/CalculatorSkillsHub';
 import { LeaderboardView } from './components/LeaderboardView';
+import { DailyStreakCheckInModal } from './components/DailyStreakCheckInModal';
+import { useEduBotUser } from './hooks/useEduBotUser';
 
 export default function App() {
+  const { user } = useEduBotUser();
   const [activeTab, setActiveTab] = useState<'exam' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
   const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [activeRewardUnitKey, setActiveRewardUnitKey] = useState<'REWARD_PHAN_THUONG' | 'ADS_4_REWARDED_INTERSTITIAL' | 'ADS_4_INTERSTITIAL' | 'ADS_2_APP_OPEN'>('REWARD_PHAN_THUONG');
+
+  // Auto-show streak & leaderboard check-in modal when user opens the app
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem('edubot_streak_modal_seen');
+    if (!alreadyShown) {
+      sessionStorage.setItem('edubot_streak_modal_seen', 'true');
+      const timer = setTimeout(() => {
+        setIsStreakModalOpen(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -182,6 +200,66 @@ export default function App() {
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* User Profile & Daily Streak Card */}
+          <div className="mx-4 mt-3 mb-1 p-3.5 bg-gradient-to-br from-slate-900 via-indigo-950/70 to-slate-900 border border-purple-800/40 rounded-2xl shadow-md space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2.5 overflow-hidden">
+                <span className="w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-lg shrink-0">
+                  {user.avatar}
+                </span>
+                <div className="overflow-hidden">
+                  <span className="font-bold text-xs text-white truncate block">{user.nickname}</span>
+                  <span className="text-[10px] text-purple-300 font-mono block truncate">{user.grade} • {user.rank}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveTab('leaderboard');
+                  setIsSidebarOpen(false);
+                }}
+                title="Xem Bảng Xếp Hạng Đua Top"
+                className="p-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 rounded-xl transition-all shrink-0 cursor-pointer"
+              >
+                <Trophy className="w-4 h-4 text-amber-400" />
+              </button>
+            </div>
+
+            {/* Interactive Streak Counter */}
+            <button
+              onClick={() => {
+                setIsStreakModalOpen(true);
+                setIsSidebarOpen(false);
+              }}
+              className="w-full p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all flex items-center justify-between text-left group cursor-pointer"
+              title="Bấm để xem lịch điểm danh 7 ngày & nhận thưởng"
+            >
+              <div className="flex items-center space-x-2">
+                <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse group-hover:scale-110 transition-transform" />
+                <div>
+                  <span className="text-[10px] text-amber-300/80 uppercase font-bold block leading-none">Chuỗi học tập</span>
+                  <span className="text-xs font-black font-mono text-amber-300">{user.streak.currentStreak} Ngày Streak 🔥</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-amber-400 bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded-lg">
+                Điểm danh
+              </span>
+            </button>
+
+            {/* Total XP & Rank Standing */}
+            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-purple-900/40 text-slate-300 font-mono">
+              <span className="text-slate-400">Điểm: <strong className="text-amber-400">{user.totalXP} XP</strong></span>
+              <button
+                onClick={() => {
+                  setActiveTab('leaderboard');
+                  setIsSidebarOpen(false);
+                }}
+                className="text-purple-300 hover:text-purple-200 underline font-semibold cursor-pointer"
+              >
+                Top #13 Toàn quốc →
               </button>
             </div>
           </div>
@@ -609,21 +687,21 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 h-full overflow-hidden flex flex-col bg-slate-50 dark:bg-slate-950">
-        {/* Header - Mobile Only */}
+        {/* Header - Mobile */}
         <div className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-10">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5 overflow-hidden">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <span className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
+            <span className="font-semibold text-slate-800 dark:text-slate-100 text-base truncate">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
               {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Streak'}
-              {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
-              {activeTab === 'calcskills' && 'Skill Bấm Máy Tính THPT'}
-              {activeTab === 'studytoolkit' && 'Công cụ học tập Đa năng'}
+              {activeTab === 'teamarena' && 'Giải đấu Đội nhóm'}
+              {activeTab === 'calcskills' && 'Skill Bấm Máy Tính'}
+              {activeTab === 'studytoolkit' && 'Công cụ học tập'}
               {activeTab === 'physics' && 'Vật lý THPT'}
               {activeTab === 'chemistry' && 'Hóa học THPT'}
               {activeTab === 'biology' && 'Sinh học THPT'}
@@ -638,34 +716,133 @@ export default function App() {
               {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
               {activeTab === 'timetable' && 'Thời khóa biểu'}
               {activeTab === 'games' && 'Trò chơi Lớp học'}
-              {activeTab === 'stickynotes' && 'Ghi chú cá nhân (Sticky Notes)'}
+              {activeTab === 'stickynotes' && 'Ghi chú cá nhân'}
             </span>
           </div>
-          <div className="flex items-center space-x-1">
-            {import.meta.env.DEV && (
-              <button
-                onClick={() => setIsAdManagerOpen(true)}
-                className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                title="Cấu hình Google AdMob (6 mã)"
-              >
-                <ShieldCheck className="w-5 h-5" />
-              </button>
-            )}
+
+          <div className="flex items-center space-x-1.5 shrink-0">
+            {/* Mobile Streak Button */}
+            <button
+              onClick={() => setIsStreakModalOpen(true)}
+              className="px-2.5 py-1 bg-amber-500/15 border border-amber-500/30 rounded-xl text-amber-500 dark:text-amber-300 text-xs font-bold flex items-center space-x-1 active:scale-95"
+              title="Điểm danh & Streak"
+            >
+              <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+              <span className="font-mono">{user.streak.currentStreak}</span>
+            </button>
+
+            {/* Mobile Leaderboard shortcut */}
+            <button
+              onClick={() => setActiveTab('leaderboard')}
+              className={`p-1.5 rounded-xl border transition-all ${
+                activeTab === 'leaderboard'
+                  ? 'bg-amber-500 text-slate-950 border-amber-400'
+                  : 'bg-slate-100 dark:bg-slate-800 text-purple-600 dark:text-purple-300 border-slate-200 dark:border-slate-700'
+              }`}
+              title="Bảng Xếp Hạng"
+            >
+              <Trophy className="w-4 h-4 text-amber-500" />
+            </button>
+
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
               title={isDarkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
             >
-              {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
+
             {activeTab === 'statistics' && (
               <button
                 onClick={() => setIsHistoryOpen(true)}
-                className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
               >
-                <History className="w-5 h-5" />
+                <History className="w-4 h-4" />
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Header - Desktop */}
+        <div className="hidden lg:flex bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-3 items-center justify-between shrink-0 shadow-xs z-10">
+          <div className="flex items-center space-x-3">
+            <span className="font-extrabold text-slate-800 dark:text-slate-100 text-base">
+              {activeTab === 'exam' && 'Luyện tập SGK & Thi thử KNTT'}
+              {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Chuỗi Ngày Học (Streak)'}
+              {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
+              {activeTab === 'calcskills' && 'Skill Bấm Máy Tính Giải Nhanh THPT'}
+              {activeTab === 'studytoolkit' && 'Công cụ học tập Đa năng'}
+              {activeTab === 'physics' && 'Vật lý THPT - Mô phỏng & Đồ thị'}
+              {activeTab === 'chemistry' && 'Hóa học THPT - Phân tử 3D & Thí nghiệm'}
+              {activeTab === 'biology' && 'Sinh học THPT - Di truyền & ADN'}
+              {activeTab === 'english' && 'Tiếng Anh THPT - Ngữ pháp & Trắc nghiệm'}
+              {activeTab === 'worksheets' && 'Tạo Phiếu học tập'}
+              {activeTab === 'statistics' && 'Tính toán thống kê'}
+              {activeTab === 'calculator' && 'Máy tính MTBT2026'}
+              {activeTab === 'virtuallabs' && 'Thí nghiệm Ảo'}
+              {activeTab === 'edubot' && 'Tra cứu công thức'}
+              {activeTab === 'video' && 'Bài giảng Video'}
+              {activeTab === 'tts' && 'Đọc văn bản (TTS)'}
+              {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
+              {activeTab === 'timetable' && 'Thời khóa biểu'}
+              {activeTab === 'games' && 'Trò chơi Lớp học'}
+              {activeTab === 'stickynotes' && 'Ghi chú cá nhân (Sticky Notes)'}
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+              GDPT 2018
+            </span>
+          </div>
+
+          {/* Right: Streak, XP & Leaderboard Status */}
+          <div className="flex items-center space-x-3">
+            {/* Streak Badge Button */}
+            <button
+              onClick={() => setIsStreakModalOpen(true)}
+              className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-300 font-bold text-xs transition-all flex items-center space-x-1.5 shadow-xs active:scale-95 cursor-pointer"
+              title="Bấm để xem lịch điểm danh 7 ngày & nhận thưởng"
+            >
+              <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
+              <span className="font-mono">{user.streak.currentStreak} Ngày Streak 🔥</span>
+            </button>
+
+            {/* Total XP & Rank */}
+            <div className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800 rounded-xl text-xs font-mono font-bold text-purple-700 dark:text-purple-300 flex items-center space-x-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              <span>{user.totalXP} XP</span>
+              <span className="text-slate-400 font-sans">• {user.rank}</span>
+            </div>
+
+            {/* Leaderboard Button */}
+            <button
+              onClick={() => setActiveTab('leaderboard')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 border ${
+                activeTab === 'leaderboard'
+                  ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <span>Bảng Xếp Hạng</span>
+            </button>
+
+            {/* User Profile Pill */}
+            <button
+              onClick={() => setIsStreakModalOpen(true)}
+              className="flex items-center space-x-2 pl-2 pr-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors"
+              title="Hồ sơ học sinh & Streak"
+            >
+              <span className="text-base">{user.avatar}</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[120px] truncate">{user.nickname}</span>
+            </button>
+
+            {/* Dark Mode */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-slate-200 dark:border-slate-700"
+              title={isDarkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            </button>
           </div>
         </div>
 
@@ -860,6 +1037,16 @@ export default function App() {
         isOpen={isRewardModalOpen}
         onClose={() => setIsRewardModalOpen(false)}
         adUnitKey={activeRewardUnitKey}
+      />
+
+      {/* Daily Streak & Leaderboard Check-In Modal on App Launch / Click */}
+      <DailyStreakCheckInModal
+        isOpen={isStreakModalOpen}
+        onClose={() => setIsStreakModalOpen(false)}
+        onNavigateToLeaderboard={() => {
+          setIsStreakModalOpen(false);
+          setActiveTab('leaderboard');
+        }}
       />
     </div>
   );

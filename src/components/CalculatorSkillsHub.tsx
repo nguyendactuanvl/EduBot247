@@ -297,9 +297,9 @@ export function CalculatorSkillsHub() {
               </button>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <div className="text-xs text-slate-300 leading-relaxed">
               <MathView content={skill.description} />
-            </p>
+            </div>
 
             {/* Key Sequence Badges */}
             <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
