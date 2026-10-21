@@ -19,6 +19,13 @@ import {
   XCircle
 } from 'lucide-react';
 import { MathView } from './MathView';
+import { 
+  KNTT_TOPICS, 
+  KNTT_QUESTION_BANK, 
+  BattleGrade, 
+  BattleSubject, 
+  KNTTBattleQuestion 
+} from '../data/knttTeamBattleQuestions';
 
 // Rank types
 export type TeamRank = 'Tân thủ' | 'Chuyên gia' | 'Cao thủ' | 'Đại cao thủ' | 'Siêu cấp bá khí';
@@ -181,6 +188,14 @@ export function TeamArena() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [battleScore, setBattleScore] = useState(0);
   const [battleFinished, setBattleFinished] = useState(false);
+
+  // Match configuration states (Grade, Subject, Topic KNTT)
+  const [selectedGrade, setSelectedGrade] = useState<BattleGrade>('Lớp 12');
+  const [selectedSubject, setSelectedSubject] = useState<'Đa môn' | BattleSubject>('Đa môn');
+  const [selectedTopicId, setSelectedTopicId] = useState<string>('all');
+  const [isBattleConfigOpen, setIsBattleConfigOpen] = useState(false);
+  const [activeBattleQuestions, setActiveBattleQuestions] = useState<KNTTBattleQuestion[]>([]);
+
   // Join code states
   const [isJoiningCodeOpen, setIsJoiningCodeOpen] = useState(false);
   const [inputJoinCode, setInputJoinCode] = useState('');
@@ -330,6 +345,26 @@ export function TeamArena() {
   };
 
   const handleStartBattle = () => {
+    setIsBattleConfigOpen(true);
+  };
+
+  const handleConfirmStartBattle = () => {
+    let filtered = KNTT_QUESTION_BANK.filter(q => q.grade === selectedGrade);
+
+    if (selectedSubject !== 'Đa môn') {
+      filtered = filtered.filter(q => q.subject === selectedSubject);
+    }
+
+    if (selectedTopicId !== 'all') {
+      filtered = filtered.filter(q => q.topicId === selectedTopicId);
+    }
+
+    if (filtered.length === 0) {
+      filtered = KNTT_QUESTION_BANK.filter(q => q.grade === selectedGrade);
+    }
+
+    setActiveBattleQuestions(filtered);
+    setIsBattleConfigOpen(false);
     setInBattle(true);
     setCurrentQuestionIdx(0);
     setSelectedAnswer(null);
@@ -338,21 +373,20 @@ export function TeamArena() {
   };
 
   const handleSelectAnswer = (idx: number) => {
-    if (selectedAnswer !== null) return;
+    if (selectedAnswer !== null || activeBattleQuestions.length === 0) return;
     setSelectedAnswer(idx);
-    const q = BATTLE_QUESTIONS[currentQuestionIdx];
+    const q = activeBattleQuestions[currentQuestionIdx];
     if (idx === q.correctAnswer) {
       setBattleScore(prev => prev + 250);
     }
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIdx < BATTLE_QUESTIONS.length - 1) {
+    if (currentQuestionIdx < activeBattleQuestions.length - 1) {
       setCurrentQuestionIdx(prev => prev + 1);
       setSelectedAnswer(null);
     } else {
       setBattleFinished(true);
-      // Award XP to team
       if (myTeam) {
         const bonusXP = battleScore + 200;
         const newXP = myTeam.totalXP + bonusXP;
@@ -525,19 +559,23 @@ export function TeamArena() {
       )}
 
       {/* Battle Arena Modal / View */}
-      {inBattle && (
+      {inBattle && activeBattleQuestions.length > 0 && (
         <div className="fixed inset-0 bg-slate-950/90 z-50 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-slate-900 border border-purple-800/80 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6">
             
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center space-x-3">
-                <span className="p-2 bg-purple-600/20 text-purple-400 rounded-xl font-bold text-xs uppercase">
-                  {BATTLE_QUESTIONS[currentQuestionIdx].subject}
+            <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-800 gap-2">
+              <div className="flex items-center space-x-2">
+                <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-xl font-bold text-xs">
+                  {activeBattleQuestions[currentQuestionIdx]?.grade || selectedGrade}
                 </span>
-                <span className="text-sm font-bold text-white">
-                  Câu hỏi {currentQuestionIdx + 1} / {BATTLE_QUESTIONS.length}
+                <span className="px-2.5 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/40 rounded-xl font-bold text-xs">
+                  {activeBattleQuestions[currentQuestionIdx]?.subject || selectedSubject}
+                </span>
+                <span className="text-xs font-bold text-slate-300">
+                  Câu {currentQuestionIdx + 1}/{activeBattleQuestions.length}
                 </span>
               </div>
+
               <span className="font-mono text-xs text-amber-400 font-bold bg-amber-950/50 px-3 py-1 rounded-full border border-amber-800">
                 Điểm Đội: +{battleScore} XP
               </span>
@@ -545,15 +583,19 @@ export function TeamArena() {
 
             {!battleFinished ? (
               <div className="space-y-6">
+                <div className="text-xs text-slate-400 font-medium italic">
+                  Chủ đề: {activeBattleQuestions[currentQuestionIdx]?.topicName}
+                </div>
+
                 <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-sm leading-relaxed">
-                  <MathView content={BATTLE_QUESTIONS[currentQuestionIdx].question} />
+                  <MathView content={activeBattleQuestions[currentQuestionIdx]?.question || ''} />
                 </div>
 
                 <div className="space-y-3">
-                  {BATTLE_QUESTIONS[currentQuestionIdx].options.map((opt, i) => {
+                  {activeBattleQuestions[currentQuestionIdx]?.options.map((opt, i) => {
                     let btnClass = "bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200";
                     if (selectedAnswer !== null) {
-                      if (i === BATTLE_QUESTIONS[currentQuestionIdx].correctAnswer) {
+                      if (i === activeBattleQuestions[currentQuestionIdx].correctAnswer) {
                         btnClass = "bg-emerald-950/80 border-emerald-500 text-emerald-300 font-bold";
                       } else if (i === selectedAnswer) {
                         btnClass = "bg-rose-950/80 border-rose-500 text-rose-300";
@@ -568,7 +610,7 @@ export function TeamArena() {
                         className={`w-full p-4 text-left rounded-2xl border text-xs sm:text-sm transition-all flex items-center justify-between ${btnClass}`}
                       >
                         <MathView inline content={`**${String.fromCharCode(65 + i)}.** ${opt}`} />
-                        {selectedAnswer !== null && i === BATTLE_QUESTIONS[currentQuestionIdx].correctAnswer && (
+                        {selectedAnswer !== null && i === activeBattleQuestions[currentQuestionIdx].correctAnswer && (
                           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 ml-2" />
                         )}
                       </button>
@@ -578,8 +620,8 @@ export function TeamArena() {
 
                 {selectedAnswer !== null && (
                   <div className="p-4 bg-purple-950/40 border border-purple-800/60 rounded-2xl text-xs space-y-2">
-                    <span className="font-bold text-purple-300 block">Lời giải chi tiết:</span>
-                    <MathView content={BATTLE_QUESTIONS[currentQuestionIdx].explanation} />
+                    <span className="font-bold text-purple-300 block">Lời giải chi tiết KNTT:</span>
+                    <MathView content={activeBattleQuestions[currentQuestionIdx]?.explanation || ''} />
                   </div>
                 )}
 
@@ -589,7 +631,7 @@ export function TeamArena() {
                     onClick={handleNextQuestion}
                     className="px-6 py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-2xl transition-all"
                   >
-                    {currentQuestionIdx < BATTLE_QUESTIONS.length - 1 ? 'Câu tiếp theo →' : 'Hoàn thành Đấu trường'}
+                    {currentQuestionIdx < activeBattleQuestions.length - 1 ? 'Câu tiếp theo →' : 'Hoàn thành Đấu trường'}
                   </button>
                 </div>
               </div>
@@ -599,7 +641,7 @@ export function TeamArena() {
                 <div>
                   <h3 className="text-2xl font-black text-white">Chúc mừng {myTeam?.name || 'Đội bạn'}!</h3>
                   <p className="text-sm text-purple-300 mt-1">
-                    Đã hoàn thành xuất sắc giải đấu đồng đội và cộng vào quỹ XP Team:
+                    Đã hoàn thành xuất sắc trận đấu KNTT ({selectedGrade} - {selectedSubject}) và cộng vào quỹ XP Team:
                   </p>
                   <span className="text-3xl font-black font-mono text-amber-400 block mt-2">
                     +{battleScore + 200} XP 🔥
@@ -750,6 +792,112 @@ export function TeamArena() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal Match Configuration (Grade, Subject & Topic KNTT Selection) */}
+      {isBattleConfigOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-purple-800/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
+            <div className="pb-3 border-b border-slate-800 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white flex items-center space-x-2">
+                <Swords className="w-5 h-5 text-purple-400" />
+                <span>Cấu hình Trận đấu KNTT</span>
+              </h3>
+              <button type="button" onClick={() => setIsBattleConfigOpen(false)} className="text-slate-400 hover:text-white text-xs">✕ Đóng</button>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Lựa chọn <strong className="text-amber-300">Khối Lớp</strong>, <strong className="text-purple-300">Môn học</strong> và <strong className="text-emerald-300">Chủ đề SGK Kết Nối Tri Thức</strong> để học sinh không bị gặp câu hỏi chưa học!
+            </p>
+
+            <div className="space-y-4 text-xs">
+              
+              {/* 1. Chọn Lớp */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">1. Chọn Lớp đang học (Tránh câu hỏi lớp trên):</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['Lớp 10', 'Lớp 11', 'Lớp 12'] as BattleGrade[]).map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => {
+                        setSelectedGrade(g);
+                        setSelectedTopicId('all');
+                      }}
+                      className={`py-2.5 rounded-xl font-bold border transition-all ${
+                        selectedGrade === g
+                          ? 'bg-amber-600 text-white border-amber-500 shadow-md'
+                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. Chọn Môn học */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">2. Chọn Môn thi đấu:</label>
+                <div className="flex flex-wrap gap-2">
+                  {(['Đa môn', 'Toán', 'Vật lý', 'Hóa học', 'Sinh học', 'Tiếng Anh'] as const).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSubject(s);
+                        setSelectedTopicId('all');
+                      }}
+                      className={`px-3 py-2 rounded-xl font-bold border transition-all text-xs ${
+                        selectedSubject === s
+                          ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {s === 'Đa môn' ? '🌐 Đa môn (KNTT)' : s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Chọn Chủ đề / Chương bài KNTT */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1.5">3. Chủ đề / Bài học SGK Kết Nối Tri Thức:</label>
+                <select
+                  value={selectedTopicId}
+                  onChange={(e) => setSelectedTopicId(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-purple-500 font-medium"
+                >
+                  <option value="all">📚 Tất cả các Chủ đề chương trình {selectedGrade}</option>
+                  {KNTT_TOPICS.filter(t => t.grade === selectedGrade && (selectedSubject === 'Đa môn' || t.subject === selectedSubject)).map((t) => (
+                    <option key={t.id} value={t.id}>
+                      [{t.subject}] {t.topicName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsBattleConfigOpen(false)}
+                className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmStartBattle}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg transition-all flex items-center space-x-1.5"
+              >
+                <Play className="w-4 h-4 fill-white" />
+                <span>Bắt đầu Đấu trường KNTT →</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
