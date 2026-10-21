@@ -9,6 +9,7 @@ import { jsPDF } from 'jspdf';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { StatisticsCharts } from './StatisticsCharts';
 
 interface ResultViewProps {
   result: CalculationResult;
@@ -127,6 +128,11 @@ Yêu cầu:
               <MetricCard label="Trung vị (Q₂)" value={round(result.q2)} />
               <MetricCard label="Tứ phân vị 3 (Q₃)" value={round(result.q3)} />
               <MetricCard label="Khoảng tứ phân vị (∆Q)" value={round(result.iqr)} className="col-span-2 md:col-span-4" />
+            </div>
+
+            {/* Trực quan hóa Biểu đồ Thống kê Recharts */}
+            <div className="mt-6 mb-8">
+              <StatisticsCharts result={result} />
             </div>
 
             <div className="mt-8">
