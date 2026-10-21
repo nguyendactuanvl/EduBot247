@@ -40,16 +40,24 @@ import {
   Trophy,
   Sun,
   Moon,
-  ShieldCheck
+  ShieldCheck,
+  Zap,
+  FlaskConical,
+  Dna,
+  Languages
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
 import { AdMobManagerModal } from './components/AdMobManagerModal';
 import { AdMobRewardModal } from './components/AdMobRewardModal';
 import { ADMOB_CONFIG } from './config/admob';
+import { PhysicsToolkit } from './components/PhysicsToolkit';
+import { ChemistryToolkit } from './components/ChemistryToolkit';
+import { BiologyToolkit } from './components/BiologyToolkit';
+import { EnglishToolkit } from './components/EnglishToolkit';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('exam');
+  const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
@@ -189,6 +197,90 @@ export default function App() {
               </div>
               <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'studytoolkit' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
                 1. Đồ thị & Khảo sát KNTT
+              </span>
+            </button>
+
+            {/* Môn Vật Lý THPT */}
+            <button
+              onClick={() => {
+                setActiveTab('physics');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'physics'
+                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Zap className={`w-5 h-5 ${activeTab === 'physics' ? 'text-blue-600 dark:text-blue-400' : 'text-amber-500'}`} />
+                <span className="text-left text-base">Công cụ Vật lý THPT</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'physics' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Đồ thị dao động & Mạch điện
+              </span>
+            </button>
+
+            {/* Môn Hóa học THPT */}
+            <button
+              onClick={() => {
+                setActiveTab('chemistry');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'chemistry'
+                  ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <FlaskConical className={`w-5 h-5 ${activeTab === 'chemistry' ? 'text-teal-600 dark:text-teal-400' : 'text-emerald-500'}`} />
+                <span className="text-left text-base">Công cụ Hóa học THPT</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'chemistry' ? 'text-teal-500 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Bảng tuần hoàn & Thí nghiệm ảo
+              </span>
+            </button>
+
+            {/* Môn Sinh học THPT */}
+            <button
+              onClick={() => {
+                setActiveTab('biology');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'biology'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Dna className={`w-5 h-5 ${activeTab === 'biology' ? 'text-emerald-600 dark:text-emerald-400' : 'text-green-500'}`} />
+                <span className="text-left text-base">Công cụ Sinh học THPT</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'biology' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                Lai Mendel, Bảng Punnett, ADN
+              </span>
+            </button>
+
+            {/* Môn Tiếng Anh THPT */}
+            <button
+              onClick={() => {
+                setActiveTab('english');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'english'
+                  ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Languages className={`w-5 h-5 ${activeTab === 'english' ? 'text-purple-600 dark:text-purple-400' : 'text-violet-500'}`} />
+                <span className="text-left text-base">Công cụ Tiếng Anh THPT</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'english' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                12 Thì & Động từ bất quy tắc
               </span>
             </button>
 
@@ -440,6 +532,10 @@ export default function App() {
             <span className="font-semibold text-slate-800 dark:text-slate-100 text-lg">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
               {activeTab === 'studytoolkit' && 'Công cụ học tập Đa năng'}
+              {activeTab === 'physics' && 'Vật lý THPT'}
+              {activeTab === 'chemistry' && 'Hóa học THPT'}
+              {activeTab === 'biology' && 'Sinh học THPT'}
+              {activeTab === 'english' && 'Tiếng Anh THPT'}
               {activeTab === 'worksheets' && 'Tạo Phiếu học tập'}
               {activeTab === 'statistics' && 'Tính toán thống kê'}
               {activeTab === 'calculator' && 'Máy tính MTBT2026'}
@@ -499,6 +595,30 @@ export default function App() {
           {activeTab === 'studytoolkit' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <MultiStudyToolkit />
+            </div>
+          )}
+
+          {activeTab === 'physics' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <PhysicsToolkit />
+            </div>
+          )}
+
+          {activeTab === 'chemistry' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <ChemistryToolkit />
+            </div>
+          )}
+
+          {activeTab === 'biology' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <BiologyToolkit />
+            </div>
+          )}
+
+          {activeTab === 'english' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <EnglishToolkit />
             </div>
           )}
           
