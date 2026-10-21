@@ -46,6 +46,7 @@ import {
   QUESTION_BANK, 
   Question 
 } from './THPTExamPractice';
+import { AdMobNativeCard } from './AdMobNativeCard';
 
 export function KNTTPracticeHub() {
   // Navigation Modes
@@ -748,6 +749,11 @@ export function KNTTPracticeHub() {
                   </div>
                 </div>
               )}
+
+              {/* AdMob Native Advanced Card (Ads 1) */}
+              <div className="pt-2">
+                <AdMobNativeCard />
+              </div>
             </div>
           ) : (
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-200 dark:border-slate-800 space-y-3">

@@ -39,14 +39,22 @@ import {
   GraduationCap, 
   Trophy,
   Sun,
-  Moon
+  Moon,
+  ShieldCheck
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { AdMobBanner } from './components/AdMobBanner';
+import { AdMobManagerModal } from './components/AdMobManagerModal';
+import { AdMobRewardModal } from './components/AdMobRewardModal';
+import { ADMOB_CONFIG } from './config/admob';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'exam' | 'studytoolkit' | 'worksheets' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games'>('exam');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAdManagerOpen, setIsAdManagerOpen] = useState(false);
+  const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
+  const [activeRewardUnitKey, setActiveRewardUnitKey] = useState<'REWARD_PHAN_THUONG' | 'ADS_4_REWARDED_INTERSTITIAL' | 'ADS_4_INTERSTITIAL' | 'ADS_2_APP_OPEN'>('REWARD_PHAN_THUONG');
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -386,7 +394,20 @@ export default function App() {
             </button>
           </nav>
           
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-2">
+            <button
+              onClick={() => setIsAdManagerOpen(true)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold transition-colors border border-indigo-200 dark:border-indigo-800"
+            >
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                Cấu hình 6 mã AdMob
+              </span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600 text-white font-mono">
+                AdMob
+              </span>
+            </button>
+
             <button
               onClick={toggleDarkMode}
               className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium transition-colors"
@@ -430,6 +451,13 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setIsAdManagerOpen(true)}
+              className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              title="Cấu hình Google AdMob (6 mã)"
+            >
+              <ShieldCheck className="w-5 h-5" />
+            </button>
             <button
               onClick={toggleDarkMode}
               className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
@@ -559,6 +587,9 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* AdMob Bottom Adaptive Banner (Ads 3) */}
+        <AdMobBanner onOpenAdManager={() => setIsAdManagerOpen(true)} />
       </main>
 
       {isHistoryOpen && (
@@ -569,6 +600,23 @@ export default function App() {
           onClear={handleClearHistory}
         />
       )}
+
+      {/* Google AdMob 6 Units Manager Modal */}
+      <AdMobManagerModal 
+        isOpen={isAdManagerOpen}
+        onClose={() => setIsAdManagerOpen(false)}
+        onTestAdUnit={(unitKey) => {
+          setActiveRewardUnitKey(unitKey);
+          setIsRewardModalOpen(true);
+        }}
+      />
+
+      {/* AdMob Reward / Interstitial / App Open Simulation Modal */}
+      <AdMobRewardModal
+        isOpen={isRewardModalOpen}
+        onClose={() => setIsRewardModalOpen(false)}
+        adUnitKey={activeRewardUnitKey}
+      />
     </div>
   );
 }

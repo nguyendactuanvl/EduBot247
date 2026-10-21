@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, X, Loader2, Sparkles, Trash2, Key, Camera, Image as ImageIcon } from 'lucide-react';
+import { Bot, Send, X, Loader2, Sparkles, Trash2, Key, Camera, Image as ImageIcon, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { AdMobRewardModal } from './AdMobRewardModal';
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ export function FormulaChat() {
   const [selectedGrade, setSelectedGrade] = useState('Lớp 12');
   const [selectedSubject, setSelectedSubject] = useState('Toán');
   const [filePreview, setFilePreview] = useState<{type: string, data: string, name: string} | null>(null);
+  const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const defaultMessages: Message[] = [
     {
@@ -189,6 +191,14 @@ export function FormulaChat() {
           </div>
         </div>
         <div className="flex items-center space-x-1 sm:space-x-2">
+          <button 
+            onClick={() => setIsRewardModalOpen(true)}
+            className="p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/30 rounded-lg transition-colors flex items-center gap-1.5"
+            title="Xem quảng cáo AdMob nhận thưởng thêm lượt hỏi AI"
+          >
+            <Award className="w-5 h-5 text-amber-300" />
+            <span className="hidden sm:inline text-xs font-semibold">Nhận thưởng AdMob</span>
+          </button>
           <button 
             onClick={() => setShowApiKeyModal(true)}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2"
@@ -421,6 +431,24 @@ export function FormulaChat() {
           </div>
         </div>
       )}
+
+      {/* AdMob Rewarded Ad Modal */}
+      <AdMobRewardModal
+        isOpen={isRewardModalOpen}
+        onClose={() => setIsRewardModalOpen(false)}
+        adUnitKey="REWARD_PHAN_THUONG"
+        rewardTitle="Nhận thêm 5 lượt hỏi & giải bài tập EduBot 247"
+        onRewardEarned={() => {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              role: 'assistant',
+              content: '🎉 **Chúc mừng cậu!** Cậu đã nhận thêm **5 lượt hỏi Gia sư EduBot 247** từ phần thưởng Google AdMob. Cậu hãy gửi bài tập hoặc ảnh câu hỏi tiếp theo để tớ hỗ trợ giải chi tiết nhé!'
+            }
+          ]);
+        }}
+      />
     </div>
   );
 }
