@@ -12,6 +12,9 @@ export interface LeaderboardStudent {
   totalXP: number;
   streakDays: number;
   rankTier: UserRank;
+  isCurrentUser?: boolean;
+  authProvider?: 'guest' | 'google' | 'facebook';
+  isVerified?: boolean;
 }
 
 export interface SchoolLeaderboardEntry {

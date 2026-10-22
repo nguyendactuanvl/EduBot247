@@ -15,6 +15,9 @@ export interface UserProfile {
   isGuest: boolean;
   nickname: string;
   avatar: string;
+  email?: string;
+  authProvider?: 'guest' | 'google' | 'facebook';
+  isVerified?: boolean;
   grade: UserGrade;
   schoolName: string;
   province: string;
@@ -30,6 +33,8 @@ const DEFAULT_GUEST_USER: UserProfile = {
   isGuest: true,
   nickname: 'Học sinh Hiếu học',
   avatar: '🎓',
+  authProvider: 'guest',
+  isVerified: false,
   grade: 'Lớp 12',
   schoolName: 'THPT Chuyên Hà Nội - Amsterdam',
   province: 'Hà Nội',
@@ -160,10 +165,21 @@ export function useEduBotUser() {
     }));
   }, []);
 
+  // Logout / Switch account back to guest
+  const logout = useCallback(() => {
+    localStorage.removeItem('edubot_user_profile');
+    setUser({
+      ...DEFAULT_GUEST_USER,
+      id: `guest_${Math.random().toString(36).substring(2, 9)}`,
+      createdAt: new Date().toISOString()
+    });
+  }, []);
+
   return {
     user,
     addPoints,
     updateStreak,
     updateProfile,
+    logout,
   };
 }

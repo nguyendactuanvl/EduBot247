@@ -245,7 +245,9 @@ export function DailyStreakCheckInModal({
           <div className="flex items-center space-x-3">
             <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
-              <span className="font-bold text-white block">Thứ hạng của bạn: #13 Toàn quốc</span>
+              <span className="font-bold text-white block">
+                Thứ hạng của bạn: #{user.rank === 'Trạng nguyên EduBot' ? '1' : user.rank === 'Cao thủ Tự nhiên' ? '5' : user.totalXP > 700 ? '11' : '13'} Toàn quốc
+              </span>
               <span className="text-[11px] text-slate-400">{user.schoolName} ({user.province})</span>
             </div>
           </div>
