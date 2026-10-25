@@ -1,0 +1,74 @@
+// ==========================================
+// 1. Root-level Gradle File (<project>/build.gradle.kts)
+// ==========================================
+
+plugins {
+    id("com.android.application") version "8.2.2" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+
+    // Add the dependency for the Google services Gradle plugin
+    id("com.google.gms.google-services") version "4.5.0" apply false
+}
+
+// ==========================================
+// 2. Module (app-level) Gradle File (<project>/<app-module>/build.gradle.kts)
+// ==========================================
+
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
+}
+
+android {
+    namespace = "app.vercel.edubot247.twa"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "app.vercel.edubot247.twa"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    // 1. Import the Firebase BoM (Bill of Materials)
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+
+    // 2. Firebase Products (phiên bản được tự động quản lý bởi BoM)
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
+
+    // 3. Google Mobile Ads SDK (AdMob)
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
+
+    // 4. Android Browser Helper (Trusted Web Activity - TWA mở edubot247.vercel.app)
+    implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
+
+    // 5. AndroidX & UI
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+}

@@ -185,12 +185,52 @@ class SplashActivity : AppCompatActivity() {
 }`;
 
 /**
- * Gradle build configuration for Android
+ * Gradle build configuration for Android (Kotlin DSL & Groovy)
  */
-export const ANDROID_GRADLE_SNIPPET = `dependencies {
-    // Google Mobile Ads SDK (Bắt buộc cho App Open Ads & Interstitial)
+export const ANDROID_GRADLE_KTS_SNIPPET = `// Root-level (<project>/build.gradle.kts)
+plugins {
+    id("com.google.gms.google-services") version "4.5.0" apply false
+}
+
+// App-level (<project>/app/build.gradle.kts)
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+}
+
+dependencies {
+    // 1. Firebase BoM & Services
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
+
+    // 2. Google Mobile Ads SDK (AdMob)
+    implementation("com.google.android.gms:play-services-ads:23.0.0")
+
+    // 3. Android Browser Helper (TWA mở edubot247.vercel.app)
+    implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
+}`;
+
+export const ANDROID_GRADLE_SNIPPET = `// Root-level (<project>/build.gradle)
+plugins {
+    id 'com.google.gms.google-services' version '4.5.0' apply false
+}
+
+// App-level (<project>/app/build.gradle)
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+}
+
+dependencies {
+    // 1. Firebase BoM & Services
+    implementation platform('com.google.firebase:firebase-bom:35.1.0')
+    implementation 'com.google.firebase:firebase-analytics'
+
+    // 2. Google Mobile Ads SDK (AdMob)
     implementation 'com.google.android.gms:play-services-ads:23.0.0'
 
-    // Android Browser Helper (Thư viện TWA mở edubot247.vercel.app)
+    // 3. Android Browser Helper (TWA mở edubot247.vercel.app)
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
 }`;

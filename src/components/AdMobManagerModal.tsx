@@ -15,7 +15,7 @@ import {
   Layers,
   Link2
 } from 'lucide-react';
-import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, SPLASH_ACTIVITY_KOTLIN_SNIPPET } from '../config/admob';
+import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, ANDROID_GRADLE_KTS_SNIPPET, SPLASH_ACTIVITY_KOTLIN_SNIPPET } from '../config/admob';
 
 interface AdMobManagerModalProps {
   isOpen: boolean;
@@ -290,23 +290,43 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                 </pre>
               </div>
 
-              {/* Step 3: Gradle */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Code2 className="w-4 h-4 text-indigo-600" /> Bước 3: Khai báo Thư viện trong app/build.gradle
-                  </span>
-                  <button
-                    onClick={() => copyToClipboard(ANDROID_GRADLE_SNIPPET, 'android-gradle')}
-                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    {copiedKey === 'android-gradle' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedKey === 'android-gradle' ? 'Đã sao chép' : 'Sao chép đoạn mã'}</span>
-                  </button>
+              {/* Step 3: Gradle & Google Services / Firebase */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Code2 className="w-4 h-4 text-indigo-600" /> Bước 3A: Cấu hình Kotlin DSL (build.gradle.kts)
+                    </span>
+                    <button
+                      onClick={() => copyToClipboard(ANDROID_GRADLE_KTS_SNIPPET, 'android-gradle-kts')}
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      {copiedKey === 'android-gradle-kts' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedKey === 'android-gradle-kts' ? 'Đã sao chép' : 'Sao chép Kotlin DSL'}</span>
+                    </button>
+                  </div>
+                  <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-56 scrollbar-thin">
+                    {ANDROID_GRADLE_KTS_SNIPPET}
+                  </pre>
                 </div>
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed">
-                  {ANDROID_GRADLE_SNIPPET}
-                </pre>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Code2 className="w-4 h-4 text-indigo-600" /> Bước 3B: Cấu hình Groovy (build.gradle)
+                    </span>
+                    <button
+                      onClick={() => copyToClipboard(ANDROID_GRADLE_SNIPPET, 'android-gradle')}
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      {copiedKey === 'android-gradle' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedKey === 'android-gradle' ? 'Đã sao chép' : 'Sao chép Groovy'}</span>
+                    </button>
+                  </div>
+                  <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-56 scrollbar-thin">
+                    {ANDROID_GRADLE_SNIPPET}
+                  </pre>
+                </div>
               </div>
             </div>
           )}

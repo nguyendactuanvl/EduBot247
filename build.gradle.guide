@@ -1,9 +1,35 @@
-// File: build.gradle (Module: app)
-// Cấu hình dependencies cho EduBot 247 Android TWA App
+// ==========================================
+// 1. Root-level (project-level) build.gradle
+// ==========================================
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22'
+
+        // Google Services Gradle Plugin
+        classpath 'com.google.gms:google-services:4.5.0'
+    }
+}
+
+plugins {
+    id 'com.google.gms.google-services' version '4.5.0' apply false
+}
+
+// ==========================================
+// 2. Module (app-level) build.gradle
+// ==========================================
 
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+
+    // Google Services Gradle Plugin (Đọc tệp google-services.json)
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -36,13 +62,20 @@ android {
 }
 
 dependencies {
-    // 1. Google Mobile Ads SDK (Bắt buộc cho AdMob App Open Ads & Interstitial)
+    // 1. Import Firebase BoM (Bill of Materials)
+    implementation platform('com.google.firebase:firebase-bom:35.1.0')
+
+    // 2. Firebase Analytics & Services (Phiên bản tự động quản lý bởi BoM)
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-messaging'
+
+    // 3. Google Mobile Ads SDK (AdMob App Open Ads & Interstitial)
     implementation 'com.google.android.gms:play-services-ads:23.0.0'
 
-    // 2. Android Browser Helper (Thư viện TWA mở trang edubot247.vercel.app)
+    // 4. Android Browser Helper (Thư viện TWA mở edubot247.vercel.app)
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
 
-    // 3. AndroidX & UI
+    // 5. AndroidX & UI
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
