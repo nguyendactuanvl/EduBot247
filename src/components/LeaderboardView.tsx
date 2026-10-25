@@ -23,7 +23,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useEduBotUser, UserGrade } from '../hooks/useEduBotUser';
-import { MOCK_STUDENTS, MOCK_SCHOOLS, LeaderboardStudent, SchoolLeaderboardEntry } from '../data/mockLeaderboardData';
+import { MOCK_STUDENTS, MOCK_SCHOOLS, LeaderboardStudent, SchoolLeaderboardEntry, RANK_LEVELS_10 } from '../data/mockLeaderboardData';
 import { DailyStreakCheckInModal } from './DailyStreakCheckInModal';
 
 export function LeaderboardView() {
@@ -332,6 +332,23 @@ export function LeaderboardView() {
           </div>
 
         </div>
+
+        {/* 10-Level Rank Progression Banner */}
+        <div className="mt-6 pt-4 border-t border-purple-800/40">
+          <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider block mb-2">
+            Hệ Thống 10 Cấp Độ Thăng Hạng Đua Top Toàn Quốc:
+          </span>
+          <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
+            {RANK_LEVELS_10.map((r) => (
+              <div key={r.level} className={`p-2 rounded-xl border text-center text-[11px] transition-all ${r.color}`}>
+                <span className="text-sm block">{r.emoji}</span>
+                <span className="font-bold block truncate">{r.title}</span>
+                <span className="text-[9px] font-mono opacity-80 block">{r.range}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
       {/* Leaderboard Tab Navigation */}

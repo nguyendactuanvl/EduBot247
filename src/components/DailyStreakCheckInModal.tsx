@@ -56,17 +56,29 @@ export function DailyStreakCheckInModal({
     setTimeout(() => setJustClaimedBonus(false), 3000);
   };
 
-  // Rank thresholds for progress bar
+  // Rank thresholds for progress bar (10 Levels)
   const getNextRankInfo = (rank: UserRank, xp: number) => {
     switch (rank) {
-      case 'Tân thủ':
-        return { nextRank: 'Học đồ', targetXP: 300, currentProgress: Math.min(100, (xp / 300) * 100), remaining: Math.max(0, 300 - xp) };
-      case 'Học đồ':
-        return { nextRank: 'Cao thủ Tự nhiên', targetXP: 1000, currentProgress: Math.min(100, ((xp - 300) / 700) * 100), remaining: Math.max(0, 1000 - xp) };
-      case 'Cao thủ Tự nhiên':
-        return { nextRank: 'Trạng nguyên EduBot', targetXP: 3000, currentProgress: Math.min(100, ((xp - 1000) / 2000) * 100), remaining: Math.max(0, 3000 - xp) };
-      case 'Trạng nguyên EduBot':
-        return { nextRank: 'Bậc Thầy Tối Cao', targetXP: 5000, currentProgress: 100, remaining: 0 };
+      case 'Cấp 1: Tân thủ':
+        return { nextRank: 'Cấp 2: Tập sự', targetXP: 300, currentProgress: Math.min(100, (xp / 300) * 100), remaining: Math.max(0, 300 - xp) };
+      case 'Cấp 2: Tập sự':
+        return { nextRank: 'Cấp 3: Chuyên gia', targetXP: 700, currentProgress: Math.min(100, (Math.max(0, xp - 300) / 400) * 100), remaining: Math.max(0, 700 - xp) };
+      case 'Cấp 3: Chuyên gia':
+        return { nextRank: 'Cấp 4: Tinh anh', targetXP: 1500, currentProgress: Math.min(100, ((xp - 700) / 800) * 100), remaining: Math.max(0, 1500 - xp) };
+      case 'Cấp 4: Tinh anh':
+        return { nextRank: 'Cấp 5: Cao thủ', targetXP: 3000, currentProgress: Math.min(100, ((xp - 1500) / 1500) * 100), remaining: Math.max(0, 3000 - xp) };
+      case 'Cấp 5: Cao thủ':
+        return { nextRank: 'Cấp 6: Danh thủ', targetXP: 5000, currentProgress: Math.min(100, ((xp - 3000) / 2000) * 100), remaining: Math.max(0, 5000 - xp) };
+      case 'Cấp 6: Danh thủ':
+        return { nextRank: 'Cấp 7: Đại cao thủ', targetXP: 8000, currentProgress: Math.min(100, ((xp - 5000) / 3000) * 100), remaining: Math.max(0, 8000 - xp) };
+      case 'Cấp 7: Đại cao thủ':
+        return { nextRank: 'Cấp 8: Huyền thoại', targetXP: 12000, currentProgress: Math.min(100, ((xp - 8000) / 4000) * 100), remaining: Math.max(0, 12000 - xp) };
+      case 'Cấp 8: Huyền thoại':
+        return { nextRank: 'Cấp 9: Siêu cấp bá khí', targetXP: 17000, currentProgress: Math.min(100, ((xp - 12000) / 5000) * 100), remaining: Math.max(0, 17000 - xp) };
+      case 'Cấp 9: Siêu cấp bá khí':
+        return { nextRank: 'Cấp 10: Trạng nguyên EduBot', targetXP: 25000, currentProgress: Math.min(100, ((xp - 17000) / 8000) * 100), remaining: Math.max(0, 25000 - xp) };
+      default:
+        return { nextRank: 'Bậc Thầy Tối Cao 🌌', targetXP: 30000, currentProgress: 100, remaining: 0 };
     }
   };
 
@@ -246,7 +258,7 @@ export function DailyStreakCheckInModal({
             <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
             <div>
               <span className="font-bold text-white block">
-                Thứ hạng của bạn: #{user.rank === 'Trạng nguyên EduBot' ? '1' : user.rank === 'Cao thủ Tự nhiên' ? '5' : user.totalXP > 700 ? '11' : '13'} Toàn quốc
+                Cấp độ hiện tại: {user.rank} ({user.totalXP} XP)
               </span>
               <span className="text-[11px] text-slate-400">{user.schoolName} ({user.province})</span>
             </div>

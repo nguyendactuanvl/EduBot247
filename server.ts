@@ -178,79 +178,32 @@ CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
   }
 });
 
-// Shared Global Teams Storage (In-Memory Server-Side Cache for Online Sync)
-let sharedTeams: any[] = [
-  {
-    id: 'team-1',
-    name: 'Siêu Chiến Binh KNTT',
-    slogan: 'Quyết tâm thủ khoa GDPT 2018!',
-    joinCode: 'EDU-KNTT1',
-    sizeLimit: 5,
-    members: [
-      { id: 'm1', name: 'Nguyễn Văn Minh', role: 'Trưởng đội', avatar: '👨‍🎓', contributionXP: 2400 },
-      { id: 'm2', name: 'Trần Thị Thu hà', role: 'Thành viên', avatar: '👩‍🎓', contributionXP: 2100 },
-      { id: 'm3', name: 'Lê Hoàng Nam', role: 'Thành viên', avatar: '🧑‍💻', contributionXP: 1800 },
-      { id: 'm4', name: 'Phạm Bảo Ngọc', role: 'Thành viên', avatar: '👩‍🔬', contributionXP: 1500 },
-      { id: 'm5', name: 'Vũ Đức Anh', role: 'Thành viên', avatar: '🚀', contributionXP: 1200 },
-    ],
-    totalXP: 9000,
-    rank: 'Siêu cấp bá khí',
-    wins: 48,
-    matchesPlayed: 50,
-  },
-  {
-    id: 'team-2',
-    name: 'Liên Minh Bát Tử Octet',
-    slogan: 'Hóa học THPT trong tầm tay',
-    joinCode: 'EDU-OCTET',
-    sizeLimit: 4,
-    members: [
-      { id: 'm6', name: 'Đặng Tuấn Kiệt', role: 'Trưởng đội', avatar: '🧪', contributionXP: 1500 },
-      { id: 'm7', name: 'Hoàng Phương Thảo', role: 'Thành viên', avatar: '🧬', contributionXP: 1400 },
-      { id: 'm8', name: 'Bùi Gia Huy', role: 'Thành viên', avatar: '🔬', contributionXP: 1200 },
-      { id: 'm9', name: 'Đỗ Khánh Linh', role: 'Thành viên', avatar: '📐', contributionXP: 1100 },
-    ],
-    totalXP: 5200,
-    rank: 'Đại cao thủ',
-    wins: 32,
-    matchesPlayed: 38,
-  },
-  {
-    id: 'team-3',
-    name: 'Fresnel Quantum Squad',
-    slogan: 'Xoay vectơ, giải nhanh Vật lý',
-    joinCode: 'EDU-WAVE3',
-    sizeLimit: 3,
-    members: [
-      { id: 'm10', name: 'Trịnh Thanh Tùng', role: 'Trưởng đội', avatar: '⚡', contributionXP: 900 },
-      { id: 'm11', name: 'Ngô Hải Yến', role: 'Thành viên', avatar: '🌟', contributionXP: 850 },
-      { id: 'm12', name: 'Phan Quốc Việt', role: 'Thành viên', avatar: '🔥', contributionXP: 750 },
-    ],
-    totalXP: 2500,
-    rank: 'Cao thủ',
-    wins: 18,
-    matchesPlayed: 22,
-  },
-  {
-    id: 'team-4',
-    name: 'Đội Mendel Di Truyền',
-    slogan: 'Bảng Punnett không sợ sai',
-    joinCode: 'EDU-BIO99',
-    sizeLimit: 2,
-    members: [
-      { id: 'm13', name: 'Mai Như Quỳnh', role: 'Trưởng đội', avatar: '🌱', contributionXP: 400 },
-      { id: 'm14', name: 'Cao Thế Vinh', role: 'Thành viên', avatar: '🍀', contributionXP: 380 },
-    ],
-    totalXP: 780,
-    rank: 'Chuyên gia',
-    wins: 8,
-    matchesPlayed: 10,
-  }
-];
+// Shared Global Teams Storage (In-Memory Server-Side Cache for Online Real Data Sync)
+let sharedTeams: any[] = [];
+
+// Helper to calculate 10-level rank
+function computeServerRank(xp: number): string {
+  if (xp >= 25000) return 'Cấp 10: Trạng nguyên EduBot';
+  if (xp >= 17000) return 'Cấp 9: Siêu cấp bá khí';
+  if (xp >= 12000) return 'Cấp 8: Huyền thoại';
+  if (xp >= 8000) return 'Cấp 7: Đại cao thủ';
+  if (xp >= 5000) return 'Cấp 6: Danh thủ';
+  if (xp >= 3000) return 'Cấp 5: Cao thủ';
+  if (xp >= 1500) return 'Cấp 4: Tinh anh';
+  if (xp >= 700) return 'Cấp 3: Chuyên gia';
+  if (xp >= 300) return 'Cấp 2: Tập sự';
+  return 'Cấp 1: Tân thủ';
+}
 
 // Get all shared online teams
 app.get('/api/teams', (_req, res) => {
   res.json({ teams: sharedTeams });
+});
+
+// Reset online teams (clear demo data)
+app.post('/api/teams/reset', (_req, res) => {
+  sharedTeams = [];
+  res.json({ success: true, message: 'Đã reset mới Bảng Xếp Hạng, chuyển về 100% Dữ liệu thật!', teams: sharedTeams });
 });
 
 // Create or update a team online
@@ -304,12 +257,8 @@ app.post('/api/teams/join', (req, res) => {
     targetTeam.members.push(newMember);
     targetTeam.totalXP += 300;
 
-    // Recalculate rank
-    if (targetTeam.totalXP >= 7000) targetTeam.rank = 'Siêu cấp bá khí';
-    else if (targetTeam.totalXP >= 3500) targetTeam.rank = 'Đại cao thủ';
-    else if (targetTeam.totalXP >= 1500) targetTeam.rank = 'Cao thủ';
-    else if (targetTeam.totalXP >= 500) targetTeam.rank = 'Chuyên gia';
-    else targetTeam.rank = 'Tân thủ';
+    // Recalculate rank (10 Levels)
+    targetTeam.rank = computeServerRank(targetTeam.totalXP);
 
     res.json({ success: true, joinedTeam: targetTeam, teams: sharedTeams });
   } catch (err: any) {

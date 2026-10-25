@@ -27,8 +27,20 @@ import {
   KNTTBattleQuestion 
 } from '../data/knttTeamBattleQuestions';
 
-// Rank types
-export type TeamRank = 'Tân thủ' | 'Chuyên gia' | 'Cao thủ' | 'Đại cao thủ' | 'Siêu cấp bá khí';
+import { RANK_LEVELS_10 } from '../data/mockLeaderboardData';
+
+// Rank types - 10 Levels
+export type TeamRank = 
+  | 'Cấp 1: Tân thủ'
+  | 'Cấp 2: Tập sự'
+  | 'Cấp 3: Chuyên gia'
+  | 'Cấp 4: Tinh anh'
+  | 'Cấp 5: Cao thủ'
+  | 'Cấp 6: Danh thủ'
+  | 'Cấp 7: Đại cao thủ'
+  | 'Cấp 8: Huyền thoại'
+  | 'Cấp 9: Siêu cấp bá khí'
+  | 'Cấp 10: Trạng nguyên EduBot';
 
 export interface TeamMember {
   id: string;
@@ -60,74 +72,8 @@ export interface TeamBattleQuestion {
   explanation: string;
 }
 
-const INITIAL_TEAMS: Team[] = [
-  {
-    id: 'team-1',
-    name: 'Siêu Chiến Binh KNTT',
-    slogan: 'Quyết tâm thủ khoa GDPT 2018!',
-    joinCode: 'EDU-KNTT1',
-    sizeLimit: 5,
-    members: [
-      { id: 'm1', name: 'Nguyễn Văn Minh', role: 'Trưởng đội', avatar: '👨‍🎓', contributionXP: 2400 },
-      { id: 'm2', name: 'Trần Thị Thu hà', role: 'Thành viên', avatar: '👩‍🎓', contributionXP: 2100 },
-      { id: 'm3', name: 'Lê Hoàng Nam', role: 'Thành viên', avatar: '🧑‍💻', contributionXP: 1800 },
-      { id: 'm4', name: 'Phạm Bảo Ngọc', role: 'Thành viên', avatar: '👩‍🔬', contributionXP: 1500 },
-      { id: 'm5', name: 'Vũ Đức Anh', role: 'Thành viên', avatar: '🚀', contributionXP: 1200 },
-    ],
-    totalXP: 9000,
-    rank: 'Siêu cấp bá khí',
-    wins: 48,
-    matchesPlayed: 50,
-  },
-  {
-    id: 'team-2',
-    name: 'Liên Minh Bát Tử Octet',
-    slogan: 'Hóa học THPT trong tầm tay',
-    joinCode: 'EDU-OCTET',
-    sizeLimit: 4,
-    members: [
-      { id: 'm6', name: 'Đặng Tuấn Kiệt', role: 'Trưởng đội', avatar: '🧪', contributionXP: 1500 },
-      { id: 'm7', name: 'Hoàng Phương Thảo', role: 'Thành viên', avatar: '🧬', contributionXP: 1400 },
-      { id: 'm8', name: 'Bùi Gia Huy', role: 'Thành viên', avatar: '🔬', contributionXP: 1200 },
-      { id: 'm9', name: 'Đỗ Khánh Linh', role: 'Thành viên', avatar: '📐', contributionXP: 1100 },
-    ],
-    totalXP: 5200,
-    rank: 'Đại cao thủ',
-    wins: 32,
-    matchesPlayed: 38,
-  },
-  {
-    id: 'team-3',
-    name: 'Fresnel Quantum Squad',
-    slogan: 'Xoay vectơ, giải nhanh Vật lý',
-    joinCode: 'EDU-WAVE3',
-    sizeLimit: 3,
-    members: [
-      { id: 'm10', name: 'Trịnh Thanh Tùng', role: 'Trưởng đội', avatar: '⚡', contributionXP: 900 },
-      { id: 'm11', name: 'Ngô Hải Yến', role: 'Thành viên', avatar: '🌟', contributionXP: 850 },
-      { id: 'm12', name: 'Phan Quốc Việt', role: 'Thành viên', avatar: '🔥', contributionXP: 750 },
-    ],
-    totalXP: 2500,
-    rank: 'Cao thủ',
-    wins: 18,
-    matchesPlayed: 22,
-  },
-  {
-    id: 'team-4',
-    name: 'Đội Mendel Di Truyền',
-    slogan: 'Bảng Punnett không sợ sai',
-    joinCode: 'EDU-BIO99',
-    sizeLimit: 2,
-    members: [
-      { id: 'm13', name: 'Mai Như Quỳnh', role: 'Trưởng đội', avatar: '🌱', contributionXP: 400 },
-      { id: 'm14', name: 'Cao Thế Vinh', role: 'Thành viên', avatar: '🍀', contributionXP: 380 },
-    ],
-    totalXP: 780,
-    rank: 'Chuyên gia',
-    wins: 8,
-    matchesPlayed: 10,
-  }
-];
+// Initial teams set to empty array for 100% Real Data
+const INITIAL_TEAMS: Team[] = [];
 
 const BATTLE_QUESTIONS: TeamBattleQuestion[] = [
   {
@@ -253,28 +199,62 @@ export function TeamArena() {
       .catch(err => console.error('Failed syncing team to server:', err));
   };
 
-  // Determine rank based on total XP
+  // Reset online leaderboard to 100% clean real data
+  const handleResetLeaderboard = async () => {
+    if (!confirm('Bạn có chắc chắn muốn RESET Bảng Xếp Hạng về 100% Dữ Liệu Thật (xóa toàn bộ dữ liệu demo)?')) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/teams/reset', { method: 'POST' });
+      if (res.ok) {
+        setTeams([]);
+        localStorage.removeItem('edubot_teams');
+        alert('✅ Đã reset thành công! Bảng Xếp Hạng đã trở về 100% Dữ Liệu Thật.');
+      }
+    } catch (err) {
+      console.error('Lỗi khi reset leaderboard:', err);
+      setTeams([]);
+      localStorage.removeItem('edubot_teams');
+    }
+  };
+
+  // Determine rank based on total XP (10 Levels)
   const getRankBadge = (rank: TeamRank) => {
     switch (rank) {
-      case 'Siêu cấp bá khí':
-        return { label: '🔥 Siêu cấp bá khí', bg: 'bg-rose-500/20 text-rose-300 border-rose-500/40', icon: Crown };
-      case 'Đại cao thủ':
-        return { label: '👑 Đại cao thủ', bg: 'bg-purple-500/20 text-purple-300 border-purple-500/40', icon: Trophy };
-      case 'Cao thủ':
-        return { label: '⚡ Cao thủ', bg: 'bg-amber-500/20 text-amber-300 border-amber-500/40', icon: Zap };
-      case 'Chuyên gia':
-        return { label: '🎓 Chuyên gia', bg: 'bg-blue-500/20 text-blue-300 border-blue-500/40', icon: Award };
+      case 'Cấp 10: Trạng nguyên EduBot':
+        return { label: '🌌 Cấp 10: Trạng nguyên EduBot', bg: 'bg-amber-500/25 text-amber-200 border-amber-400 font-extrabold shadow-lg', icon: Crown };
+      case 'Cấp 9: Siêu cấp bá khí':
+        return { label: '🔥 Cấp 9: Siêu cấp bá khí', bg: 'bg-rose-500/20 text-rose-300 border-rose-500/40', icon: Flame };
+      case 'Cấp 8: Huyền thoại':
+        return { label: '🐉 Cấp 8: Huyền thoại', bg: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40', icon: Sparkles };
+      case 'Cấp 7: Đại cao thủ':
+        return { label: '👑 Cấp 7: Đại cao thủ', bg: 'bg-purple-500/20 text-purple-300 border-purple-500/40', icon: Trophy };
+      case 'Cấp 6: Danh thủ':
+        return { label: '🔮 Cấp 6: Danh thủ', bg: 'bg-orange-500/20 text-orange-300 border-orange-500/40', icon: Zap };
+      case 'Cấp 5: Cao thủ':
+        return { label: '🏅 Cấp 5: Cao thủ', bg: 'bg-amber-500/20 text-amber-300 border-amber-500/40', icon: Award };
+      case 'Cấp 4: Tinh anh':
+        return { label: '⚡ Cấp 4: Tinh anh', bg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', icon: Zap };
+      case 'Cấp 3: Chuyên gia':
+        return { label: '🎓 Cấp 3: Chuyên gia', bg: 'bg-blue-500/20 text-blue-300 border-blue-500/40', icon: ShieldCheck };
+      case 'Cấp 2: Tập sự':
+        return { label: '📖 Cấp 2: Tập sự', bg: 'bg-teal-500/20 text-teal-300 border-teal-500/40', icon: ShieldCheck };
       default:
-        return { label: '🌱 Tân thủ', bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: ShieldCheck };
+        return { label: '🌱 Cấp 1: Tân thủ', bg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: ShieldCheck };
     }
   };
 
   const computeRank = (xp: number): TeamRank => {
-    if (xp >= 7000) return 'Siêu cấp bá khí';
-    if (xp >= 3500) return 'Đại cao thủ';
-    if (xp >= 1500) return 'Cao thủ';
-    if (xp >= 500) return 'Chuyên gia';
-    return 'Tân thủ';
+    if (xp >= 25000) return 'Cấp 10: Trạng nguyên EduBot';
+    if (xp >= 17000) return 'Cấp 9: Siêu cấp bá khí';
+    if (xp >= 12000) return 'Cấp 8: Huyền thoại';
+    if (xp >= 8000) return 'Cấp 7: Đại cao thủ';
+    if (xp >= 5000) return 'Cấp 6: Danh thủ';
+    if (xp >= 3000) return 'Cấp 5: Cao thủ';
+    if (xp >= 1500) return 'Cấp 4: Tinh anh';
+    if (xp >= 700) return 'Cấp 3: Chuyên gia';
+    if (xp >= 300) return 'Cấp 2: Tập sự';
+    return 'Cấp 1: Tân thủ';
   };
 
   const generateJoinCode = () => {
@@ -518,23 +498,23 @@ export function TeamArena() {
           </div>
 
           <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-            Lập nhóm thi đấu <span className="font-bold text-purple-300">2 người, 3 người, 4 người hoặc 5 người</span>. Tự đặt tên Team độc lạ, thi đấu trắc nghiệm Toán - Lý - Hóa - Sinh tích điểm XP chung để thăng hạng từ <span className="font-bold text-emerald-400">Tân thủ</span> đến <span className="font-bold text-rose-400">Siêu cấp bá khí 🔥</span>!
+            Lập nhóm thi đấu <span className="font-bold text-purple-300">2 người, 3 người, 4 người hoặc 5 người</span>. Tự đặt tên Team độc lạ, thi đấu trắc nghiệm Toán - Lý - Hóa - Sinh tích điểm XP chung để thăng cấp từ <span className="font-bold text-emerald-400">Cấp 1: Tân thủ</span> lên tới đỉnh <span className="font-bold text-amber-300">Cấp 10: Trạng nguyên EduBot 🌌</span>!
           </p>
 
-          {/* Rank Progression Path */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2">
-            {[
-              { title: 'Tân thủ', xp: '0 - 499 XP', color: 'border-emerald-500/30 bg-emerald-950/20 text-emerald-300' },
-              { title: 'Chuyên gia', xp: '500 - 1499 XP', color: 'border-blue-500/30 bg-blue-950/20 text-blue-300' },
-              { title: 'Cao thủ', xp: '1500 - 3499 XP', color: 'border-amber-500/30 bg-amber-950/20 text-amber-300' },
-              { title: 'Đại cao thủ', xp: '3500 - 6999 XP', color: 'border-purple-500/30 bg-purple-950/20 text-purple-300' },
-              { title: 'Siêu cấp bá khí', xp: '7000+ XP', color: 'border-rose-500/30 bg-rose-950/20 text-rose-300' },
-            ].map((r, i) => (
-              <div key={i} className={`p-2.5 rounded-2xl border text-center text-xs ${r.color}`}>
-                <span className="font-black block">{r.title}</span>
-                <span className="text-[10px] font-mono text-slate-400">{r.xp}</span>
-              </div>
-            ))}
+          {/* Rank Progression Path - 10 Levels */}
+          <div className="pt-2">
+            <span className="text-[11px] font-bold text-purple-300 uppercase tracking-wider block mb-2">
+              Bảng 10 Cấp Độ Hệ Thống Đua Top (Thăng Cấp Theo Điểm XP):
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
+              {RANK_LEVELS_10.map((r) => (
+                <div key={r.level} className={`p-2 rounded-xl border text-center text-[11px] transition-all ${r.color}`}>
+                  <span className="text-base block">{r.emoji}</span>
+                  <span className="font-bold block truncate">{r.title}</span>
+                  <span className="text-[9px] font-mono opacity-80 block">{r.range}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -977,10 +957,19 @@ export function TeamArena() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div>
             <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">Bảng Xếp Hạng Toàn Quốc</span>
-            <h3 className="text-xl font-black text-white">Top Team Đấu Trường GDPT 2018</h3>
+            <h3 className="text-xl font-black text-white">Top Team Đấu Trường GDPT 2018 (Dữ Liệu Thật)</h3>
           </div>
 
           <div className="flex items-center space-x-2">
+            <button
+              onClick={handleResetLeaderboard}
+              className="px-3 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-700/60 rounded-2xl text-xs font-bold transition-all flex items-center space-x-1.5 active:scale-95"
+              title="Reset Bảng Xếp Hạng về dữ liệu thật (xóa dữ liệu demo)"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+              <span>Reset Dữ Liệu Thật</span>
+            </button>
+
             <button
               onClick={fetchOnlineTeams}
               className="p-2 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-800/60 rounded-2xl text-xs font-bold transition-all flex items-center space-x-1.5 active:scale-95"
@@ -1004,56 +993,66 @@ export function TeamArena() {
         </div>
 
         <div className="space-y-3">
-          {filteredTeams.map((team, index) => {
-            const rankBadge = getRankBadge(team.rank);
-            return (
-              <div 
-                key={team.id}
-                className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                  myTeam?.id === team.id
-                    ? 'bg-purple-950/40 border-purple-600 shadow-md'
-                    : 'bg-slate-950/80 border-slate-800/80 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center space-x-4">
-                  <span className={`w-8 h-8 rounded-xl font-black font-mono flex items-center justify-center text-sm ${
-                    index === 0 ? 'bg-amber-400 text-slate-950' :
-                    index === 1 ? 'bg-slate-300 text-slate-950' :
-                    index === 2 ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-400'
-                  }`}>
-                    #{index + 1}
-                  </span>
+          {filteredTeams.length > 0 ? (
+            filteredTeams.map((team, index) => {
+              const rankBadge = getRankBadge(team.rank);
+              return (
+                <div 
+                  key={team.id}
+                  className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    myTeam?.id === team.id
+                      ? 'bg-purple-950/40 border-purple-600 shadow-md'
+                      : 'bg-slate-950/80 border-slate-800/80 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <span className={`w-8 h-8 rounded-xl font-black font-mono flex items-center justify-center text-sm ${
+                      index === 0 ? 'bg-amber-400 text-slate-950' :
+                      index === 1 ? 'bg-slate-300 text-slate-950' :
+                      index === 2 ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      #{index + 1}
+                    </span>
 
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-bold text-sm text-white">{team.name}</h4>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${rankBadge.bg}`}>
-                        {rankBadge.label}
-                      </span>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-bold text-sm text-white">{team.name}</h4>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${rankBadge.bg}`}>
+                          {rankBadge.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">"{team.slogan}"</p>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">"{team.slogan}"</p>
+                  </div>
+
+                  <div className="flex items-center space-x-6 text-xs self-end sm:self-auto">
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-500 uppercase block font-bold">Quy mô</span>
+                      <span className="font-mono font-bold text-slate-300">{team.members.length}/{team.sizeLimit} người</span>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-500 uppercase block font-bold">Thống kê</span>
+                      <span className="font-mono font-bold text-emerald-400">{team.wins} thắng ({team.matchesPlayed} trận)</span>
+                    </div>
+
+                    <div className="text-right min-w-[80px]">
+                      <span className="text-[10px] text-slate-500 uppercase block font-bold">Tổng Điểm</span>
+                      <span className="font-mono font-black text-amber-400 text-sm">{team.totalXP} XP</span>
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-6 text-xs self-end sm:self-auto">
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase block font-bold">Quy mô</span>
-                    <span className="font-mono font-bold text-slate-300">{team.members.length}/{team.sizeLimit} người</span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase block font-bold">Thống kê</span>
-                    <span className="font-mono font-bold text-emerald-400">{team.wins} thắng ({team.matchesPlayed} trận)</span>
-                  </div>
-
-                  <div className="text-right min-w-[80px]">
-                    <span className="text-[10px] text-slate-500 uppercase block font-bold">Tổng Điểm</span>
-                    <span className="font-mono font-black text-amber-400 text-sm">{team.totalXP} XP</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="p-8 bg-slate-950/60 rounded-2xl border border-slate-800 text-center space-y-3">
+              <Trophy className="w-10 h-10 text-amber-400/80 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-200">Bảng Xếp Hạng Dữ Liệu Thật Đã Độc Lập & Sẵn Sàng!</h4>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Chưa có Team nào trên hệ thống. Bấm <strong className="text-purple-300">"Thành lập Team Mới"</strong> ở phía trên để là đội đầu tiên mở màn Bảng Vàng!
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

@@ -2,7 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 
 export type UserGrade = 'Lớp 10' | 'Lớp 11' | 'Lớp 12';
 
-export type UserRank = 'Tân thủ' | 'Học đồ' | 'Cao thủ Tự nhiên' | 'Trạng nguyên EduBot';
+export type UserRank = 
+  | 'Cấp 1: Tân thủ'
+  | 'Cấp 2: Tập sự'
+  | 'Cấp 3: Chuyên gia'
+  | 'Cấp 4: Tinh anh'
+  | 'Cấp 5: Cao thủ'
+  | 'Cấp 6: Danh thủ'
+  | 'Cấp 7: Đại cao thủ'
+  | 'Cấp 8: Huyền thoại'
+  | 'Cấp 9: Siêu cấp bá khí'
+  | 'Cấp 10: Trạng nguyên EduBot';
 
 export interface StreakData {
   currentStreak: number;
@@ -45,15 +55,21 @@ const DEFAULT_GUEST_USER: UserProfile = {
     lastActiveDate: new Date().toISOString().split('T')[0],
     maxStreak: 12,
   },
-  rank: 'Học đồ',
+  rank: 'Cấp 2: Tập sự',
   createdAt: new Date().toISOString(),
 };
 
 export function computeUserRank(xp: number): UserRank {
-  if (xp >= 3000) return 'Trạng nguyên EduBot';
-  if (xp >= 1000) return 'Cao thủ Tự nhiên';
-  if (xp >= 300) return 'Học đồ';
-  return 'Tân thủ';
+  if (xp >= 25000) return 'Cấp 10: Trạng nguyên EduBot';
+  if (xp >= 17000) return 'Cấp 9: Siêu cấp bá khí';
+  if (xp >= 12000) return 'Cấp 8: Huyền thoại';
+  if (xp >= 8000) return 'Cấp 7: Đại cao thủ';
+  if (xp >= 5000) return 'Cấp 6: Danh thủ';
+  if (xp >= 3000) return 'Cấp 5: Cao thủ';
+  if (xp >= 1500) return 'Cấp 4: Tinh anh';
+  if (xp >= 700) return 'Cấp 3: Chuyên gia';
+  if (xp >= 300) return 'Cấp 2: Tập sự';
+  return 'Cấp 1: Tân thủ';
 }
 
 // Optional Web Audio API chime sound
