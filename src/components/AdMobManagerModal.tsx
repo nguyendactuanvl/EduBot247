@@ -12,11 +12,10 @@ import {
   Play, 
   ShieldCheck, 
   FileText,
-  HelpCircle,
   Layers,
-  Award
+  Link2
 } from 'lucide-react';
-import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, SPLASH_ACTIVITY_KOTLIN_SNIPPET, AdUnitConfig } from '../config/admob';
+import { ADMOB_CONFIG, ANDROID_MANIFEST_SNIPPET, ANDROID_GRADLE_SNIPPET, SPLASH_ACTIVITY_KOTLIN_SNIPPET } from '../config/admob';
 
 interface AdMobManagerModalProps {
   isOpen: boolean;
@@ -26,7 +25,7 @@ interface AdMobManagerModalProps {
 
 export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManagerModalProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'units' | 'android' | 'web' | 'adsTxt'>('units');
+  const [activeTab, setActiveTab] = useState<'units' | 'android' | 'web' | 'adsTxt' | 'assetlinks'>('units');
 
   if (!isOpen) return null;
 
@@ -35,6 +34,19 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
   };
+
+  const ASSETLINKS_JSON_SNIPPET = `[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.edubot247.twa",
+      "sha256_cert_fingerprints": [
+        "4D:26:8A:81:8F:CF:8C:FD:09:BE:26:04:EF:46:45:BB:14:44:97:CB:28:49:AF:DC:22:9F:19:B0:23:78:19:CB"
+      ]
+    }
+  }
+]`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/70 backdrop-blur-xs">
@@ -49,7 +61,7 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                  Cấu hình Google AdMob (6 Đơn vị quảng cáo)
+                  Cấu hình Google AdMob & TWA (Mã gói: app.vercel.edubot247.twa)
                 </h3>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Chuẩn Google 100%
@@ -72,50 +84,62 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
         <div className="px-6 border-b border-slate-200 dark:border-slate-800 flex gap-2 bg-white dark:bg-slate-900 overflow-x-auto shrink-0 py-2">
           <button
             onClick={() => setActiveTab('units')}
-            className={`px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'units'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <Layers className="w-4 h-4" />
-            <span>6 Đơn vị quảng cáo & Test</span>
+            <Layers className="w-3.5 h-3.5" />
+            <span>6 Đơn vị AdMob</span>
           </button>
-          
+
           <button
             onClick={() => setActiveTab('android')}
-            className={`px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'android'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <Smartphone className="w-4 h-4" />
-            <span>Cấu hình Android (App ID)</span>
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>Cấu hình Android Native</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('web')}
-            className={`px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
-              activeTab === 'web'
+            onClick={() => setActiveTab('assetlinks')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              activeTab === 'assetlinks'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <Globe className="w-4 h-4" />
-            <span>Web & PWA Tags</span>
+            <Link2 className="w-3.5 h-3.5" />
+            <span>assetlinks.json (TWA)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('adsTxt')}
-            className={`px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'adsTxt'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Xác thực app-ads.txt</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>app-ads.txt Vercel</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('web')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              activeTab === 'web'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Web & PWA Tags</span>
           </button>
         </div>
 
@@ -125,7 +149,6 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
           {/* TAB 1: 6 AD UNITS */}
           {activeTab === 'units' && (
             <div className="space-y-4">
-              {/* App ID Banner (Như ảnh 2) */}
               <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-blue-500/10 border border-indigo-200 dark:border-indigo-800/60 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -133,7 +156,7 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                   </div>
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400">
-                      ID Ứng dụng AdMob (App ID - Ảnh 2)
+                      ID Ứng dụng AdMob (App ID)
                     </span>
                     <p className="font-mono text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 break-all select-all">
                       {ADMOB_CONFIG.appId}
@@ -149,7 +172,6 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                 </button>
               </div>
 
-              {/* 6 Ad Units Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {ADMOB_CONFIG.adUnits.map((unit, idx) => (
                   <div
@@ -225,7 +247,7 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                     Hướng dẫn tích hợp Google Mobile Ads SDK & TWA (Mã gói: app.vercel.edubot247.twa)
                   </p>
                   <p>
-                    Khai báo App ID <code className="font-bold text-amber-900 dark:text-amber-100">{ADMOB_CONFIG.appId}</code> vào <code className="font-bold">AndroidManifest.xml</code> và khởi chạy Quảng cáo Mở ứng dụng (Ads 2: <code className="font-bold">ca-app-pub-5320880447374751/7345879147</code>) trước khi TWA mở trang <code className="font-bold">https://edubot247.vercel.app</code>.
+                    Khai báo App ID <code className="font-bold text-amber-900 dark:text-amber-100">{ADMOB_CONFIG.appId}</code> vào <code className="font-bold">AndroidManifest.xml</code> và sử dụng <code className="font-bold">EduBotWebViewClient.kt</code> để xử lý click quảng cáo không bị lỗi WebView!
                   </p>
                 </div>
               </div>
@@ -244,12 +266,12 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                     <span>{copiedKey === 'android-manifest' ? 'Đã sao chép' : 'Sao chép đoạn mã'}</span>
                   </button>
                 </div>
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-60 scrollbar-thin">
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-52 scrollbar-thin">
                   {ANDROID_MANIFEST_SNIPPET}
                 </pre>
               </div>
 
-              {/* Step 2: SplashActivity.kt (App Open Ad - Ads 2) */}
+              {/* Step 2: SplashActivity.kt */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -263,12 +285,12 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
                     <span>{copiedKey === 'splash-activity' ? 'Đã sao chép' : 'Sao chép mã Kotlin'}</span>
                   </button>
                 </div>
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-60 scrollbar-thin">
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed max-h-52 scrollbar-thin">
                   {SPLASH_ACTIVITY_KOTLIN_SNIPPET}
                 </pre>
               </div>
 
-              {/* Step 3: build.gradle */}
+              {/* Step 3: Gradle */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
@@ -289,35 +311,54 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
             </div>
           )}
 
-          {/* TAB 3: WEB & PWA TAGS */}
-          {activeTab === 'web' && (
+          {/* TAB 3: ASSETLINKS.JSON */}
+          {activeTab === 'assetlinks' && (
             <div className="space-y-5">
-              <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 rounded-2xl flex items-start gap-3">
-                <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-2xl flex items-start gap-3">
+                <Link2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-emerald-800 dark:text-emerald-200 space-y-1">
                   <p className="font-semibold text-sm">
-                    Tích hợp Web, PWA & Google AdSense Account
+                    Tệp Digital Asset Links (.well-known/assetlinks.json)
                   </p>
                   <p>
-                    Các thẻ meta và script đã được cài đặt tự động trong tệp <code className="font-bold">index.html</code> để liên kết tài khoản nhà xuất bản <code className="font-bold">{ADMOB_CONFIG.publisherId}</code> và App ID <code className="font-bold">{ADMOB_CONFIG.appId}</code>.
+                    Tệp này dùng để xác minh tính chính chủ giữa website Vercel và ứng dụng Android TWA <code className="font-bold">app.vercel.edubot247.twa</code> giúp loại bỏ thanh địa chỉ trình duyệt khi học sinh mở app!
                   </p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-indigo-600" /> Các thẻ đã chèn vào &lt;head&gt; của index.html:
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Nội dung tệp /public/.well-known/assetlinks.json:
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(ASSETLINKS_JSON_SNIPPET, 'assetlinks-json')}
+                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    {copiedKey === 'assetlinks-json' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedKey === 'assetlinks-json' ? 'Đã sao chép' : 'Sao chép JSON'}</span>
+                  </button>
+                </div>
                 <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed">
-{`<meta name="google-adsense-account" content="ca-pub-5320880447374751" />
-<meta name="google-admob-app-id" content="ca-app-pub-5320880447374751~3167851635" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5320880447374751" crossorigin="anonymous"></script>`}
+                  {ASSETLINKS_JSON_SNIPPET}
                 </pre>
+              </div>
+
+              <div className="pt-2">
+                <a
+                  href="/.well-known/assetlinks.json"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500 transition-all shadow-xs"
+                >
+                  <span>Mở trực tiếp URL: /.well-known/assetlinks.json</span>
+                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                </a>
               </div>
             </div>
           )}
 
-          {/* TAB 4: APP-ADS.TXT VERIFICATION */}
+          {/* TAB 4: APP-ADS.TXT */}
           {activeTab === 'adsTxt' && (
             <div className="space-y-5">
               <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-2xl flex items-start gap-3">
@@ -374,12 +415,40 @@ export function AdMobManagerModal({ isOpen, onClose, onTestAdUnit }: AdMobManage
             </div>
           )}
 
+          {/* TAB 5: WEB & PWA TAGS */}
+          {activeTab === 'web' && (
+            <div className="space-y-5">
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 rounded-2xl flex items-start gap-3">
+                <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                  <p className="font-semibold text-sm">
+                    Tích hợp Web, PWA & Google AdSense Account
+                  </p>
+                  <p>
+                    Các thẻ meta và script đã được cài đặt tự động trong tệp <code className="font-bold">index.html</code> để liên kết tài khoản nhà xuất bản <code className="font-bold">{ADMOB_CONFIG.publisherId}</code> và App ID <code className="font-bold">{ADMOB_CONFIG.appId}</code>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-indigo-600" /> Các thẻ đã chèn vào &lt;head&gt; của index.html:
+                </span>
+                <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 leading-relaxed">
+{`<meta name="google-adsense-account" content="ca-pub-5320880447374751" />
+<meta name="google-admob-app-id" content="ca-app-pub-5320880447374751~3167851635" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5320880447374751" crossorigin="anonymous"></script>`}
+                </pre>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between shrink-0">
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            Hỗ trợ AdMob Mobile SDK & Web Ads
+            EduBot 247 • TWA & AdMob Mobile Integration
           </span>
           <button
             onClick={onClose}

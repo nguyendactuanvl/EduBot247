@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.edubot247.twa",
+      "sha256_cert_fingerprints": [
+        "4D:26:8A:81:8F:CF:8C:FD:09:BE:26:04:EF:46:45:BB:14:44:97:CB:28:49:AF:DC:22:9F:19:B0:23:78:19:CB"
+      ]
+    }
+  }
+]
