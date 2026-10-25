@@ -9,6 +9,14 @@
       ]
     },
     {
+      "source": "/assetlinks.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    },
+    {
       "source": "/app-ads.txt",
       "headers": [
         { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
@@ -36,14 +44,18 @@
     },
     {
       "source": "/.well-known/assetlinks.json",
-      "destination": "/.well-known/assetlinks.json"
+      "destination": "/assetlinks.json"
+    },
+    {
+      "source": "/assetlinks.json",
+      "destination": "/assetlinks.json"
     },
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
     {
-      "source": "/((?!app-ads\\.txt|ads\\.txt|\\.well-known/assetlinks\\.json).*)",
+      "source": "/((?!app-ads\\.txt|ads\\.txt|assetlinks\\.json|\\.well-known/assetlinks\\.json).*)",
       "destination": "/index.html"
     }
   ]
