@@ -202,6 +202,33 @@ export function TeamArena() {
   const [copiedJoinCode, setCopiedJoinCode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Fetch online shared teams
+  const fetchOnlineTeams = async () => {
+    try {
+      const res = await fetch('/api/teams');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.teams) && data.teams.length > 0) {
+          setTeams(data.teams);
+          if (myTeam) {
+            const updatedSelf = data.teams.find((t: Team) => t.id === myTeam.id || t.joinCode === myTeam.joinCode);
+            if (updatedSelf) {
+              setMyTeam(updatedSelf);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Network offline or failed to fetch online teams:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchOnlineTeams();
+    const interval = setInterval(fetchOnlineTeams, 10000); // Sync online teams every 10s
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('edubot_teams', JSON.stringify(teams));
   }, [teams]);
@@ -211,6 +238,20 @@ export function TeamArena() {
       localStorage.setItem('edubot_my_team', JSON.stringify(myTeam));
     }
   }, [myTeam]);
+
+  // Sync team update to server
+  const syncTeamToServer = (teamToSync: Team) => {
+    fetch('/api/teams', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ team: teamToSync }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.teams) setTeams(data.teams);
+      })
+      .catch(err => console.error('Failed syncing team to server:', err));
+  };
 
   // Determine rank based on total XP
   const getRankBadge = (rank: TeamRank) => {
@@ -266,13 +307,40 @@ export function TeamArena() {
     setIsCreating(false);
     setNewTeamName('');
     setNewSlogan('');
+
+    // Publish team online immediately
+    syncTeamToServer(created);
   };
 
-  const handleJoinByCode = (e: React.FormEvent) => {
+  const handleJoinByCode = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = inputJoinCode.trim().toUpperCase();
     if (!code) return;
 
+    try {
+      const res = await fetch('/api/teams/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ joinCode: code, memberName: 'Tôi (Thành viên Mới)' }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert(data.error || 'Lỗi khi gia nhập Team.');
+        return;
+      }
+
+      if (data.joinedTeam) {
+        setMyTeam(data.joinedTeam);
+        setTeams(data.teams);
+        setIsJoiningCodeOpen(false);
+        setInputJoinCode('');
+        return;
+      }
+    } catch (err) {
+      console.warn('Network offline, using local join fallback:', err);
+    }
+
+    // Local fallback if server unreachable
     const targetTeam = teams.find(t => t.joinCode.toUpperCase() === code);
     if (!targetTeam) {
       alert(`Khồng tìm thấy Team với mã Join Code: "${code}". Vui lòng kiểm tra lại!`);
@@ -314,6 +382,7 @@ export function TeamArena() {
     setTimeout(() => setCopiedJoinCode(false), 2000);
   };
 
+
   const handleAddDemoMember = () => {
     if (!myTeam) return;
     if (myTeam.members.length >= myTeam.sizeLimit) {
@@ -342,6 +411,7 @@ export function TeamArena() {
 
     setMyTeam(updatedTeam);
     setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+    syncTeamToServer(updatedTeam);
   };
 
   const handleStartBattle = () => {
@@ -399,6 +469,7 @@ export function TeamArena() {
         };
         setMyTeam(updatedTeam);
         setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+        syncTeamToServer(updatedTeam);
       }
     }
   };
@@ -909,15 +980,26 @@ export function TeamArena() {
             <h3 className="text-xl font-black text-white">Top Team Đấu Trường GDPT 2018</h3>
           </div>
 
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Tìm tên Team..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 w-full sm:w-64"
-            />
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={fetchOnlineTeams}
+              className="p-2 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-800/60 rounded-2xl text-xs font-bold transition-all flex items-center space-x-1.5 active:scale-95"
+              title="Đồng bộ lại danh sách Team từ máy chủ"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Cập nhật Online</span>
+            </button>
+
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Tìm tên Team..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 w-full sm:w-64"
+              />
+            </div>
           </div>
         </div>
 
