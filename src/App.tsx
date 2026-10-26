@@ -19,6 +19,7 @@ import { VirtualLabs } from './components/VirtualLabs';
 import { MultiStudyToolkit } from './components/MultiStudyToolkit';
 import { THPTExamPractice } from './components/THPTExamPractice';
 import { KNTTPracticeHub } from './components/KNTTPracticeHub';
+import { TriangleTrigExams } from './components/TriangleTrigExams';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
 import { 
@@ -70,7 +71,7 @@ import { useEduBotUser } from './hooks/useEduBotUser';
 
 export default function App() {
   const { user } = useEduBotUser();
-  const [activeTab, setActiveTab] = useState<'exam' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('exam');
+  const [activeTab, setActiveTab] = useState<'exam' | 'triangle-exams' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('triangle-exams');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
@@ -530,6 +531,27 @@ export default function App() {
               </span>
             </button>
 
+            {/* 📐 5 BỘ ĐỀ HỆ THỨC LƯỢNG TRONG TAM GIÁC */}
+            <button
+              onClick={() => {
+                setActiveTab('triangle-exams');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'triangle-exams'
+                  ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-sm'
+                  : 'bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 text-amber-800 dark:text-amber-300 hover:bg-amber-500/15'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Crown className={`w-5 h-5 ${activeTab === 'triangle-exams' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-500'}`} />
+                <span className="text-left text-base font-bold">Bộ Đề Hệ Thức Lượng</span>
+              </div>
+              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'triangle-exams' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-600/80 dark:text-amber-400/80'}`}>
+                5 Bộ đề 90' & Tích điểm thăng hạng
+              </span>
+            </button>
+
             {/* Luyện tập SGK & Thi thử */}
             <button
               onClick={() => {
@@ -698,6 +720,7 @@ export default function App() {
             </button>
             <span className="font-semibold text-slate-800 dark:text-slate-100 text-base truncate">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
+              {activeTab === 'triangle-exams' && 'Bộ Đề Hệ Thức Lượng'}
               {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Streak'}
               {activeTab === 'teamarena' && 'Giải đấu Đội nhóm'}
               {activeTab === 'calcskills' && 'Skill Bấm Máy Tính'}
@@ -768,6 +791,7 @@ export default function App() {
           <div className="flex items-center space-x-3">
             <span className="font-extrabold text-slate-800 dark:text-slate-100 text-base">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử KNTT'}
+              {activeTab === 'triangle-exams' && 'Bộ Đề Kiểm Tra: Hệ Thức Lượng Trong Tam Giác (5 Bộ Đề 90 Min)'}
               {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Chuỗi Ngày Học (Streak)'}
               {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
               {activeTab === 'calcskills' && 'Skill Bấm Máy Tính Giải Nhanh THPT'}
@@ -859,6 +883,12 @@ export default function App() {
           {activeTab === 'exam' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <KNTTPracticeHub />
+            </div>
+          )}
+
+          {activeTab === 'triangle-exams' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <TriangleTrigExams />
             </div>
           )}
 

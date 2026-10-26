@@ -75,7 +75,7 @@ export function KNTTPracticeHub() {
   const [topicUserAnswers, setTopicUserAnswers] = useState<Record<string, string>>({});
   const [topicCheckedStatus, setTopicCheckedStatus] = useState<Record<string, boolean>>({});
 
-  // Timed Exam State
+  // Timed Exam / Chế độ luyện thi State
   const [selectedPackageId, setSelectedPackageId] = useState<string>('math-standard-1');
   const [examState, setExamState] = useState<'idle' | 'taking' | 'finished'>('idle');
   const [examCurrentIdx, setExamCurrentIdx] = useState(0);
@@ -84,6 +84,13 @@ export function KNTTPracticeHub() {
   const [timeLeftSeconds, setTimeLeftSeconds] = useState(0);
   const [totalTimeSeconds, setTotalTimeSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Custom Exam Mode (Chế độ luyện thi tùy chỉnh cho HS/GV)
+  const [examCustomQuestionCount, setExamCustomQuestionCount] = useState<number>(20);
+  const [examCustomMinutes, setExamCustomMinutes] = useState<number>(45);
+  const [examCustomSubject, setExamCustomSubject] = useState<SubjectCategory | 'all'>('all');
+  const [examCustomTopicId, setExamCustomTopicId] = useState<string>('all');
+  const [customExamQuestions, setCustomExamQuestions] = useState<PracticeQuestion[]>([]);
 
   // Quick Quiz (Luyện thi cấp tốc) State
   const [quickQuestionCount, setQuickQuestionCount] = useState<number>(10);
@@ -202,8 +209,17 @@ export function KNTTPracticeHub() {
     });
   }, [unifiedQuestions, selectedTier, selectedGrade, selectedSubject, selectedTopicId]);
 
-  // Questions for Timed Exam
+  // Exam Topic Options for Custom Exam Mode
+  const examTopicOptions = useMemo(() => {
+    if (examCustomSubject === 'all') return KNTT_LESSON_TOPICS;
+    return KNTT_LESSON_TOPICS.filter(t => t.subject === examCustomSubject);
+  }, [examCustomSubject]);
+
+  // Questions for Timed Exam / Chế độ luyện thi
   const examQuestions = useMemo(() => {
+    if (customExamQuestions.length > 0) {
+      return customExamQuestions;
+    }
     if (selectedPackageId === 'all-standard-1') {
       return unifiedQuestions.slice(0, 40);
     }
@@ -214,10 +230,46 @@ export function KNTTPracticeHub() {
       if (pkg.subject === 'physics' || pkg.subject === 'chemistry' || pkg.subject === 'biology') cat = 'science';
       if (pkg.subject === 'english') cat = 'english';
       const filtered = unifiedQuestions.filter(q => q.subject === cat);
-      return filtered.length > 0 ? filtered.slice(0, pkg.questionCount || 15) : unifiedQuestions.slice(0, 15);
+      return filtered.length > 0 ? filtered.slice(0, pkg.questionCount || 20) : unifiedQuestions.slice(0, 20);
     }
-    return unifiedQuestions.slice(0, 15);
-  }, [unifiedQuestions, selectedPackageId]);
+    return unifiedQuestions.slice(0, 20);
+  }, [unifiedQuestions, selectedPackageId, customExamQuestions]);
+
+  // Handle start custom exam mode
+  const handleStartCustomExam = () => {
+    let pool = unifiedQuestions.filter(q => {
+      const matchSubj = examCustomSubject === 'all' || q.subject === examCustomSubject;
+      const matchTopic = examCustomTopicId === 'all' || q.topicId === examCustomTopicId || q.gradeId === examCustomTopicId;
+      return matchSubj && matchTopic;
+    });
+
+    if (pool.length === 0) {
+      pool = unifiedQuestions.filter(q => examCustomSubject === 'all' || q.subject === examCustomSubject);
+    }
+    if (pool.length === 0) {
+      pool = [...unifiedQuestions];
+    }
+
+    const shuffled = [...pool];
+    let seed = Date.now();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const rnd = seed / 233280;
+      const j = Math.floor(rnd * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const selectedExamQ = shuffled.slice(0, examCustomQuestionCount);
+    setCustomExamQuestions(selectedExamQ);
+
+    const durSec = examCustomMinutes * 60;
+    setTimeLeftSeconds(durSec);
+    setTotalTimeSeconds(durSec);
+    setExamAnswers({});
+    setFlaggedQuestions({});
+    setExamCurrentIdx(0);
+    setExamState('taking');
+  };
 
   // Current question in Topic Practice
   const currentTopicQ = topicPracticeQuestions[topicCurrentIdx] || topicPracticeQuestions[0];
@@ -992,94 +1044,223 @@ export function KNTTPracticeHub() {
           ========================================================================= */}
       {hubMode === 'timed-exam' && (
         <div className="space-y-6">
-          {/* STATE 1: IDLE - LỰA CHỌN ĐỀ THI & BẮT ĐẦU */}
+           {/* STATE 1: IDLE - LỰA CHỌN ĐỀ THI & CHẾ ĐỘ LUYỆN THI TÙY CHỈNH */}
           {examState === 'idle' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    Chọn Đề thi thử & Kiểm tra Đánh giá Năng lực
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    Hệ thống đề thi chuẩn định dạng Bộ GD&ĐT bám sát cấu trúc SGK Kết nối tri thức
-                  </p>
+            <div className="space-y-6">
+              {/* CHẾ ĐỘ LUYỆN THI TÙY CHỈNH (CHO HS & GV CHỌN NHANH THEO MÔN & BÀI HỌC KNTT 2018) */}
+              <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-indigo-900 rounded-3xl p-6 md:p-8 text-white shadow-xl space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/20">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/25 backdrop-blur-md rounded-full text-xs font-bold text-yellow-300 mb-2">
+                      <Zap className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
+                      <span>Chế độ Luyện thi & Thi thử Nhanh theo SGK KNTT 2018</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-black">
+                      Tùy chỉnh Đề thi trắc nghiệm & Đồng hồ đếm ngược
+                    </h3>
+                    <p className="text-emerald-100 text-xs md:text-sm mt-1 max-w-2xl">
+                      Dành cho Học sinh và Giáo viên: Chọn môn học, chủ đề chương/bài học, số lượng câu hỏi và thời gian làm bài để bắt đầu phòng thi mô phỏng tức thì.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Exam Packages Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {EXAM_PACKAGES.map(pkg => {
-                    const isSelected = selectedPackageId === pkg.id;
-                    return (
-                      <button
-                        key={pkg.id}
-                        onClick={() => setSelectedPackageId(pkg.id)}
-                        className={`p-4 rounded-2xl border text-left transition-all ${
-                          isSelected
-                            ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20'
-                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">
-                            {pkg.subject === 'all' ? 'Tổng hợp 5 môn' : pkg.subject.toUpperCase()}
-                          </span>
-                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                            {pkg.durationMinutes} phút
-                          </span>
-                        </div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm mt-2">
-                          {pkg.title}
-                        </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
-                          {pkg.description}
-                        </p>
-                      </button>
-                    );
-                  })}
+                {/* Configuration Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                  {/* 1. Chọn Môn học */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-emerald-200 uppercase tracking-wider block">1. Chọn Môn học THPT:</label>
+                    <select
+                      value={examCustomSubject}
+                      onChange={e => {
+                        setExamCustomSubject(e.target.value as SubjectCategory | 'all');
+                        setExamCustomTopicId('all');
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-emerald-400/40 text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
+                    >
+                      <option value="all">📚 Tất cả môn học KNTT</option>
+                      <option value="math">📐 Toán học</option>
+                      <option value="science">🔬 Khoa học tự nhiên (Lý - Hóa - Sinh)</option>
+                      <option value="english">🌍 Tiếng Anh (Global Success)</option>
+                      <option value="literature">📖 Ngữ văn</option>
+                    </select>
+                  </div>
+
+                  {/* 2. Chọn Chương / Bài học KNTT */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-emerald-200 uppercase tracking-wider block">2. Chọn Bài học / Chủ đề SGK:</label>
+                    <select
+                      value={examCustomTopicId}
+                      onChange={e => setExamCustomTopicId(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-emerald-400/40 text-white font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
+                    >
+                      <option value="all">🎯 Tất cả các chủ đề bài học</option>
+                      {examTopicOptions.map(t => (
+                        <option key={t.id} value={t.id}>
+                          [{t.gradeLabel}] {t.topicName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 3. Số lượng câu hỏi */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-emerald-200 uppercase tracking-wider block">3. Số lượng câu hỏi:</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[10, 20, 30, 40].map(cnt => (
+                        <button
+                          key={cnt}
+                          type="button"
+                          onClick={() => setExamCustomQuestionCount(cnt)}
+                          className={`py-2 rounded-xl font-bold transition-all border ${
+                            examCustomQuestionCount === cnt
+                              ? 'bg-yellow-400 text-slate-950 border-yellow-300 shadow-md font-black'
+                              : 'bg-slate-900/60 text-slate-200 border-white/20 hover:bg-slate-900'
+                          }`}
+                        >
+                          {cnt}c
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 4. Giới hạn thời gian (Phút) */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-emerald-200 uppercase tracking-wider block">4. Thời gian (Phút):</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[15, 30, 45, 60].map(mins => (
+                        <button
+                          key={mins}
+                          type="button"
+                          onClick={() => setExamCustomMinutes(mins)}
+                          className={`py-2 rounded-xl font-bold transition-all border ${
+                            examCustomMinutes === mins
+                              ? 'bg-yellow-400 text-slate-950 border-yellow-300 shadow-md font-black'
+                              : 'bg-slate-900/60 text-slate-200 border-white/20 hover:bg-slate-900'
+                          }`}
+                        >
+                          {mins}'
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-4">
+                {/* Start Custom Exam Button */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 bg-black/20 p-4 rounded-2xl border border-white/10">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                      <Timer className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-xl bg-yellow-400/20 flex items-center justify-center text-yellow-300">
+                      <Timer className="w-6 h-6 animate-pulse" />
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Số lượng câu hỏi</p>
-                      <p className="text-lg font-bold text-slate-800 dark:text-slate-200">{examQuestions.length} câu trắc nghiệm</p>
+                      <p className="font-bold text-white text-xs">Cấu hình thi đã sẵn sàng</p>
+                      <p className="text-emerald-200 text-[11px]">Đề {examCustomQuestionCount} câu • Thời gian đếm ngược {examCustomMinutes} phút</p>
                     </div>
                   </div>
 
                   <button
-                    onClick={handleStartExam}
-                    className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-base shadow-sm transition-all flex items-center justify-center gap-2"
+                    onClick={handleStartCustomExam}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 font-black text-sm rounded-2xl shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                   >
-                    <Timer className="w-5 h-5" />
-                    <span>Bắt đầu Bấm giờ Làm bài</span>
+                    <Zap className="w-5 h-5 fill-slate-950 text-slate-950" />
+                    <span>Bắt đầu Chế độ Luyện thi Ngay 🚀</span>
                   </button>
                 </div>
               </div>
 
-              {/* Right Guide Column */}
-              <div className="lg:col-span-4 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-3xl p-6 border border-emerald-100 dark:border-emerald-800 space-y-4">
-                <h4 className="font-bold text-emerald-900 dark:text-emerald-200 text-base flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                  Quy chế phòng thi trực tuyến
-                </h4>
-                <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-3 leading-relaxed">
-                  <li className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">1</span>
-                    <span>Đồng hồ đếm ngược tự động kích hoạt. Khi hết thời gian, hệ thống tự động khóa đề và chấm điểm theo thang điểm 10.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">2</span>
-                    <span>Có thể đánh dấu xem lại câu khó và chuyển nhanh tới bất kỳ câu nào thông qua bảng lưới câu hỏi.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">3</span>
-                    <span>Sau khi nộp bài, nhận ngay kết quả thống kê số câu đúng/sai cùng lời giải chi tiết KaTeX từng bước.</span>
-                  </li>
-                </ul>
+              {/* Or select from pre-made exam packages */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                      Hoặc chọn các Gói Đề thi chuẩn THPT Quốc gia
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Hệ thống đề thi chuẩn định dạng Bộ GD&ĐT bám sát cấu trúc SGK Kết nối tri thức
+                    </p>
+                  </div>
+
+                  {/* Exam Packages Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {EXAM_PACKAGES.map(pkg => {
+                      const isSelected = selectedPackageId === pkg.id;
+                      return (
+                        <button
+                          key={pkg.id}
+                          onClick={() => {
+                            setSelectedPackageId(pkg.id);
+                            setCustomExamQuestions([]); // use package questions
+                          }}
+                          className={`p-4 rounded-2xl border text-left transition-all ${
+                            isSelected && customExamQuestions.length === 0
+                              ? 'border-emerald-600 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20'
+                              : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">
+                              {pkg.subject === 'all' ? 'Tổng hợp 5 môn' : pkg.subject.toUpperCase()}
+                            </span>
+                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                              {pkg.durationMinutes} phút
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm mt-2">
+                            {pkg.title}
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                            {pkg.description}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                        <Timer className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Số lượng câu hỏi gói đề mẫu</p>
+                        <p className="text-lg font-bold text-slate-800 dark:text-slate-200">{examQuestions.length} câu trắc nghiệm</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setCustomExamQuestions([]);
+                        handleStartExam();
+                      }}
+                      className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-base shadow-sm transition-all flex items-center justify-center gap-2"
+                    >
+                      <Timer className="w-5 h-5" />
+                      <span>Bắt đầu Gói Đề Mẫu</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right Guide Column */}
+                <div className="lg:col-span-4 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-3xl p-6 border border-emerald-100 dark:border-emerald-800 space-y-4 self-start">
+                  <h4 className="font-bold text-emerald-900 dark:text-emerald-200 text-base flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+                    Quy chế phòng thi trực tuyến
+                  </h4>
+                  <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-3 leading-relaxed">
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">1</span>
+                      <span>Đồng hồ đếm ngược tự động kích hoạt. Khi hết thời gian, hệ thống tự động khóa đề và chấm điểm theo thang điểm 10.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">2</span>
+                      <span>Có thể đánh dấu xem lại câu khó và chuyển nhanh tới bất kỳ câu nào thông qua bảng lưới câu hỏi.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">3</span>
+                      <span>Sau khi nộp bài, nhận ngay kết quả thống kê số câu đúng/sai cùng lời giải chi tiết KaTeX từng bước.</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           )}
