@@ -20,6 +20,13 @@ import { MultiStudyToolkit } from './components/MultiStudyToolkit';
 import { THPTExamPractice } from './components/THPTExamPractice';
 import { KNTTPracticeHub } from './components/KNTTPracticeHub';
 import { TriangleTrigExams } from './components/TriangleTrigExams';
+import { InequalityExams } from './components/InequalityExams';
+import { LogicSetExams } from './components/LogicSetExams';
+import { Grade12Exams } from './components/Grade12Exams';
+import { Grade11Exams } from './components/Grade11Exams';
+import { Grade10Hub } from './components/Grade10Hub';
+import { Grade11Hub } from './components/Grade11Hub';
+import { Grade12Hub } from './components/Grade12Hub';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
 import { 
@@ -73,7 +80,7 @@ import { useEduBotUser } from './hooks/useEduBotUser';
 
 export default function App() {
   const { user } = useEduBotUser();
-  const [activeTab, setActiveTab] = useState<'exam' | 'triangle-exams' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('triangle-exams');
+  const [activeTab, setActiveTab] = useState<'exam' | 'triangle-exams' | 'inequality-exams' | 'logic-set-exams' | 'grade11-exams' | 'grade12-exams' | 'grade10-hub' | 'grade11-hub' | 'grade12-hub' | 'grade11-trig' | 'grade12-calculus' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('triangle-exams');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
@@ -465,11 +472,11 @@ export default function App() {
               {/* Lớp 10 */}
               <button
                 onClick={() => {
-                  setActiveTab('triangle-exams');
+                  setActiveTab('grade10-hub');
                   setIsSidebarOpen(false);
                 }}
                 className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                  activeTab === 'triangle-exams'
+                  activeTab === 'grade10-hub' || activeTab === 'triangle-exams' || activeTab === 'inequality-exams'
                     ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-sm'
                     : 'bg-transparent border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
@@ -478,16 +485,15 @@ export default function App() {
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
                   <span className="text-left text-sm font-bold">Lớp 10</span>
                 </div>
-                <span className="text-[10px] mt-1 pl-5 text-amber-700 dark:text-amber-400 opacity-80">Hệ thức lượng trong tam giác</span>
               </button>
 
               {/* Lớp 11 */}
               <button
                 onClick={() => {
-                  // TODO: Implement/Link Lớp 11
+                  setActiveTab('grade11-hub');
                   setIsSidebarOpen(false);
                 }}
-                className="w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm ${activeTab === 'grade11-hub' || activeTab === 'grade11-trig' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
@@ -498,10 +504,10 @@ export default function App() {
               {/* Lớp 12 */}
               <button
                 onClick={() => {
-                  // TODO: Implement/Link Lớp 12
+                  setActiveTab('grade12-hub');
                   setIsSidebarOpen(false);
                 }}
-                className="w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm ${activeTab === 'grade12-hub' || activeTab === 'grade12-calculus' ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
@@ -844,9 +850,51 @@ export default function App() {
             </div>
           )}
 
+          {activeTab === 'grade10-hub' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <Grade10Hub onSelect={setActiveTab} />
+            </div>
+          )}
+
           {activeTab === 'triangle-exams' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <TriangleTrigExams />
+            </div>
+          )}
+
+          {activeTab === 'inequality-exams' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <InequalityExams />
+            </div>
+          )}
+
+          {activeTab === 'logic-set-exams' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <LogicSetExams />
+            </div>
+          )}
+
+          {activeTab === 'grade11-hub' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <Grade11Hub onSelect={setActiveTab} />
+            </div>
+          )}
+
+          {activeTab === 'grade11-trig' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <Grade11Exams />
+            </div>
+          )}
+
+          {activeTab === 'grade12-hub' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <Grade12Hub onSelect={setActiveTab} />
+            </div>
+          )}
+
+          {activeTab === 'grade12-calculus' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <Grade12Exams />
             </div>
           )}
 

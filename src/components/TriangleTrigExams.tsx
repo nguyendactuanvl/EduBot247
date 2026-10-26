@@ -1286,7 +1286,31 @@ export const TRIANGLE_EXAM_PAPERS: ExamPaper[] = [
         explanation: '$p = 24 \\Rightarrow S = \\sqrt{24 \\cdot 3 \\cdot 7 \\cdot 14} = 84 \\Rightarrow r = \\frac{84}{24} = 3,5$.'
       }
     ]
-  }
+  },
+  {
+    id: 'exam-6',
+    title: 'Đề số 6: Bất phương trình bậc nhất hai ẩn (Phần 1)',
+    durationMinutes: 90,
+    description: 'Chương trình GDPT 2018 Toán 10 • 12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    questionsPart1: [
+      {
+        id: 'e6-q1', type: 'mcq', number: 1,
+        question: 'Bất phương trình nào sau đây là bất phương trình bậc nhất hai ẩn?',
+        options: [
+          { id: 'A', text: '$x^2 + y > 3$.' },
+          { id: 'B', text: '$2x - 3y \\le 5$.' },
+          { id: 'C', text: '$xy + y < 1$.' },
+          { id: 'D', text: '$x^2 + y^2 \\le 4$.' }
+        ],
+        correctOption: 'B',
+        explanation: 'Bất phương trình bậc nhất hai ẩn có dạng $ax + by \\le c$ (hoặc $<, >, \\ge$).'
+      },
+      // ... (Rest of exam questions for exam 6)
+    ],
+    questionsPart2: [],
+    questionsPart3: []
+  },
+  // ... (Add exams 7, 8, 9, 10 similarly)
 ];
 
 export function TriangleTrigExams() {

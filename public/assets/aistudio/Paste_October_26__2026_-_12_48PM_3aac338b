@@ -1,0 +1,619 @@
+# BỘ ĐỀ ÔN TẬP & KIỂM TRA ONLINE: BẤT PHƯƠNG TRÌNH & HỆ BPT BẬC NHẤT HAI ẨN
+# Thời gian làm bài: 90 phút
+
+---
+
+## ĐỀ SỐ 1: BẤT PHƯƠNG TRÌNH BẬC NHẤT HAI ẨN (PHẦN 1)
+
+### PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn (12 câu)
+Thí sinh trả lời từ câu 1 đến câu 12. Mỗi câu hỏi thí sinh chỉ chọn một phương án.
+
+**Câu 1:** Bất phương trình nào sau đây là bất phương trình bậc nhất hai ẩn?
+A. $x^2 + y > 3$.
+B. $2x - 3y \le 5$.
+C. $xy + y < 1$.
+D. $x^2 + y^2 \le 4$.
+
+**Câu 2:** Cặp số $(2; 3)$ là nghiệm của bất phương trình nào sau đây?
+A. $x + y < 3$.
+B. $2x - y > 3$.
+C. $x - 3y + 5 \ge 0$.
+D. $3x - y < 2$.
+
+**Câu 3:** Miền nghiệm của bất phương trình $x - 2y < 4$ chứa điểm nào sau đây?
+A. $(0; 0)$.
+B. $(5; 0)$.
+C. $(0; -3)$.
+D. $(2; -1)$.
+
+**Câu 4:** Cho bất phương trình $2x + y > 3$. Khẳng định nào sau đây đúng?
+A. Bất phương trình có nghiệm duy nhất.
+B. Bất phương trình vô nghiệm.
+C. Bất phương trình có vô số nghiệm.
+D. Miền nghiệm là một đoạn thẳng.
+
+**Câu 5:** Điểm nào dưới đây thuộc miền nghiệm của bất phương trình $3x + y \ge 6$?
+A. $(1; 1)$.
+B. $(2; 1)$.
+C. $(0; 0)$.
+D. $(-1; 2)$.
+
+**Câu 6:** Cho nửa mặt phẳng bờ là đường thẳng $\Delta: x - y = 2$. Điểm nào sau đây nằm trong miền nghiệm của bất phương trình $x - y > 2$?
+A. $(3; 1)$.
+B. $(1; 3)$.
+C. $(2; 0)$.
+D. $(0; 2)$.
+
+**Câu 7:** Miền nghiệm của bất phương trình $x \le 0$ là:
+A. Nửa mặt phẳng chứa trục $Oy$, kể cả trục $Oy$.
+B. Nửa mặt phẳng không chứa trục $Oy$, kể cả trục $Oy$.
+C. Nửa mặt phẳng bên trái trục $Oy$ (kể cả trục $Oy$).
+D. Nửa mặt phẳng bên phải trục $Oy$ (kể cả trục $Oy$).
+
+**Câu 8:** Giá trị của $m$ để điểm $M(1; 2)$ thuộc miền nghiệm của bất phương trình $mx + 2y > 5$ là:
+A. $m > 1$.
+B. $m < 1$.
+C. $m \ge 1$.
+D. $m = 1$.
+
+**Câu 9:** Miền biểu diễn nghiệm của bất phương trình $ax + by \le c$ (với $a^2 + b^2 > 0$) là:
+A. Một đường thẳng.
+B. Một nửa mặt phẳng kể cả bờ.
+C. Một góc phần tư.
+D. Một nửa mặt phẳng không kể bờ.
+
+**Câu 10:** Cho bất phương trình $-x + 2y + 4 > 0$. Điểm nào sau đây **không** thuộc miền nghiệm?
+A. $(0; 0)$.
+B. $(1; 1)$.
+C. $(0; 3)$.
+D. $(-2; 0)$.
+
+**Câu 11:** Miền nghiệm của bất phương trình $y > 0$ là:
+A. Nửa mặt phẳng phía trên trục hoành (không kể trục $Ox$).
+B. Nửa mặt phẳng phía dưới trục hoành.
+C. Trục hoành $Ox$.
+D. Nửa mặt phẳng bên phải trục tung.
+
+**Câu 12:** Cho bất phương trình $3x - 2y \le 6$. Điểm nào sau đây nằm trên biên của miền nghiệm?
+A. $(2; 0)$.
+B. $(0; -4)$.
+C. $(1; 1)$.
+D. $(3; 1)$.
+
+---
+
+### PHẦN II. Câu trắc nghiệm đúng sai (4 câu)
+Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.
+
+**Câu 13:** Cho bất phương trình $2x - y + 4 \ge 0$.
+a) Bất phương trình đã cho là bất phương trình bậc nhất hai ẩn.
+b) Cặp số $(0; 0)$ là nghiệm của bất phương trình.
+c) Đường thẳng $\Delta: 2x - y + 4 = 0$ đi qua điểm $(0; 4)$ và $(-2; 0)$.
+d) Miền nghiệm của bất phương trình là nửa mặt phẳng chứa gốc tọa độ $O(0;0)$.
+
+**Câu 14:** Cho bất phương trình $-x + 3y < 6$.
+a) Điểm $A(1; 1)$ thuộc miền nghiệm của bất phương trình.
+b) Điểm $B(0; 2)$ nằm trên đường thẳng biên $-x + 3y = 6$.
+c) Điểm $C(-2; 1)$ không thuộc miền nghiệm.
+d) Miền nghiệm của bất phương trình không kể đường thẳng biên.
+
+**Câu 15:** Xét bất phương trình $3x + 4y - 12 \le 0$.
+a) Giao điểm của đường thẳng $3x + 4y - 12 = 0$ với trục $Ox$ là $(4; 0)$.
+b) Giao điểm của đường thẳng $3x + 4y - 12 = 0$ với trục $Oy$ là $(0; 3)$.
+c) Gốc tọa độ $O(0;0)$ thuộc miền nghiệm của bất phương trình.
+d) Giá trị lớn nhất của biểu thức $F = x + y$ trên miền nghiệm của bất phương trình là $4$.
+
+**Câu 16:** Cho bất phương trình bậc nhất hai ẩn $ax + by > c$.
+a) Nếu $c = 0$, gốc tọa độ luôn là nghiệm của bất phương trình.
+b) Miền nghiệm luôn là một nửa mặt phẳng mở (không chứa biên).
+c) Tập nghiệm của bất phương trình là tập hợp vô hạn các điểm trên mặt phẳng tọa độ.
+d) Nếu điểm $M(x_0; y_0)$ thỏa mãn $ax_0 + by_0 > c$ thì $M$ nằm trong miền nghiệm.
+
+---
+
+### PHẦN III. Câu trắc nghiệm trả lời ngắn (6 câu)
+Thí sinh trả lời từ câu 17 đến câu 22.
+
+**Câu 17:** Cho bất phương trình $mx + y > 3$. Tìm giá trị nguyên nhỏ nhất của tham số $m$ để điểm $M(2; 1)$ thuộc miền nghiệm của bất phương trình.
+
+**Câu 18:** Một hộ nông dân dự định trồng ngô và khoai trên một diện tích đất $8\text{ ha}$. Nếu trồng ngô thì cần $20$ công lao động và thu hoạch được $8\ triệu$ đồng trên mỗi ha. Nếu trồng khoai thì cần $30$ công lao động và thu hoạch được $12\ triệu$ đồng trên mỗi ha. Tổng số công lao động không quá $180$ công. Gọi $x$ là số ha trồng ngô, viết bất phương trình biểu thị điều kiện về tổng số công lao động dưới dạng $ax + by \le c$ với $c$ là số nguyên dương nhỏ nhất có thể. Tính giá trị của $c$.
+
+**Câu 19:** Cho bất phương trình $2x - 3y \le 6$. Điểm $A(m; 2)$ thuộc miền nghiệm của bất phương trình. Tìm giá trị nguyên nhỏ nhất của $m$.
+
+**Câu 20:** Miền nghiệm của bất phương trình $x + y \le 10$ chứa bao nhiêu điểm có tọa độ là các số nguyên dương $(x; y)$?
+
+**Câu 21:** Tìm giá trị lớn nhất của biểu thức $F = 2x + 3y$ trên miền nghiệm được xác định bởi bất phương trình $x + y \le 5$ với $x \ge 0, y \ge 0$.
+
+**Câu 22:** Cho bất phương trình $-3x + 2y > 6$. Điểm $M(1; k)$ với $k$ nguyên thuộc miền nghiệm. Hỏi giá trị nhỏ nhất có thể của $k$ là bao nhiêu?
+
+---
+---
+
+## ĐỀ SỐ 2: BẤT PHƯƠNG TRÌNH BẬC NHẤT HAI ẨN (PHẦN 2)
+
+### PHẦN I. Trắc nghiệm 4 lựa chọn (12 câu)
+
+**Câu 1:** Bất phương trình nào dưới đây nhận cặp số $(-1; 2)$ làm nghiệm?
+A. $x + y > 2$.
+B. $2x - y < 0$.
+C. $x - 2y + 3 \ge 0$.
+D. $3x + y - 1 > 0$.
+
+**Câu 2:** Miền nghiệm của bất phương trình $x - y \ge 0$ là nửa mặt phẳng chứa điểm nào sau đây?
+A. $(1; -1)$.
+B. $(2; 5)$.
+C. $(0; 1)$.
+D. $(-3; 2)$.
+
+**Câu 3:** Cho đường thẳng $\Delta: 3x - 2y = 6$. Điểm nào sau đây thuộc miền nghiệm của bất phương trình $3x - 2y \ge 6$?
+A. $(0; 0)$.
+B. $(3; 0)$.
+C. $(1; 1)$.
+D. $(2; 2)$.
+
+**Câu 4:** Bất phương trình $0x + 2y > 4$ có miền nghiệm là:
+A. Nửa mặt phẳng phía trên đường thẳng $y = 2$ (không kể biên).
+B. Nửa mặt phẳng phía dưới đường thẳng $y = 2$.
+C. Nửa mặt phẳng bên phải trục tung.
+D. Nửa mặt phẳng bên trái trục tung.
+
+**Câu 5:** Cặp số $(x; y)$ nào dưới đây thuộc miền nghiệm của bất phương trình $x + 3y - 2 < 0$?
+A. $(1; 1)$.
+B. $(0; 0)$.
+C. $(2; 0)$.
+D. $(-1; 1)$.
+
+**Câu 6:** Điểm $M(-2; m)$ thuộc miền nghiệm của bất phương trình $2x - y + 5 > 0$ khi:
+A. $m < 1$.
+B. $m > 1$.
+C. $m \le 1$.
+D. $m \ge 1$.
+
+**Câu 7:** Miền nghiệm của bất phương trình $y \ge 0$ biểu diễn bởi:
+A. Nửa mặt phẳng phía trên trục hoành (kể cả trục $Ox$).
+B. Nửa mặt phẳng phía dưới trục hoành.
+C. Trục hoành.
+D. Trục tung.
+
+**Câu 8:** Cho bất phương trình $ax + by < c$. Nếu đường thẳng $ax + by = c$ đi qua gốc tọa độ thì để xác định miền nghiệm ta thường chọn điểm kiểm tra là:
+A. $(0; 0)$.
+B. $(1; 0)$ hoặc $(0; 1)$.
+C. Không chọn được điểm nào.
+D. Bất kỳ điểm nào trên đường thẳng biên.
+
+**Câu 9:** Cho bất phương trình $4x - 3y + 12 \ge 0$. Điểm nào sau đây **không** nằm trong miền nghiệm?
+A. $(0; 0)$.
+B. $(0; 4)$.
+C. $(-3; 0)$.
+D. $(1; 1)$.
+
+**Câu 10:** Số nghiệm của một bất phương trình bậc nhất hai ẩn nếu tồn tại nghiệm là:
+A. 1.
+B. 2.
+C. Hữu hạn.
+D. Vô số.
+
+**Câu 11:** Miền nghiệm của bất phương trình $x > 0$ là:
+A. Nửa mặt phẳng bên phải trục $Oy$ (không kể trục $Oy$).
+B. Nửa mặt phẳng bên trái trục $Oy$.
+C. Trục $Oy$.
+D. Nửa mặt phẳng phía trên trục $Ox$.
+
+**Câu 12:** Cho biểu thức $F = x - y$. Giá trị lớn nhất của $F$ trên miền xác định bởi $x \ge 0, y \ge 0, x + y \le 4$ là:
+A. $4$.
+B. $-4$.
+C. $0$.
+D. $2$.
+
+---
+
+### PHẦN II. Trắc nghiệm đúng sai (4 câu)
+
+**Câu 13:** Cho bất phương trình $x + 2y - 6 \le 0$.
+a) Điểm $P(2; 2)$ thuộc miền nghiệm.
+b) Điểm $Q(4; 2)$ nằm trên đường thẳng biên $x + 2y - 6 = 0$.
+c) Miền nghiệm của bất phương trình chứa gốc tọa độ $O(0;0)$.
+d) Đường thẳng biên chia mặt phẳng thành hai nửa mặt phẳng, phần không gạch chéo kể cả bờ là miền nghiệm.
+
+**Câu 14:** Cho bất phương trình $-2x + y > 2$.
+a) Cặp số $(0; 0)$ là nghiệm của bất phương trình.
+b) Điểm $M(-1; 3)$ thuộc miền nghiệm.
+c) Đường thẳng biên đi qua hai điểm $(0; 2)$ và $(-1; 0)$.
+d) Miền nghiệm là nửa mặt phẳng mở không chứa gốc tọa độ $O$.
+
+**Câu 15:** Xét bất phương trình $5x - 2y \le 10$.
+a) Giao điểm của đường thẳng biên với trục hoành là $A(2; 0)$.
+b) Giao điểm của đường thẳng biên với trục tung là $B(0; -5)$.
+c) Điểm $N(3; 2)$ thỏa mãn bất phương trình.
+d) Gốc tọa độ $O$ không thuộc miền nghiệm.
+
+**Câu 16:** Cho bất phương trình bậc nhất hai ẩn $ax + by \le c$.
+a) Nếu $a = 0, b = 2, c = 4$, miền nghiệm là $y \le 2$.
+b) Miền nghiệm có thể là toàn bộ mặt phẳng tọa độ.
+c) Biên của miền nghiệm luôn là một đường thẳng.
+d) Tập nghiệm luôn được biểu diễn bằng một miền đóng.
+
+---
+
+### PHẦN III. Trắc nghiệm trả lời ngắn (6 câu)
+
+**Câu 17:** Cho bất phương trình $3x - my + 2 \ge 0$. Tìm giá trị nguyên lớn nhất của tham số $m$ để điểm $M(1; -1)$ thuộc miền nghiệm.
+
+**Câu 18:** Một cửa hàng bán áo và quần. Lợi nhuận mỗi chiếc áo là $50.000$ đồng, mỗi chiếc quần là $80.000$ đồng. Cửa hàng dự định nhập về tổng số không quá $200$ sản phẩm. Gọi $x$ là số áo, $y$ là số quần. Viết bất phương trình thể hiện tổng lợi nhuận $T$ theo $x, y$. Nếu bán hết $200$ sản phẩm trong đó có $80$ áo, lợi nhuận tối đa đạt được là bao nhiêu nghìn đồng (biết số lượng quần nhiều hơn áo)? *Gợi ý tính theo điều kiện số lượng tối đa.*
+
+**Câu 19:** Cho bất phương trình $x - 2y > -4$. Tìm giá trị nguyên nhỏ nhất của $y$ khi $x = 1$.
+
+**Câu 20:** Miền nghiệm của bất phương trình $2x + y < 6$ chứa bao nhiêu điểm nguyên $(x; y)$ với $x \ge 0, y \ge 0$?
+
+**Câu 21:** Tìm giá trị nhỏ nhất của biểu thức $F = x - 2y$ trên miền được giới hạn bởi các điều kiện $x \ge 0, y \ge 0, x + y \le 5$.
+
+**Câu 22:** Cho bất phương trình $mx - y < 2$. Biết rằng điểm $M(3; 1)$ thuộc miền nghiệm. Tìm giá trị của $m$ thỏa mãn $m$ là số nguyên lớn nhất.
+
+---
+---
+
+## ĐỀ SỐ 3: HỆ BẤT PHƯƠNG TRÌNH BẬC NHẤT HAI ẨN (PHẦN 1)
+
+### PHẦN I. Trắc nghiệm 4 lựa chọn (12 câu)
+
+**Câu 1:** Hệ bất phương trình nào sau đây là hệ bất phương trình bậc nhất hai ẩn?
+A. $\begin{cases} x + y^2 > 0 \\ x - y < 2 \end{cases}$.
+B. $\begin{cases} 2x - y \le 3 \\ -x + 3y \ge 1 \end{cases}$.
+C. $\begin{cases} xy > 1 \\ x + y = 4 \end{cases}$.
+D. $\begin{cases} x^2 + y \le 5 \\ x > 0 \end{cases}$.
+
+**Câu 2:** Cặp số $(1; -1)$ là nghiệm của hệ bất phương trình nào sau đây?
+A. $\begin{cases} x + y \ge 0 \\ x - y < 1 \end{cases}$.
+B. $\begin{cases} 2x - y > 2 \\ x + 2y < 0 \end{cases}$.
+C. $\begin{cases} x + 2y \le 0 \\ 2x - y > 0 \end{cases}$.
+D. $\begin{cases} x - y > 0 \\ x + y > 0 \end{cases}$.
+
+**Câu 3:** Miền nghiệm của hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 4 \end{cases}$ là một:
+A. Tam giác.
+B. Tứ giác.
+C. Nửa mặt phẳng.
+D. Miền không bị chặn.
+
+**Câu 4:** Điểm nào sau đây thuộc miền nghiệm của hệ $\begin{cases} x + y < 2 \\ 2x - y > 1 \end{cases}$?
+A. $(1; 1)$.
+B. $(0; 0)$.
+C. $(2; 0)$.
+D. $(1; -1)$.
+
+**Câu 5:** Cho hệ bất phương trình $\begin{cases} x \ge -1 \\ y \le 2 \end{cases}$. Điểm nào sau đây **không** thuộc miền nghiệm?
+A. $(0; 0)$.
+B. $(-2; 1)$.
+C. $(1; 1)$.
+D. $(-1; 2)$.
+
+**Câu 6:** Diện tích của miền nghiệm hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 3 \end{cases}$ trên mặt phẳng tọa độ là:
+A. $\frac{9}{2}$.
+B. $9$.
+C. $3$.
+D. $\frac{3}{2}$.
+
+**Câu 7:** Cặp số $(2; 1)$ **không** phải là nghiệm của hệ nào sau đây?
+A. $\begin{cases} x - y > 0 \\ x + y \le 4 \end{cases}$.
+B. $\begin{cases} 2x - y \ge 3 \\ x + y < 5 \end{cases}$.
+C. $\begin{cases} x \le 2 \\ y \ge 1 \end{cases}$.
+D. $\begin{cases} x + 2y > 5 \\ x - y < 2 \end{cases}$.
+
+**Câu 8:** Miền nghiệm của hệ bất phương trình $\begin{cases} x > 0 \\ y > 0 \end{cases}$ nằm ở góc phần tư nào của mặt phẳng tọa độ?
+A. Góc phần tư thứ nhất.
+B. Góc phần tư thứ hai.
+C. Góc phần tư thứ ba.
+D. Góc phần tư thứ tư.
+
+**Câu 9:** Cho hệ bất phương trình $\begin{cases} x + y \le 2 \\ 2x - y \ge 1 \end{cases}$. Giá trị của biểu thức $F = x - 2y$ tại giao điểm của hai đường thẳng biên là:
+A. $-1$.
+B. $1$.
+C. $2$.
+D. $0$.
+
+**Câu 10:** Miền nghiệm của hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ 2x + y \le 4 \end{cases}$ là một tam giác có các đỉnh là:
+A. $(0; 0), (2; 0), (0; 4)$.
+B. $(0; 0), (1; 2), (0; 4)$.
+C. $(0; 0), (2; 0), (0; 2)$.
+D. $(0; 0), (4; 0), (0; 2)$.
+
+**Câu 11:** Trong các hệ sau, hệ nào có miền nghiệm là một dải song song?
+A. $\begin{cases} x + y \ge 1 \\ x + y \le 3 \end{cases}$.
+B. $\begin{cases} x \ge 0 \\ y \ge 0 \end{cases}$.
+C. $\begin{cases} x + y \le 2 \\ x - y \ge -2 \end{cases}$.
+D. $\begin{cases} x \ge 1 \\ y \le 2 \end{cases}$.
+
+**Câu 12:** Cho hệ bất phương trình $\begin{cases} x - y \le 2 \\ 2x + y \le 8 \\ x \ge 0 \end{cases}$. Điểm nào sau đây thuộc miền nghiệm?
+A. $(1; 1)$.
+B. $(3; 4)$.
+C. $(-1; 0)$.
+D. $(2; -5)$.
+
+---
+
+### PHẦN II. Trắc nghiệm đúng sai (4 câu)
+
+**Câu 13:** Cho hệ bất phương trình $\begin{cases} x + y \le 3 \\ x \ge 0 \\ y \ge 0 \end{cases}$.
+a) Cặp số $(1; 1)$ là nghiệm của hệ.
+b) Miền nghiệm của hệ là một miền tam giác.
+c) Gốc tọa độ $O(0;0)$ không thuộc miền nghiệm.
+d) Các đỉnh của miền đa giác nghiệm là $(0;0), (3;0), (0;3)$.
+
+**Câu 14:** Cho hệ bất phương trình $\begin{cases} 2x - y < 3 \\ x + 2y > 1 \end{cases}$.
+a) Điểm $O(0;0)$ thỏa mãn hệ bất phương trình.
+b) Điểm $A(2; 1)$ là nghiệm của hệ.
+c) Điểm $B(0; 1)$ thuộc miền nghiệm.
+d) Cả hai bất phương trình trong hệ đều bậc nhất hai ẩn.
+
+**Câu 15:** Xét miền nghiệm của hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + 2y \le 8 \\ 2x + y \le 10 \text{ } \end{cases}$.
+a) Điểm $(2; 2)$ thuộc miền nghiệm.
+b) Miền nghiệm là một tứ giác.
+c) Giá trị lớn nhất của biểu thức $F = x + y$ trên miền nghiệm đạt tại đỉnh $(4; 2)$.
+d) Giá trị lớn nhất đó bằng $6$.
+
+**Câu 16:** Cho hệ bất phương trình bậc nhất hai ẩn tổng quát.
+a) Miền nghiệm của hệ là giao các miền nghiệm của các bất phương trình trong hệ.
+b) Nếu hệ vô nghiệm thì giao các miền nghiệm là tập rỗng.
+c) Miền nghiệm luôn là một miền khép kín.
+d) Hệ có thể chỉ có đúng một nghiệm duy nhất.
+
+---
+
+### PHẦN III. Trắc nghiệm trả lời ngắn (6 câu)
+
+**Câu 17:** Cho hệ bất phương trình $\begin{cases} x + y \le 5 \\ 2x - y \ge 1 \end{cases}$. Tìm giá trị của $x$ tại giao điểm của hai đường thẳng biên $x + y = 5$ và $2x - y = 1$.
+
+**Câu 18:** Tìm giá trị lớn nhất của biểu thức $F = 3x + 2y$ trên miền nghiệm của hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 4 \end{cases}$.
+
+**Câu 19:** Cho hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ 3x + 2y \le 12 \end{cases}$. Hỏi có bao nhiêu cặp số nguyên $(x; y)$ thỏa mãn hệ bất phương trình trên?
+
+**Câu 20:** Một xưởng cơ khí sản xuất hai loại sản phẩm $A$ và $B$. Mỗi sản phẩm $A$ lãi $50$ nghìn đồng, mỗi sản phẩm $B$ lãi $40$ nghìn đồng. Thời gian gia công sản phẩm $A$ là $2$ giờ, sản phẩm $B$ là $1$ giờ. Tổng thời gian làm việc trong tuần là $40$ giờ. Số lượng sản phẩm $A$ sản xuất không vượt quá $15$. Gọi $x, y$ lần lượt là số sản phẩm $A$ và $B$. Tổng số tiền lãi lớn nhất mà xưởng có thể đạt được trong tuần là bao nhiêu nghìn đồng?
+
+**Câu 21:** Tìm giá trị nhỏ nhất của biểu thức $F = x + 3y$ trên miền xác định bởi hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \ge 2 \\ x + 2y \le 6 \end{cases}$.
+
+**Câu 22:** Cho hệ bất phương trình $\begin{cases} x - y \le 2 \\ 2x + y \ge 2 \\ x \le 3 \end{cases}$. Điểm $M(m; 2)$ thuộc miền nghiệm. Tính giá trị lớn nhất của tham số $m$ nguyên.
+
+---
+---
+
+## ĐỀ SỐ 4: HỆ BẤT PHƯƠNG TRÌNH BẬC NHẤT HAI ẨN (PHẦN 2 & ỨNG DỤNG)
+
+### PHẦN I. Trắc nghiệm 4 lựa chọn (12 câu)
+
+**Câu 1:** Miền nghiệm của hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 5 \end{cases}$ chứa bao nhiêu điểm có tọa độ nguyên?
+A. $15$.
+B. $21$.
+C. $18$.
+D. $12$.
+
+**Câu 2:** Cho hệ bất phương trình $\begin{cases} x - 2y < 0 \\ x + 3y > -2 \end{cases}$. Điểm nào sau đây thuộc miền nghiệm?
+A. $(1; 1)$.
+B. $(-2; 1)$.
+C. $(0; 0)$.
+D. $(3; 1)$.
+
+**Câu 3:** Giá trị lớn nhất của biểu thức $F = 4x + 3y$ trên miền xác định bởi hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 4 \end{cases}$ là:
+A. $12$.
+B. $16$.
+C. $20$.
+D. $0$.
+
+**Câu 4:** Cho hệ $\begin{cases} 2x + y \le 6 \\ x + y \le 4 \\ x \ge 0, y \ge 0 \end{cases}$. Các đỉnh của miền đa giác nghiệm là:
+A. $(0;0), (3;0), (0;4), (2;2)$.
+B. $(0;0), (3;0), (0;4), (1;3)$.
+C. $(0;0), (3;0), (0;4)$.
+D. $(0;0), (0;4), (2;2)$.
+
+**Câu 5:** Điểm $M(2; 3)$ thuộc miền nghiệm của hệ bất phương trình nào sau đây?
+A. $\begin{cases} x + y > 5 \\ x - y < 0 \end{cases}$.
+B. $\begin{cases} x + y \ge 5 \\ x - y \le 0 \end{cases}$.
+C. $\begin{cases} x + y < 5 \\ x - y \le 0 \end{cases}$.
+D. $\begin{cases} 2x - y > 1 \\ x + y < 5 \end{cases}$.
+
+**Câu 6:** Cho hệ bất phương trình $\begin{cases} x \le 3 \\ y \ge -1 \\ x + y < 4 \end{cases}$. Điểm nào sau đây **không** thuộc miền nghiệm?
+A. $(1; 1)$.
+B. $(0; 0)$.
+C. $(2; 3)$.
+D. $(3; -1)$.
+
+**Câu 7:** Biểu thức $F = x - y$ đạt giá trị nhỏ nhất trên miền nghiệm của hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + 2y \le 6 \end{cases}$ tại điểm nào?
+A. $(0; 3)$.
+B. $(6; 0)$.
+C. $(0; 0)$.
+D. $(2; 2)$.
+
+**Câu 8:** Một công ty dinh dưỡng pha trộn hai loại nguyên liệu $X$ và $Y$ để thu được ít nhất $900\text{ kg}$ chất $A$ và $700\text{ kg}$ chất $B$. Mỗi kg nguyên liệu $X$ chứa $20\text{ kg}$ chất $A$ và $10\text{ kg}$ chất $B$. Mỗi kg nguyên liệu $Y$ chứa $10\text{ kg}$ chất $A$ và $20\text{ kg}$ chất $B$. Gọi $x, y$ lần lượt là số kg nguyên liệu $X$ và $Y$. Hệ bất phương trình biểu diễn điều kiện của bài toán là:
+A. $\begin{cases} x \ge 0, y \ge 0 \\ 20x + 10y \ge 900 \\ 10x + 20y \ge 700 \end{cases}$.
+B. $\begin{cases} x \ge 0, y \ge 0 \\ 20x + 10y \le 900 \\ 10x + 20y \le 700 \end{cases}$.
+C. $\begin{cases} x \ge 0, y \ge 0 \\ x + y \ge 900 \end{cases}$.
+D. $\begin{cases} x \ge 0, y \ge 0 \\ 20x + 20y \ge 1600 \end{cases}$.
+
+**Câu 9:** Miền nghiệm của hệ bất phương trình $\begin{cases} x + y \ge 1 \\ x + y \le 3 \end{cases}$ là:
+A. Một dải phẳng giữa hai đường thẳng song song.
+B. Một góc phần tư.
+C. Nửa mặt phẳng.
+D. Một tam giác.
+
+**Câu 10:** Cho hệ $\begin{cases} y - 2x \le 2 \\ 2y - x \ge 4 \\ x + y \le 5 \end{cases}$. Điểm nào sau đây là nghiệm của hệ?
+A. $(1; 3)$.
+B. $(2; 2)$.
+C. $(0; 2)$.
+D. $(1; 1)$.
+
+**Câu 11:** Giá trị nhỏ nhất của $F = 2x + 3y$ với điều kiện $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \ge 3 \\ x + 2y \le 6 \end{cases}$ là:
+A. $6$.
+B. $9$.
+C. $12$.
+D. $7$.
+
+**Câu 12:** Hệ bất phương trình nào sau đây vô nghiệm?
+A. $\begin{cases} x + y > 2 \\ x + y < 1 \end{cases}$.
+B. $\begin{cases} x + y \ge 2 \\ x \ge 0, y \ge 0 \end{cases}$.
+C. $\begin{cases} x - y \le 5 \\ x \ge 0 \end{cases}$.
+D. $\begin{cases} x + 2y \le 4 \\ x \ge 1 \end{cases}$.
+
+---
+
+### PHẦN II. Trắc nghiệm đúng sai (4 câu)
+
+**Câu 13:** Cho hệ bất phương trình $\begin{cases} x \ge 0, y \ge 0 \\ 2x + y \le 6 \\ x + 2y \le 6 \end{cases}$.
+a) Miền nghiệm của hệ là một tứ giác.
+b) Các đỉnh của miền đa giác nghiệm gồm $(0;0), (3;0), (0;3)$ và $(2;2)$.
+c) Giá trị lớn nhất của $F = x + y$ đạt được tại $(2;2)$ bằng $4$.
+d) Điểm $(2; 2)$ thuộc miền nghiệm.
+
+**Câu 14:** Cho hệ bất phương trình $\begin{cases} x + y \ge 2 \\ x - y \le 2 \\ y \le 2 \end{cases}$.
+a) Điểm $(1; 1)$ thuộc miền nghiệm.
+b) Điểm $(3; 3)$ thuộc miền nghiệm.
+c) Biên của miền nghiệm bao gồm các đường thẳng $x + y = 2, x - y = 2, y = 2$.
+d) Miền nghiệm là một miền bị chặn.
+
+**Câu 15:** Xét bài toán quy hoạch tuyến tính: Tìm giá trị lớn nhất của $F = 3x + 4y$ trên miền nghiệm của hệ $\begin{cases} x \ge 0, y \ge 0 \\ x \le 4 \\ y \le 3 \\ 2x + y \le 8 \end{cases}$.
+a) Miền nghiệm là một ngũ giác.
+b) Các đỉnh của miền nghiệm là $(0;0), (4;0), (4;0\text{ sai}), (0;3), (2;4\text{ sai})$. (Kiểm tra đỉnh: $(0;0), (4;0), (4;0), (0;3), (2;4)\dots$).
+c) Giá trị lớn nhất của $F$ bằng $18$.
+d) Điểm $(3; 2)$ nằm trong miền nghiệm.
+
+**Câu 16:** Cho hệ bất phương trình hai ẩn $x, y$.
+a) Tập nghiệm của hệ luôn là tập hợp lồi.
+b) Bài toán tìm giá trị lớn nhất/nhỏ nhất của hàm bậc nhất trên miền đa giác nghiệm luôn đạt tại các đỉnh của đa giác đó.
+c) Nếu hệ bất phương trình chứa các điều kiện $x \ge 0, y \ge 0$ thì miền nghiệm nằm hoàn toàn ở góc phần tư thứ nhất.
+d) Một hệ bất phương trình bậc nhất hai ẩn không thể có đúng 2 nghiệm.
+
+---
+
+### PHẦN III. Trắc nghiệm trả lời ngắn (6 câu)
+
+**Câu 17:** Tìm giá trị nhỏ nhất của biểu thức $F = x + y$ trên miền nghiệm của hệ $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + 2y \ge 4 \\ 2x + y \ge 4 \end{cases}$.
+
+**Câu 18:** Một xưởng mộc sản xuất bàn và ghế. Bàn cần $2$ giờ làm việc, ghế cần $1$ giờ làm việc. Tổng thời gian máy chạy là $70$ giờ. Số lượng ghế sản xuất tối đa là $40$ chiếc. Gọi $x$ là số bàn, $y$ là số ghế. Lợi nhuận mỗi chiếc bàn là $500$ nghìn, mỗi chiếc ghế là $200$ nghìn. Tổng số tiền lãi lớn nhất mà xưởng thu được là bao nhiêu nghìn đồng?
+
+**Câu 19:** Cho hệ $\begin{cases} x + y \le 6 \\ 2x + y \le 8 \\ x \ge 0, y \ge 0 \end{cases}$. Tìm giá trị lớn nhất của biểu thức $F = 3x + 2y$ trên miền nghiệm này.
+
+**Câu 20:** Miền nghiệm của hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 4 \\ x - y \le 2 \end{cases}$ chứa bao nhiêu điểm có tọa độ nguyên $(x; y)$?
+
+**Câu 21:** Tìm giá trị lớn nhất của biểu thức $F = 5x + 4y$ với điều kiện $\begin{cases} x \ge 0, y \ge 0 \\ x + 3y \le 6 \\ 2x + y \le 8 \end{cases}$.
+
+**Câu 22:** Cho hệ $\begin{cases} x + y \ge 1 \\ x - y \le 2 \\ y \le 3 \end{cases}$. Tìm giá trị nhỏ nhất của biểu thức $F = x - 2y$ trên miền nghiệm của hệ (biết miền nghiệm bị chặn hoặc xét trên các đỉnh biên).
+
+---
+---
+
+## ĐỀ SỐ 5: TỔNG HỢP CHƯƠNG BẤT PHƯƠNG TRÌNH & HỆ BPT BẬC NHẤT HAI ÂN
+
+### PHẦN I. Trắc nghiệm 4 lựa chọn (12 câu)
+
+**Câu 1:** Bất phương trình nào dưới đây **không** phải là bất phương trình bậc nhất hai ẩn?
+A. $2x + y > 3$.
+B. $x - 3y \le 0$.
+C. $x^2 + y < 4$.
+D. $-x + 5y \ge -2$.
+
+**Câu 2:** Cặp số $(2; -3)$ là nghiệm của bất phương trình nào sau đây?
+A. $x + y > 0$.
+B. $2x - y \ge 7$.
+C. $x - 2y < 5$.
+D. $3x + y \le 2$.
+
+**Câu 3:** Miền nghiệm của bất phương trình $3x - 2y > 6$ chứa điểm nào sau đây?
+A. $(0; 0)$.
+B. $(3; 1)$.
+C. $(4; 0)$.
+D. $(1; -2)$.
+
+**Câu 4:** Hệ bất phương trình nào sau đây có miền nghiệm là một miền tam giác?
+A. $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 2 \end{cases}$.
+B. $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \ge 2 \end{cases}$.
+C. $\begin{cases} x \ge 0 \\ x + y \le 2 \end{cases}$.
+D. $\begin{cases} x \ge 0 \\ y \ge 0 \end{cases}$.
+
+**Câu 5:** Giá trị lớn nhất của biểu thức $F = 2x + 3y$ trên miền xác định bởi hệ $\begin{cases} x \ge 0, y \ge 0 \\ x + y \le 4 \end{cases}$ là:
+A. $8$.
+B. $12$.
+C. $10$.
+D. $6$.
+
+**Câu 6:** Điểm $M(-1; 2)$ thuộc miền nghiệm của hệ bất phương trình nào sau đây?
+A. $\begin{cases} x + y > 0 \\ x - y \ge 0 \end{cases}$.
+B. $\begin{cases} x + y > 0 \\ x - y < 0 \end{cases}$.
+C. $\begin{cases} x + y < 0 \\ x - y > 0 \end{cases}$.
+D. $\begin{cases} x - y \ge 0 \\ x + y \le 0 \end{cases}$.
+
+**Câu 7:** Cho bất phương trình $ax + by \le c$. Nếu $a = 0, b = -3, c = 6$, miền nghiệm của bất phương trình là:
+A. $y \ge -2$.
+B. $y \le -2$.
+C. $y \ge 2$.
+D. $y \le 2$.
+
+**Câu 8:** Điểm nào sau đây thuộc miền nghiệm của hệ $\begin{cases} x + y \le 4 \\ x - y \ge 2 \\ x \ge 0 \end{cases}$?
+A. $(3; -1)$.
+B. $(4; 0)$.
+C. $(2; 0)$.
+D. $(1; 1)$.
+
+**Câu 9:** Cho bất phương trình $mx - y > 2$. Tìm $m$ để điểm $A(1; 1)$ thuộc miền nghiệm.
+A. $m > 3$.
+B. $m < 3$.
+C. $m \ge 3$.
+D. $m = 3$.
+
+**Câu 10:** Diện tích hình phẳng được giới hạn bởi các trục tọa độ và đường thẳng $2x + 3y = 6$ là:
+A. $3$.
+B. $6$.
+C. $2$.
+D. $4$.
+
+**Câu 11:** Giá trị nhỏ nhất của biểu thức $F = x - y$ trên miền xác định bởi hệ $\begin{cases} x \ge 0, y \ge 0 \\ x + y \le 3 \end{cases}$ là:
+A. $-3$.
+B. $3$.
+C. $0$.
+D. $-1$.
+
+**Câu 12:** Hệ bất phương trình nào sau đây vô nghiệm?
+A. $\begin{cases} x + y \le 5 \\ x \ge 0, y \ge 0 \end{cases}$.
+B. $\begin{cases} x + y \ge 5 \\ x + y \le 2 \end{cases}$.
+C. $\begin{cases} x \le 3 \\ y \ge 1 \end{cases}$.
+D. $\begin{cases} x - y \le 4 \\ x \ge 0 \end{cases}$.
+
+---
+
+### PHẦN II. Trắc nghiệm đúng sai (4 câu)
+
+**Câu 13:** Cho bất phương trình $2x - 3y + 6 < 0$.
+a) Cặp số $(0; 0)$ là nghiệm của bất phương trình.
+b) Đường thẳng $2x - 3y + 6 = 0$ đi qua hai điểm $(0; 2)$ và $(-3; 0)$.
+c) Điểm $M(1; 3)$ thuộc miền nghiệm.
+d) Miền nghiệm không kể đường thẳng biên.
+
+**Câu 14:** Cho hệ bất phương trình $\begin{cases} x \ge 0, y \ge 0 \\ x + y \le 4 \\ 2x + y \le 5 \end{cases}$.
+a) Điểm $(1; 1)$ thuộc miền nghiệm của hệ.
+b) Miền nghiệm của hệ là một đa giác lồi có 4 đỉnh.
+c) Biểu thức $F = x + 2y$ đạt giá trị lớn nhất tại một trong các đỉnh của miền nghiệm.
+d) Giá trị lớn nhất của $F = x + 2y$ trên miền nghiệm bằng $6$.
+
+**Câu 15:** Cho bất phương trình bậc nhất hai ẩn $ax + by > c$.
+a) Bất phương trình luôn có vô số nghiệm.
+b) Biểu diễn hình học của tập nghiệm là một nửa mặt phẳng.
+c) Nếu $a = 0, b = 0, c > 0$ thì bất phương trình vô nghiệm.
+d) Tọa độ của gốc tọa độ luôn thỏa mãn bất phương trình nếu $c < 0$.
+
+**Câu 16:** Xét bài toán tối ưu trên miền nghiệm của hệ $\begin{cases} x \ge 0, y \ge 0 \\ x + y \le 6 \\ x \le 4 \end{cases}$.
+a) Miền nghiệm là một hình thang vuông.
+b) Các đỉnh của miền nghiệm là $(0;0), (4;0), (4;2), (0;6)$.
+c) Biểu thức $F = 2x + 5y$ đạt giá trị lớn nhất bằng $30$.
+d) Giá trị nhỏ nhất của $F$ bằng $0$.
+
+---
+
+### PHẦN III. Trắc nghiệm trả lời ngắn (6 câu)
+
+**Câu 17:** Cho bất phương trình $x - my \ge 1$. Tìm giá trị nguyên nhỏ nhất của $m$ để điểm $M(2; -1)$ thuộc miền nghiệm.
+
+**Câu 18:** Tìm giá trị lớn nhất của biểu thức $F = 3x + 4y$ trên miền nghiệm của hệ $\begin{cases} x \ge 0, y \ge 0 \\ x + y \le 5 \\ 2x + y \le 8 \end{cases}$.
+
+**Câu 19:** Cho hệ bất phương trình $\begin{cases} x \ge 0 \\ y \ge 0 \\ x + y \le 10 \end{cases}$. Có bao nhiêu cặp số nguyên dương $(x; y)$ thỏa mãn hệ bất phương trình này?
+
+**Câu 20:** Một nhà máy sản xuất hai loại phân bón $A$ và $B$. Lợi nhuận mỗi tấn phân $A$ là $2$ triệu đồng, phân $B$ là $3$ triệu đồng. Tổng lượng nguyên liệu sẵn có chỉ cho phép sản xuất tối đa $10$ tấn phân các loại, trong đó lượng phân $A$ sản xuất không quá $6$ tấn và lượng phân $B$ sản xuất không quá $7$ tấn. Hỏi lợi nhuận tối đa nhà máy có thể đạt được là bao nhiêu triệu đồng?
+
+**Câu 21:** Tìm giá trị nhỏ nhất của biểu thức $F = 2x - y$ trên miền nghiệm của hệ $\begin{cases} x \ge 0, y \ge 0 \\ x + y \ge 2 \\ x + 2y \le 6 \end{cases}$.
+
+**Câu 22:** Cho hệ bất phương trình $\begin{cases} x + 2y \le 8 \\ 2x + y \le 8 \\ x \ge 0, y \ge 0 \end{cases}$. Tính diện tích của miền đa giác biểu diễn nghiệm của hệ.
