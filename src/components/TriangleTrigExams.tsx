@@ -22,6 +22,7 @@ import {
   FileCheck
 } from 'lucide-react';
 import { MathView } from './MathView';
+import { AntiCheatGuard } from './AntiCheatGuard';
 import { useEduBotUser } from '../hooks/useEduBotUser';
 
 export interface MCQQuestion {
@@ -1524,6 +1525,14 @@ export function TriangleTrigExams() {
           </div>
         </div>
       )}
+
+      {/* Anti-Cheat Guard Monitor */}
+      <AntiCheatGuard 
+        isActive={examState === 'taking'} 
+        onAutoSubmit={handleFinishExam} 
+        examTitle={`Bộ đề: ${activeExam.title}`}
+        maxWarnings={3}
+      />
 
       {/* TAKING STATE: ĐANG LÀM BÀI THI PHÒNG THI MÔ PHỎNG */}
       {examState === 'taking' && (

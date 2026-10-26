@@ -35,6 +35,7 @@ import {
   Flame
 } from 'lucide-react';
 import { MathView } from './MathView';
+import { AntiCheatGuard } from './AntiCheatGuard';
 import { 
   GRADE_TIERS, 
   GradeId, 
@@ -487,8 +488,26 @@ export function KNTTPracticeHub() {
     }));
   };
 
+  const isExamActive = (hubMode === 'timed-exam' && examState === 'taking') || (hubMode === 'quick-quiz' && !quickFinished && quickTimeMinutes > 0);
+  const activeExamTitle = hubMode === 'quick-quiz' ? 'Luyện thi cấp tốc' : 'Thi thử trắc nghiệm KNTT';
+  const handleAntiCheatAutoSubmit = () => {
+    if (hubMode === 'quick-quiz') {
+      setQuickFinished(true);
+    } else {
+      handleFinishExam();
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
+      {/* Anti-Cheat Guard Monitor */}
+      <AntiCheatGuard
+        isActive={isExamActive}
+        onAutoSubmit={handleAntiCheatAutoSubmit}
+        examTitle={activeExamTitle}
+        maxWarnings={3}
+      />
+
       {/* Top Banner Header */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-700 to-indigo-800 rounded-3xl p-6 md:p-8 text-white shadow-md relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
