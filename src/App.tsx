@@ -50,7 +50,9 @@ import {
   Swords,
   Cpu,
   Flame,
-  Crown
+  Crown,
+  Layers,
+  ListOrdered
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
@@ -307,129 +309,51 @@ export default function App() {
               </span>
             </button>
 
-            {/* 🧮 Skill Bấm Máy Tính (Toán - Lý - Hóa - Sinh) */}
-            <button
-              onClick={() => {
-                setActiveTab('calcskills');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'calcskills'
-                  ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Cpu className={`w-5 h-5 ${activeTab === 'calcskills' ? 'text-indigo-600 dark:text-indigo-400' : 'text-indigo-500'}`} />
-                <span className="text-left text-base font-bold">Skill Bấm Máy Tính THPT</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'calcskills' ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                Tuyệt kỹ Casio Toán-Lý-Hóa-Sinh
-              </span>
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('studytoolkit');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'studytoolkit'
-                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <GraduationCap className={`w-5 h-5 ${activeTab === 'studytoolkit' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
-                <span className="text-left text-base">Công cụ học tập Đa năng</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'studytoolkit' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                1. Đồ thị & Khảo sát KNTT
-              </span>
-            </button>
+            {/* 🔬 CÔNG CỤ TOÁN & KHOA HỌC */}
+            <div className="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mt-4">
+              <FlaskConical className="w-4 h-4" />
+              Công cụ Toán & Khoa học
+            </div>
+            <div className="pl-2 space-y-0.5">
+              <button onClick={() => { setActiveTab('statistics'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'statistics' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <Calculator className="w-4 h-4 mr-3" />
+                Công cụ Toán THPT
+              </button>
+              <button onClick={() => { setActiveTab('physics'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'physics' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <Zap className="w-4 h-4 mr-3" />
+                Công cụ Vật Lý THPT
+              </button>
+              <button onClick={() => { setActiveTab('chemistry'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'chemistry' ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <FlaskConical className="w-4 h-4 mr-3" />
+                Công cụ Hóa Học THPT
+              </button>
+              <button onClick={() => { setActiveTab('biology'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'biology' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <Dna className="w-4 h-4 mr-3" />
+                Công cụ Sinh Học THPT
+              </button>
+            </div>
 
-            {/* Môn Vật Lý THPT */}
-            <button
-              onClick={() => {
-                setActiveTab('physics');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'physics'
-                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Zap className={`w-5 h-5 ${activeTab === 'physics' ? 'text-blue-600 dark:text-blue-400' : 'text-amber-500'}`} />
-                <span className="text-left text-base">Công cụ Vật lý THPT</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'physics' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                Đồ thị dao động & Mạch điện
-              </span>
-            </button>
-
-            {/* Môn Hóa học THPT */}
-            <button
-              onClick={() => {
-                setActiveTab('chemistry');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'chemistry'
-                  ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <FlaskConical className={`w-5 h-5 ${activeTab === 'chemistry' ? 'text-teal-600 dark:text-teal-400' : 'text-emerald-500'}`} />
-                <span className="text-left text-base">Công cụ Hóa học THPT</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'chemistry' ? 'text-teal-500 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                Bảng tuần hoàn & Thí nghiệm ảo
-              </span>
-            </button>
-
-            {/* Môn Sinh học THPT */}
-            <button
-              onClick={() => {
-                setActiveTab('biology');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'biology'
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Dna className={`w-5 h-5 ${activeTab === 'biology' ? 'text-emerald-600 dark:text-emerald-400' : 'text-green-500'}`} />
-                <span className="text-left text-base">Công cụ Sinh học THPT</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'biology' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                Lai Mendel, Bảng Punnett, ADN
-              </span>
-            </button>
-
-            {/* Môn Tiếng Anh THPT */}
-            <button
-              onClick={() => {
-                setActiveTab('english');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'english'
-                  ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Languages className={`w-5 h-5 ${activeTab === 'english' ? 'text-purple-600 dark:text-purple-400' : 'text-violet-500'}`} />
-                <span className="text-left text-base">Công cụ Tiếng Anh THPT</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'english' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                12 Thì & Động từ bất quy tắc
-              </span>
-            </button>
+            {/* 🌟 CÔNG CỤ HỌC TẬP ĐA NĂNG */}
+            <div className="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mt-4">
+              <Sparkles className="w-4 h-4" />
+              Công cụ Học tập
+            </div>
+            <div className="pl-2 space-y-0.5">
+              <button onClick={() => { setActiveTab('studytoolkit'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'studytoolkit' ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <Layers className="w-4 h-4 mr-3" />
+                Đa năng & Công cụ học tập
+              </button>
+              <button onClick={() => { setActiveTab('english'); setIsSidebarOpen(false); }} className={`w-full flex items-center px-4 py-2.5 rounded-xl transition-all font-medium text-sm ${activeTab === 'english' ? 'bg-purple-500/10 text-purple-700 dark:text-purple-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                <Languages className="w-4 h-4 mr-3" />
+                Công cụ Tiếng Anh
+              </button>
+            </div>
+            
+            {/* 📋 TIỆN ÍCH KHÁC */}
+            <div className="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mt-4">
+              <ListOrdered className="w-4 h-4" />
+              Tiện ích khác
+            </div>
 
             {/* 3. Tạo Phiếu học tập (được đưa lên vị trí số 3 theo yêu cầu) */}
             <button
@@ -531,26 +455,60 @@ export default function App() {
               </span>
             </button>
 
-            {/* 📐 5 BỘ ĐỀ HỆ THỨC LƯỢNG TRONG TAM GIÁC */}
-            <button
-              onClick={() => {
-                setActiveTab('triangle-exams');
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
-                activeTab === 'triangle-exams'
-                  ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-sm'
-                  : 'bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 text-amber-800 dark:text-amber-300 hover:bg-amber-500/15'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Crown className={`w-5 h-5 ${activeTab === 'triangle-exams' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-500'}`} />
-                <span className="text-left text-base font-bold">Bộ Đề Hệ Thức Lượng</span>
-              </div>
-              <span className={`text-xs font-normal mt-1 pl-8 text-left ${activeTab === 'triangle-exams' ? 'text-amber-600 dark:text-amber-400' : 'text-amber-600/80 dark:text-amber-400/80'}`}>
-                5 Bộ đề 90' & Tích điểm thăng hạng
-              </span>
-            </button>
+            {/* 🎓 ÔN THI THPT ONLINE */}
+            <div className="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" />
+              Ôn thi THPT Online
+            </div>
+            
+            <div className="pl-4 space-y-1">
+              {/* Lớp 10 */}
+              <button
+                onClick={() => {
+                  setActiveTab('triangle-exams');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full flex flex-col px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                  activeTab === 'triangle-exams'
+                    ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 shadow-sm'
+                    : 'bg-transparent border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-left text-sm font-bold">Lớp 10</span>
+                </div>
+                <span className="text-[10px] mt-1 pl-5 text-amber-700 dark:text-amber-400 opacity-80">Hệ thức lượng trong tam giác</span>
+              </button>
+
+              {/* Lớp 11 */}
+              <button
+                onClick={() => {
+                  // TODO: Implement/Link Lớp 11
+                  setIsSidebarOpen(false);
+                }}
+                className="w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
+                  <span className="text-left text-sm font-medium">Lớp 11</span>
+                </div>
+              </button>
+
+              {/* Lớp 12 */}
+              <button
+                onClick={() => {
+                  // TODO: Implement/Link Lớp 12
+                  setIsSidebarOpen(false);
+                }}
+                className="w-full flex items-center px-4 py-3 rounded-xl transition-all font-medium text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600" />
+                  <span className="text-left text-sm font-medium">Lớp 12</span>
+                </div>
+              </button>
+            </div>
 
             {/* Luyện tập SGK & Thi thử */}
             <button

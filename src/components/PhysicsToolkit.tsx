@@ -1,4 +1,3 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Zap, 
   Activity, 
@@ -21,17 +20,30 @@ import {
   Flame,
   Play,
   Pause,
-  RefreshCw
+  RefreshCw,
+  Atom,
+  Maximize2,
+  PlayCircle
 } from 'lucide-react';
 import { MathView } from './MathView';
 import { TrueFalseQuestion, TrueFalseStatement } from '../types';
+import { Lab, LabCard } from './LabCard';
+
+const PHYSICS_LABS: Lab[] = [
+  { id: 'pendulum-lab', title: 'Con lắc Đơn', url: 'https://phet.colorado.edu/sims/html/pendulum-lab/latest/pendulum-lab_vi.html', description: 'Khám phá chu kỳ dao động, năng lượng và ma sát của con lắc đơn trong các môi trường trọng lực khác nhau.', icon: <Activity className="w-8 h-8 text-white" />, color: 'from-blue-500 to-indigo-600' },
+  { id: 'ohms-law', title: 'Định luật Ohm', url: 'https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_vi.html', description: 'Xem phương trình của định luật Ohm biến đổi tương tác như thế nào khi bạn điều chỉnh điện áp (V) và điện trở (R).', icon: <Zap className="w-8 h-8 text-white" />, color: 'from-amber-400 to-orange-500' },
+  { id: 'forces-and-motion', title: 'Lực và Chuyển động', url: 'https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_vi.html', description: 'Nghiên cứu về lực đẩy, lực kéo, ma sát và gia tốc với bài kiểm tra kéo co vui nhộn.', icon: <Atom className="w-8 h-8 text-white" />, color: 'from-red-500 to-rose-600' },
+  { id: 'bending-light', title: 'Khúc xạ Ánh sáng', url: 'https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_vi.html', description: 'Tìm hiểu định luật Snell bằng cách chiếu tia laser qua lăng kính, nước, thủy tinh và nhiều môi trường khác.', icon: <PlayCircle className="w-8 h-8 text-white" />, color: 'from-yellow-400 to-amber-500' },
+  { id: 'energy-skate-park', title: 'Năng lượng Ván trượt', url: 'https://phet.colorado.edu/sims/html/energy-skate-park-basics/latest/energy-skate-park-basics_vi.html', description: 'Quan sát sự chuyển hóa giữa động năng và thế năng thông qua mô phỏng sân trượt ván.', icon: <Maximize2 className="w-8 h-8 text-white" />, color: 'from-lime-500 to-green-600' }
+];
 
 export function PhysicsToolkit() {
-  const [activeSubTab, setActiveSubTab] = useState<'wave' | 'superposition' | 'decipher_quiz' | 'tf_quiz' | 'formulas'>('wave');
+  const [activeSubTab, setActiveSubTab] = useState<'wave' | 'superposition' | 'decipher_quiz' | 'tf_quiz' | 'formulas' | 'physics-labs'>('wave');
+  const [activeLab, setActiveLab] = useState<Lab | null>(null);
 
-  // ==========================================
+  // ... [Simulator logic should be inside the component]
+  
   // 1. SINGLE HARMONIC MOTION CANVAS SIMULATOR
-  // ==========================================
   const [amplitude, setAmplitude] = useState<number>(5);  // A (cm)
   const [frequency, setFrequency] = useState<number>(1);  // f (Hz)
   const [phase, setPhase] = useState<number>(0);          // phi (rad / pi)
