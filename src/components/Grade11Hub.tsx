@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-  onSelect: (tab: string) => void;
+  onSelect: (tab: 'grade11-trig') => void;
 }
 
 export const Grade11Hub: React.FC<Props> = ({ onSelect }) => {

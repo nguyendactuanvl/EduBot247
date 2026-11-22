@@ -76,8 +76,13 @@ export const Grade11Exams: React.FC = () => {
 
   if (selectedExam) {
     return (
-      <AntiCheatGuard>
-        <div className="p-6 max-w-4xl mx-auto">
+      <>
+        <AntiCheatGuard
+          isActive={true}
+          examTitle={selectedExam.title}
+          onAutoSubmit={() => setSelectedExam(null)}
+        />
+        <div className="p-6 max-w-4xl mx-auto pt-14">
           <h2 className="text-2xl font-bold mb-4">{selectedExam.title}</h2>
           <div className="space-y-6">
             <h3 className="font-bold text-lg">Phần I: Trắc nghiệm</h3>
@@ -93,7 +98,7 @@ export const Grade11Exams: React.FC = () => {
           </div>
           <button onClick={() => setSelectedExam(null)} className="mt-6 p-2 bg-blue-500 text-white rounded">Quay lại</button>
         </div>
-      </AntiCheatGuard>
+      </>
     );
   }
 

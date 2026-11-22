@@ -25,10 +25,17 @@ export const Grade10Hub: React.FC<Props> = ({ onSelect }) => {
         </button>
         <button 
           onClick={() => onSelect('logic-set-exams')}
-          className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-amber-500 transition-all text-left"
+          className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-amber-500 transition-all text-left cursor-pointer"
         >
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Chương 3: Mệnh đề & Tập hợp</h3>
           <p className="text-slate-500 dark:text-slate-400">Các đề thi và bài tập về mệnh đề và tập hợp.</p>
+        </button>
+        <button 
+          onClick={() => onSelect('grade10-vectors')}
+          className="p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-indigo-500 transition-all text-left cursor-pointer"
+        >
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Chương 4: Vectơ (KNTT)</h3>
+          <p className="text-slate-500 dark:text-slate-400">Luyện tập theo từng bài (Bài 7 – Bài 11) và Tổng ôn 30 câu theo cấu trúc 3 phần Bộ GD&ĐT.</p>
         </button>
       </div>
     </div>

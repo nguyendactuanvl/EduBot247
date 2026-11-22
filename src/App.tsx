@@ -27,6 +27,8 @@ import { Grade11Exams } from './components/Grade11Exams';
 import { Grade10Hub } from './components/Grade10Hub';
 import { Grade11Hub } from './components/Grade11Hub';
 import { Grade12Hub } from './components/Grade12Hub';
+import { RubikCubeRelax } from './components/RubikCubeRelax';
+import { VectorChapterExams } from './components/VectorChapterExams';
 import { Interval, CalculationResult } from './types';
 import { calculateStatistics } from './utils/math';
 import { 
@@ -59,7 +61,8 @@ import {
   Flame,
   Crown,
   Layers,
-  ListOrdered
+  ListOrdered,
+  Box
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { AdMobBanner } from './components/AdMobBanner';
@@ -80,7 +83,7 @@ import { useEduBotUser } from './hooks/useEduBotUser';
 
 export default function App() {
   const { user } = useEduBotUser();
-  const [activeTab, setActiveTab] = useState<'exam' | 'triangle-exams' | 'inequality-exams' | 'logic-set-exams' | 'grade11-exams' | 'grade12-exams' | 'grade10-hub' | 'grade11-hub' | 'grade12-hub' | 'grade11-trig' | 'grade12-calculus' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'stickynotes'>('triangle-exams');
+  const [activeTab, setActiveTab] = useState<'exam' | 'triangle-exams' | 'inequality-exams' | 'logic-set-exams' | 'grade10-vectors' | 'grade11-exams' | 'grade12-exams' | 'grade10-hub' | 'grade11-hub' | 'grade12-hub' | 'grade11-trig' | 'grade12-calculus' | 'leaderboard' | 'teamarena' | 'calcskills' | 'studytoolkit' | 'worksheets' | 'physics' | 'chemistry' | 'biology' | 'english' | 'statistics' | 'calculator' | 'virtuallabs' | 'edubot' | 'video' | 'tts' | 'photos' | 'timetable' | 'games' | 'rubik' | 'stickynotes'>('triangle-exams');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
@@ -637,6 +640,25 @@ export default function App() {
               <Gamepad2 className={`w-5 h-5 ${activeTab === 'games' ? 'text-fuchsia-600 dark:text-fuchsia-400' : 'text-slate-400 dark:text-slate-500'}`} />
               <span className="text-left text-base">Trò chơi Lớp học</span>
             </button>
+
+            {/* 13. Giải Rubik 3D Thư giãn */}
+            <button
+              onClick={() => {
+                setActiveTab('rubik');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-medium text-sm border ${
+                activeTab === 'rubik'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700'
+              }`}
+            >
+              <Box className={`w-5 h-5 ${activeTab === 'rubik' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
+              <div className="flex flex-col text-left">
+                <span className="text-base leading-tight">Giải Rubik 3D</span>
+                <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">Thư giãn sau giờ học</span>
+              </div>
+            </button>
           </nav>
           
           <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-2">
@@ -685,6 +707,7 @@ export default function App() {
             <span className="font-semibold text-slate-800 dark:text-slate-100 text-base truncate">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử'}
               {activeTab === 'triangle-exams' && 'Bộ Đề Hệ Thức Lượng'}
+              {activeTab === 'grade10-vectors' && 'Toán 10 · Chương IV: Vectơ'}
               {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Streak'}
               {activeTab === 'teamarena' && 'Giải đấu Đội nhóm'}
               {activeTab === 'calcskills' && 'Skill Bấm Máy Tính'}
@@ -703,6 +726,7 @@ export default function App() {
               {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
               {activeTab === 'timetable' && 'Thời khóa biểu'}
               {activeTab === 'games' && 'Trò chơi Lớp học'}
+              {activeTab === 'rubik' && 'Giải Rubik 3D Thư giãn'}
               {activeTab === 'stickynotes' && 'Ghi chú cá nhân'}
             </span>
           </div>
@@ -756,6 +780,7 @@ export default function App() {
             <span className="font-extrabold text-slate-800 dark:text-slate-100 text-base">
               {activeTab === 'exam' && 'Luyện tập SGK & Thi thử KNTT'}
               {activeTab === 'triangle-exams' && 'Bộ Đề Kiểm Tra: Hệ Thức Lượng Trong Tam Giác (5 Bộ Đề 90 Min)'}
+              {activeTab === 'grade10-vectors' && 'Toán 10 (KNTT) - Chương IV: Vectơ (Bài 7 – Bài 11 & Tổng ôn 30 câu)'}
               {activeTab === 'leaderboard' && 'Bảng Xếp Hạng & Chuỗi Ngày Học (Streak)'}
               {activeTab === 'teamarena' && 'Giải đấu Đội nhóm (Team Arena)'}
               {activeTab === 'calcskills' && 'Skill Bấm Máy Tính Giải Nhanh THPT'}
@@ -774,6 +799,7 @@ export default function App() {
               {activeTab === 'photos' && 'Tạo Ảnh thẻ'}
               {activeTab === 'timetable' && 'Thời khóa biểu'}
               {activeTab === 'games' && 'Trò chơi Lớp học'}
+              {activeTab === 'rubik' && 'Giải Rubik 3D - Thư giãn & Rèn tư duy không gian'}
               {activeTab === 'stickynotes' && 'Ghi chú cá nhân (Sticky Notes)'}
             </span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
@@ -871,6 +897,12 @@ export default function App() {
           {activeTab === 'logic-set-exams' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
               <LogicSetExams />
+            </div>
+          )}
+
+          {activeTab === 'grade10-vectors' && (
+            <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 lg:p-8">
+              <VectorChapterExams onBack={() => setActiveTab('grade10-hub')} />
             </div>
           )}
 
@@ -1036,6 +1068,11 @@ export default function App() {
           {activeTab === 'games' && (
             <div className="absolute inset-0 overflow-y-auto p-4 md:p-6">
               <ClassGames />
+            </div>
+          )}
+          {activeTab === 'rubik' && (
+            <div className="absolute inset-0 overflow-hidden">
+              <RubikCubeRelax isDarkMode={isDarkMode} />
             </div>
           )}
           {activeTab === 'stickynotes' && (
