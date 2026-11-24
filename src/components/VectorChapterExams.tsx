@@ -11,46 +11,26 @@ import {
   Award,
   ChevronRight,
   AlertCircle,
+  BarChart3,
 } from 'lucide-react';
 import { MathView } from './MathView';
 import {
   FULL_CHAPTER4_VECTORS_EXAM,
   GRADE10_VECTORS_LESSONS,
   VectorExamSet,
+  VectorSavedScoreMap,
   isShortAnswerCorrect,
+  loadVectorScores,
   normalizeShortAnswer,
+  saveVectorScores,
   scoreTrueFalseCount,
 } from '../data/exams/grade10VectorsExams';
 
 interface VectorChapterExamsProps {
   onBack?: () => void;
-}
-
-interface SavedScoreMap {
-  [examId: string]: {
-    bestRawScore: number;
-    maxRawScore: number;
-    attempts: number;
-  };
-}
-
-const STORAGE_KEY = 'edubot_g10_vectors_scores_v1';
-
-function loadSavedScores(): SavedScoreMap {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as SavedScoreMap) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveScores(data: SavedScoreMap): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    // Ignore storage quota errors
-  }
+  initialExamId?: string | null;
+  onClearInitialExam?: () => void;
+  onOpenProfile?: () => void;
 }
 
 function formatTimer(seconds: number): string {
@@ -60,9 +40,14 @@ function formatTimer(seconds: number): string {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-export const VectorChapterExams: React.FC<VectorChapterExamsProps> = ({ onBack }) => {
+export const VectorChapterExams: React.FC<VectorChapterExamsProps> = ({
+  onBack,
+  initialExamId = null,
+  onClearInitialExam,
+  onOpenProfile,
+}) => {
   const [activeExam, setActiveExam] = useState<VectorExamSet | null>(null);
-  const [savedScores, setSavedScores] = useState<SavedScoreMap>(() => loadSavedScores());
+  const [savedScores, setSavedScores] = useState<VectorSavedScoreMap>(() => loadVectorScores());
 
   // Answers state
   const [mcAnswers, setMcAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({});
@@ -91,6 +76,20 @@ export const VectorChapterExams: React.FC<VectorChapterExamsProps> = ({ onBack }
     if (!activeExam) return;
     startExam(activeExam);
   }, [activeExam, startExam]);
+
+  // Auto-open a specific lesson when navigated from the Student Profile chart
+  useEffect(() => {
+    if (!initialExamId) return;
+    const allSets: VectorExamSet[] = [
+      ...GRADE10_VECTORS_LESSONS,
+      FULL_CHAPTER4_VECTORS_EXAM,
+    ];
+    const target = allSets.find((s) => s.id === initialExamId);
+    if (target) {
+      startExam(target);
+      onClearInitialExam?.();
+    }
+  }, [initialExamId, onClearInitialExam, startExam]);
 
   // Compute exact Ministry of Education (Bộ GD&ĐT) score breakdown
   const scoreSummary = useMemo(() => {
@@ -168,23 +167,57 @@ export const VectorChapterExams: React.FC<VectorChapterExamsProps> = ({ onBack }
     setShowUnansweredConfirm(false);
     setTimeUsedSeconds(activeExam.durationMinutes * 60 - secondsLeft);
 
+    const totalQ =
+      activeExam.multipleChoice.length +
+      activeExam.trueFalse.length +
+      activeExam.shortAnswer.length;
+
+    let answeredQ = 0;
+    activeExam.multipleChoice.forEach((q) => {
+      if (mcAnswers[q.id]) answeredQ += 1;
+    });
+    activeExam.trueFalse.forEach((q) => {
+      const m = tfAnswers[q.id];
+      if (m && Object.keys(m).length > 0) answeredQ += 1;
+    });
+    activeExam.shortAnswer.forEach((q) => {
+      if ((saAnswers[q.id] || '').trim().length > 0) answeredQ += 1;
+    });
+
+    const completionPct = totalQ > 0 ? Math.round((answeredQ / totalQ) * 100) : 0;
+
     setSavedScores((prev) => {
       const existing = prev[activeExam.id];
       const bestRawScore = existing
         ? Math.max(existing.bestRawScore, scoreSummary.totalRaw)
         : scoreSummary.totalRaw;
-      const next: SavedScoreMap = {
+      const bestScale10 =
+        scoreSummary.totalMax > 0
+          ? Number(((bestRawScore / scoreSummary.totalMax) * 10).toFixed(2))
+          : 0;
+      const bestCompletion = existing?.completionPercent
+        ? Math.max(existing.completionPercent, completionPct)
+        : completionPct;
+
+      const next: VectorSavedScoreMap = {
         ...prev,
         [activeExam.id]: {
           bestRawScore,
+          lastRawScore: scoreSummary.totalRaw,
           maxRawScore: scoreSummary.totalMax,
+          bestScale10,
+          lastScale10: scoreSummary.scale10,
+          answeredCount: Math.max(existing?.answeredCount ?? 0, answeredQ),
+          totalQuestions: totalQ,
+          completionPercent: bestCompletion,
           attempts: (existing?.attempts ?? 0) + 1,
+          lastAttemptAt: new Date().toISOString(),
         },
       };
-      saveScores(next);
+      saveVectorScores(next);
       return next;
     });
-  }, [activeExam, submitted, secondsLeft, scoreSummary]);
+  }, [activeExam, submitted, secondsLeft, scoreSummary, mcAnswers, tfAnswers, saAnswers]);
 
   // Countdown timer
   useEffect(() => {
@@ -481,7 +514,16 @@ export const VectorChapterExams: React.FC<VectorChapterExamsProps> = ({ onBack }
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {onOpenProfile && (
+                <button
+                  onClick={onOpenProfile}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Xem biểu đồ tiến độ</span>
+                </button>
+              )}
               <button
                 onClick={resetCurrentExam}
                 className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"

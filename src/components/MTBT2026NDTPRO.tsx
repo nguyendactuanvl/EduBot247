@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { chatWithGeminiDirect, NoApiKeyConfiguredError, openApiKeyManagerModal } from '../services/geminiDirectClient';
 import * as math from 'mathjs';
 import { Monitor, Layers, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -38,16 +39,13 @@ export function MTBT2026NDTPRO() {
     setIsLoading(true);
     setAiResult('');
     try {
-      const apiKey = localStorage.getItem('edubot-api-key');
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: promptStr, userApiKey: apiKey })
-      });
-      const data = await response.json();
-      setAiResult(data.text);
-    } catch(e) {
-      setAiResult('Lỗi kết nối. Vui lòng kiểm tra API Key.');
+      const { text } = await chatWithGeminiDirect({ message: promptStr });
+      setAiResult(text);
+    } catch (e: any) {
+      if (e instanceof NoApiKeyConfiguredError) {
+        openApiKeyManagerModal();
+      }
+      setAiResult(e?.message || 'Lỗi kết nối. Vui lòng kiểm tra API Key.');
     } finally {
       setIsLoading(false);
     }

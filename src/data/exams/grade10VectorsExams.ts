@@ -804,3 +804,40 @@ export function scoreTrueFalseCount(correctCount: number): number {
       return 0;
   }
 }
+
+export interface VectorExamScoreRecord {
+  bestRawScore: number;
+  lastRawScore?: number;
+  maxRawScore: number;
+  bestScale10?: number;
+  lastScale10?: number;
+  answeredCount?: number;
+  totalQuestions?: number;
+  completionPercent?: number;
+  attempts: number;
+  lastAttemptAt?: string;
+}
+
+export type VectorSavedScoreMap = Record<string, VectorExamScoreRecord>;
+
+export const VECTOR_SCORES_STORAGE_KEY = 'edubot_g10_vectors_scores_v1';
+export const VECTOR_PROGRESS_EVENT = 'edubot_vectors_progress_updated';
+
+export function loadVectorScores(): VectorSavedScoreMap {
+  try {
+    const raw = localStorage.getItem(VECTOR_SCORES_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as VectorSavedScoreMap) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveVectorScores(data: VectorSavedScoreMap): void {
+  try {
+    localStorage.setItem(VECTOR_SCORES_STORAGE_KEY, JSON.stringify(data));
+    window.dispatchEvent(new Event(VECTOR_PROGRESS_EVENT));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+

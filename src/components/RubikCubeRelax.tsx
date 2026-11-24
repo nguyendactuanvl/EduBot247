@@ -18,6 +18,8 @@ import {
   Trophy,
   EyeOff,
   Eye,
+  BookOpen,
+  Camera,
 } from 'lucide-react';
 import {
   AxisName,
@@ -32,6 +34,32 @@ import {
   simplifyMoveHistory,
 } from './rubik/rubikEngine';
 import { rubikAudio } from './rubik/rubikAudio';
+import { RubikGuidesModal } from './rubik/RubikGuidesModal';
+import { RubikPhotoSolverModal } from './rubik/RubikPhotoSolverModal';
+
+function parseFormulaToMoves(input: string | string[]): MoveNotation[] {
+  const rawTokens = Array.isArray(input)
+    ? input.flatMap((item) => String(item || '').trim().split(/\s+/))
+    : String(input || '').trim().split(/\s+/);
+
+  const result: MoveNotation[] = [];
+  rawTokens.forEach((raw) => {
+    const clean = raw.trim().replace(/[’`]/g, "'");
+    if (!clean) return;
+    if (clean.endsWith('2')) {
+      const base = clean.slice(0, -1) as MoveNotation;
+      if (MOVE_SPECS[base]) {
+        result.push(base, base);
+      }
+      return;
+    }
+    const candidate = clean as MoveNotation;
+    if (MOVE_SPECS[candidate]) {
+      result.push(candidate);
+    }
+  });
+  return result;
+}
 
 interface RubikCubeRelaxProps {
   isDarkMode?: boolean;
@@ -235,6 +263,8 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
   const [scrambleLevel, setScrambleLevel] = useState<ScrambleLevel>(18);
   const [dockOpen, setDockOpen] = useState(true);
   const [showManualPad, setShowManualPad] = useState(false);
+  const [isGuidesOpen, setIsGuidesOpen] = useState(false);
+  const [isPhotoSolverOpen, setIsPhotoSolverOpen] = useState(false);
 
   const [moveCount, setMoveCount] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -1326,14 +1356,49 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
     engineApiRef.current?.resetCube();
   }, []);
 
+  const handlePlayMovesOn3D = useCallback(
+    (movesOrFormula: string | string[], label: string, resetFirst = false) => {
+      const api = engineApiRef.current;
+      if (!api || isScramblingRef.current) return;
+
+      const parsed = parseFormulaToMoves(movesOrFormula);
+      if (parsed.length === 0) return;
+
+      if (isAutoSolvingRef.current) {
+        api.stopAutoSolve();
+      }
+      if (resetFirst) {
+        api.resetCube();
+      }
+
+      setSolvedBanner(null);
+      setIsAutoSolving(true);
+      isAutoSolvingRef.current = true;
+      setRemainingSolveSteps(parsed.length);
+      setActiveHint({
+        notation: parsed[0],
+        desc: `${label} · ${MOVE_SPECS[parsed[0]].shortDescVi}`,
+        remaining: parsed.length,
+      });
+
+      const stepDur =
+        speedRef.current === 'slow' ? 380 : speedRef.current === 'fast' ? 170 : 280;
+      parsed.forEach((m) => api.enqueueMove(m, 'solve', stepDur));
+    },
+    []
+  );
+
   // Keyboard shortcuts (U, D, L, R, F, B + Shift for prime, Space = Scramble, Z = Undo, H = Hint)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (isGuidesOpen || isPhotoSolverOpen) return;
+
       const target = e.target as HTMLElement | null;
       if (
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
           target.isContentEditable)
       ) {
         return;
@@ -1358,7 +1423,7 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleManualMove, handleScramble, handleUndo, handleHintStep]);
+  }, [handleManualMove, handleScramble, handleUndo, handleHintStep, isGuidesOpen, isPhotoSolverOpen]);
 
   const speedLabel =
     speedPreset === 'slow' ? 'Chậm' : speedPreset === 'normal' ? 'Vừa' : 'Nhanh';
@@ -1428,7 +1493,25 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
       </div>
 
       {/* Top-Right Compact Utility Icons (No backdrop-filter over WebGL) */}
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
+      <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center justify-end gap-1.5 max-w-[65%] sm:max-w-none">
+        <button
+          onClick={() => setIsPhotoSolverOpen(true)}
+          className="px-2.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap shadow-xs transition-colors cursor-pointer"
+          title="Chụp ảnh khối Rubik thật của bạn để AI phân tích và hướng dẫn giải ngay"
+        >
+          <Camera className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden sm:inline">Chụp ảnh giải</span>
+        </button>
+
+        <button
+          onClick={() => setIsGuidesOpen(true)}
+          className="px-2.5 py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer"
+          title="Xem hướng dẫn cách giải Rubik 3×3, 2×2, 4×4, Pyraminx, Skewb và Mirror"
+        >
+          <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+          <span className="hidden sm:inline">Hướng dẫn</span>
+        </button>
+
         <button
           onClick={() => engineApiRef.current?.resetCamera()}
           className="p-2 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -1453,11 +1536,11 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
 
         <button
           onClick={() => setDockOpen((v) => !v)}
-          className="px-2.5 py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium flex items-center gap-1.5 cursor-pointer"
+          className="px-2.5 py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
           title={dockOpen ? 'Ẩn bảng điều khiển (Chế độ tập trung)' : 'Hiện bảng điều khiển'}
         >
           {dockOpen ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-          <span className="hidden sm:inline">{dockOpen ? 'Ẩn bảng' : 'Điều khiển'}</span>
+          <span className="hidden md:inline">{dockOpen ? 'Ẩn bảng' : 'Điều khiển'}</span>
         </button>
       </div>
 
@@ -1653,6 +1736,20 @@ export const RubikCubeRelax: React.FC<RubikCubeRelaxProps> = ({ isDarkMode = tru
           </div>
         </div>
       )}
+
+      {/* Guides Modal by Specific Rubik Type */}
+      <RubikGuidesModal
+        isOpen={isGuidesOpen}
+        onClose={() => setIsGuidesOpen(false)}
+        onDemoFormula={(formula, label) => handlePlayMovesOn3D(formula, label, true)}
+      />
+
+      {/* Camera / Photo Rubik Solver Modal */}
+      <RubikPhotoSolverModal
+        isOpen={isPhotoSolverOpen}
+        onClose={() => setIsPhotoSolverOpen(false)}
+        onApply3dMoves={(moves, label) => handlePlayMovesOn3D(moves, label, false)}
+      />
     </div>
   );
 };

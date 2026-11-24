@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { generateCurriculumWorksheet } from '../utils/worksheetTemplateGenerator';
+import { chatWithGeminiDirect } from '../services/geminiDirectClient';
 
 const SUBJECTS = [
   "Toán", "Ngữ Văn / Tiếng Việt", "Tiếng Anh", "Khoa học tự nhiên", 
@@ -55,7 +56,6 @@ export function WorksheetGenerator() {
     setCurrentQ(0);
     
     try {
-      const apiKey = localStorage.getItem('edubot-api-key');
       const prompt = `Đóng vai trò là một giáo viên biên soạn đề thi giỏi. Hãy tạo một **Phiếu học tập luyện tập** cho môn ${subject}, ${grade}, về chủ đề: "${topic}".
 Yêu cầu:
 - Số lượng câu hỏi tương đối: ${count} câu.
@@ -66,18 +66,11 @@ Yêu cầu:
 
       let generatedText = '';
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: prompt, userApiKey: apiKey })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.text) {
-          generatedText = data.text;
+        const { text } = await chatWithGeminiDirect({ message: prompt });
+        if (text) {
+          generatedText = text;
         } else {
-          throw new Error(data.error || 'Server error');
+          throw new Error('Empty Gemini response');
         }
       } catch (apiErr) {
         // Tự động chuyển hướng sang chế độ biên soạn chuẩn SGK Kết nối tri thức khi AI chưa có API Key hoặc bị gián đoạn
@@ -125,15 +118,9 @@ ${result.substring(0, 3000)}`;
 
       let onlineData = null;
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: prompt, userApiKey: apiKey })
-        });
-        
-        const data = await response.json();
-        if (response.ok && data.text) {
-          const match = data.text.match(/\[[\s\S]*\]/);
+        const { text } = await chatWithGeminiDirect({ message: prompt });
+        if (text) {
+          const match = text.match(/\[[\s\S]*\]/);
           if (match) {
             onlineData = JSON.parse(match[0]);
           }

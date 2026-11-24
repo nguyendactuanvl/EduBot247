@@ -499,18 +499,18 @@ export const TRIANGLE_EXAM_PAPERS: ExamPaper[] = [
         statements: [
           { id: 'a', text: 'Nửa chu vi $p = 18$.', correct: true },
           { id: 'b', text: 'Diện tích tam giác $S = 24\\sqrt{6}$.', correct: true },
-          { id: 'c', text: 'Côsin góc lớn nhất bằng \\frac{1}{7}.', correct: true },
+          { id: 'c', text: 'Côsin góc lớn nhất bằng $\\frac{1}{5}$.', correct: true },
           { id: 'd', text: 'Bán kính đường tròn ngoại tiếp $R = \\frac{35\\sqrt{6}}{12}$.', correct: true }
         ],
-        explanation: 'Tất cả 4 mệnh đề a, b, c, d đều đúng.'
+        explanation: 'Tất cả 4 mệnh đề a, b, c, d đều đúng ($\\cos C = \\frac{10^2+12^2-14^2}{2\\cdot 10\\cdot 12} = \\frac{48}{240} = \\frac{1}{5}$).'
       },
       {
         id: 'e2-q16', type: 'true_false', number: 16,
-        question: 'Cho tam giác $ABC$ có \\widehat{B} = 45^\\circ, \\widehat{C} = 60^\\circ, BC = 10$.',
+        question: 'Cho tam giác $ABC$ có $\\widehat{B} = 45^\\circ, \\widehat{C} = 60^\\circ, BC = 10$.',
         statements: [
-          { id: 'a', text: 'Góc \\widehat{A} = 75^\\circ.', correct: true },
-          { id: 'b', text: 'Độ dài cạnh $AB$ tính chính xác theo $\\sin$ là \\frac{10\\sin 60^\\circ}{\\sin 75^\\circ}.', correct: true },
-          { id: 'c', text: 'Diện tích tam giác $S = \\frac{50\\sqrt{3}}{1+ \\sqrt{3}}.', correct: true },
+          { id: 'a', text: 'Góc $\\widehat{A} = 75^\\circ$.', correct: true },
+          { id: 'b', text: 'Độ dài cạnh $AB$ tính chính xác theo $\\sin$ là $\\frac{10\\sin 60^\\circ}{\\sin 75^\\circ}$.', correct: true },
+          { id: 'c', text: 'Diện tích tam giác $S = \\frac{50\\sqrt{3}}{1 + \\sqrt{3}}$.', correct: true },
           { id: 'd', text: 'Bán kính đường tròn ngoại tiếp $R = 5\\sqrt{2}$.', correct: false }
         ],
         explanation: 'a, b, c đúng. d) $R = \\frac{a}{2\\sin A} = \\frac{10}{2\\sin 75^\\circ} \\neq 5\\sqrt{2}$.'

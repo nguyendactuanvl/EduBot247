@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { CalculationResult } from '../types';
+import { chatWithGeminiDirect, NoApiKeyConfiguredError, openApiKeyManagerModal } from '../services/geminiDirectClient';
 import { StepByStep } from './StepByStep';
 import { 
   Printer, 
@@ -80,17 +81,13 @@ Yêu cầu:
 - Mỗi bài tập nên có hoàn cảnh thực tế (ví dụ: điểm kiểm tra, chiều cao, thời gian...)
 - Mỗi bài cần có bảng số liệu và yêu cầu tính toán cụ thể.`;
       
-      const apiKey = localStorage.getItem('edubot-api-key');
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: prompt, userApiKey: apiKey })
-      });
-      
-      const data = await response.json();
-      setPracticeContent(data.text);
-    } catch (e) {
-      setPracticeContent('Có lỗi xảy ra khi tạo bài tập luyện tập. Vui lòng thử lại sau.');
+      const { text } = await chatWithGeminiDirect({ message: prompt });
+      setPracticeContent(text);
+    } catch (e: any) {
+      if (e instanceof NoApiKeyConfiguredError) {
+        openApiKeyManagerModal();
+      }
+      setPracticeContent(e?.message || 'Có lỗi xảy ra khi tạo bài tập luyện tập. Vui lòng kiểm tra API Key.');
     } finally {
       setIsGeneratingPractice(false);
     }

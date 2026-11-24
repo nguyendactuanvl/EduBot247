@@ -1,118 +1,455 @@
-import React, { useState } from 'react';
-import { AntiCheatGuard } from './AntiCheatGuard';
+import React from 'react';
 import { ExamPaper } from './TriangleTrigExams';
+import { StaticExamRunner } from './StaticExamRunner';
 
 export const GRADE11_EXAM_PAPERS: ExamPaper[] = [
   {
     id: 'g11-1',
     title: 'Đề số 1: Giá trị lượng giác của góc lượng giác',
-    durationMinutes: 90,
-    description: '12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    durationMinutes: 45,
+    description: '12 câu Trắc nghiệm + 2 câu Đúng/Sai + 2 câu Trả lời ngắn',
     questionsPart1: [
-      { id: 'g11-1-q1', type: 'mcq', number: 1, question: 'Đổi số đo góc $135^\\circ$ sang đơn vị radian ta được:', options: [{id:'A', text:'$\\frac{3\\pi}{4}$'}, {id:'B', text:'$\\frac{2\\pi}{3}$'}, {id:'C', text:'$\\frac{5\\pi}{6}$'}, {id:'D', text:'$\\frac{3\\pi}{2}$'}], correctOption: 'A', explanation: '$135^\\circ = 135 \\cdot \\frac{\\pi}{180} = \\frac{3\\pi}{4}$.' },
-      { id: 'g11-1-q2', type: 'mcq', number: 2, question: 'Trên đường tròn lượng giác, điểm biểu diễn góc lượng giác có số đo $-675^\\circ$ nằm ở góc phần tư thứ mấy?', options: [{id:'A', text:'Góc phần tư thứ nhất'}, {id:'B', text:'Góc phần tư thứ hai'}, {id:'C', text:'Góc phần tư thứ ba'}, {id:'D', text:'Góc phần tư thứ tư'}], correctOption: 'A', explanation: '$-675^\\circ = 45^\\circ - 2 \\cdot 360^\\circ$, nằm ở góc phần tư thứ nhất.' },
-      { id: 'g11-1-q3', type: 'mcq', number: 3, question: 'Cho góc lượng giác $\\alpha$ thỏa mãn $\\frac{\\pi}{2} < \\alpha < \\pi$. Khẳng định nào sau đây đúng?', options: [{id:'A', text:'$\\sin \\alpha > 0, \\cos \\alpha > 0$'}, {id:'B', text:'$\\sin \\alpha > 0, \\cos \\alpha < 0$'}, {id:'C', text:'$\\sin \\alpha < 0, \\cos \\alpha > 0$'}, {id:'D', text:'$\\sin \\alpha < 0, \\cos \\alpha < 0$'}], correctOption: 'B', explanation: 'Góc phần tư thứ II có sin dương, cos âm.' },
-      { id: 'g11-1-q4', type: 'mcq', number: 4, question: 'Cho $\\cos \\alpha = -\\frac{3}{5}$ với $\\pi < \\alpha < \\frac{3\\pi}{2}$. Giá trị của $\\sin \\alpha$ bằng:', options: [{id:'A', text:'$\\frac{4}{5}$'}, {id:'B', text:'-\\frac{4}{5}'}, {id:'C', text:'$\\frac{3}{4}$'}, {id:'D', text:'-\\frac{3}{4}'}], correctOption: 'B', explanation: '$\\sin^2\\alpha + \\cos^2\\alpha = 1 \\implies \\sin \\alpha = -\\frac{4}{5}$ (vì ở góc phần tư thứ III).' },
-      { id: 'g11-1-q5', type: 'mcq', number: 5, question: 'Rút gọn biểu thức $A = \\cos\\left(\\frac{\\pi}{2} - \\alpha\\right) + \\sin(\\pi + \\alpha)$, ta được kết quả là:', options: [{id:'A', text:'$2\\sin \\alpha$'}, {id:'B', text:'$-2\\sin \\alpha$'}, {id:'C', text:'$0$'}, {id:'D', text:'$2\\cos \\alpha$'}], correctOption: 'C', explanation: '$\\cos(\\frac{\\pi}{2}-\\alpha) = \\sin\\alpha$, $\\sin(\\pi+\\alpha) = -\\sin\\alpha \\implies A = 0$.' },
-      { id: 'g11-1-q6', type: 'mcq', number: 6, question: 'Giá trị của biểu thức $P = \\sin^2 10^\\circ + \\sin^2 20^\\circ + \\sin^2 70^\\circ + \\sin^2 80^\\circ$ bằng:', options: [{id:'A', text:'$1$'}, {id:'B', text:'$2$'}, {id:'C', text:'$4$'}, {id:'D', text:'$0$'}], correctOption: 'B', explanation: '$\\sin^2 10^\\circ + \\sin^2 80^\\circ = 1$, $\\sin^2 20^\\circ + \\sin^2 70^\\circ = 1 \\implies P = 2$.' },
-      { id: 'g11-1-q7', type: 'mcq', number: 7, question: 'Cho $\\tan \\alpha = 2$. Giá trị của biểu thức $B = \\frac{3\\sin \\alpha - 2\\cos \\alpha}{\\sin \\alpha + \\cos \\alpha}$ bằng:', options: [{id:'A', text:'$3$'}, {id:'B', text:'$4$'}, {id:'C', text:'$\\frac{4}{3}$'}, {id:'D', text:'$2$'}], correctOption: 'C', explanation: 'Chia cả tử và mẫu cho $\\cos \\alpha$: $B = \\frac{3\\tan \\alpha - 2}{\\tan \\alpha + 1} = \\frac{3(2)-2}{2+1} = \\frac{4}{3}$.' },
-      { id: 'g11-1-q8', type: 'mcq', number: 8, question: 'Số đo theo đơn vị độ của góc lượng giác có số đo $\\frac{7\\pi}{12}\\text{ rad}$ là:', options: [{id:'A', text:'$105^\\circ$'}, {id:'B', text:'$120^\\circ$'}, {id:'C', text:'$135^\\circ$'}, {id:'D', text:'$150^\\circ$'}], correctOption: 'A', explanation: '$\\frac{7\\pi}{12} \\cdot \\frac{180^\\circ}{\\pi} = 105^\\circ$.' },
-      { id: 'g11-1-q9', type: 'mcq', number: 9, question: 'Cho biết $\\sin \\alpha + \\cos \\alpha = \\frac{1}{2}$. Giá trị của biểu thức $P = \\sin \\alpha \\cdot \\cos \\alpha$ là:', options: [{id:'A', text:'$\\frac{3}{8}$'}, {id:'B', text:'-\\frac{3}{8}'}, {id:'C', text:'$\\frac{1}{4}$'}, {id:'D', text:'-\\frac{1}{4}$'}], correctOption: 'B', explanation: '$(\\sin\\alpha+\\cos\\alpha)^2 = 1 + 2\\sin\\alpha\\cos\\alpha = \\frac{1}{4} \\implies \\sin\\alpha\\cos\\alpha = -\\frac{3}{8}$.' },
-      { id: 'g11-1-q10', type: 'mcq', number: 10, question: 'Giá trị của biểu thức $S = \\cos 0^\\circ + \\cos 20^\\circ + \\cos 40^\\circ + \\dots + \\cos 180^\\circ$ bằng:', options: [{id:'A', text:'$1$'}, {id:'B', text:'$0$'}, {id:'C', text:'$-1$'}, {id:'D', text:'$2$'}], correctOption: 'B', explanation: 'Các cặp đối nhau triệt tiêu, tổng bằng 0.' },
-      { id: 'g11-1-q11', type: 'mcq', number: 11, question: 'Nếu một cung tròn có độ dài bằng bán kính của đường tròn thì số đo radian của cung tròn đó bằng:', options: [{id:'A', text:'$1^\\circ$'}, {id:'B', text:'$1$'}, {id:'C', text:'$\\pi$'}, {id:'D', text:'$\\frac{\\pi}{2}$'}], correctOption: 'B', explanation: 'Định nghĩa số đo radian.' },
-      { id: 'g11-1-q12', type: 'mcq', number: 12, question: 'Cho $\\cot \\alpha = 3$. Giá trị của biểu thức $T = \\frac{\\sin^2 \\alpha - 2\\sin \\alpha \\cos \\alpha}{\\cos^2 \\alpha + \\sin \\alpha \\cos \\alpha}$ bằng:', options: [{id:'A', text:'-\\frac{3}{4}$'}, {id:'B', text:'$\\frac{3}{4}$'}, {id:'C', text:'-\\frac{1}{4}$'}, {id:'D', text:'$\\frac{1}{4}$'}], correctOption: 'B', explanation: 'Chia tử và mẫu cho $\\sin^2 \\alpha$, ta được kết quả $\\frac{3}{4}$.' }
+      {
+        id: 'g11-1-q1',
+        type: 'mcq',
+        number: 1,
+        question: 'Đổi số đo góc $135^\\circ$ sang đơn vị radian ta được:',
+        options: [
+          { id: 'A', text: '$\\frac{3\\pi}{4}$' },
+          { id: 'B', text: '$\\frac{2\\pi}{3}$' },
+          { id: 'C', text: '$\\frac{5\\pi}{6}$' },
+          { id: 'D', text: '$\\frac{3\\pi}{2}$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Ta có $135^\\circ = 135 \\cdot \\frac{\\pi}{180} = \\frac{3\\pi}{4}$.',
+      },
+      {
+        id: 'g11-1-q2',
+        type: 'mcq',
+        number: 2,
+        question: 'Trên đường tròn lượng giác, điểm biểu diễn góc lượng giác có số đo $-675^\\circ$ nằm ở góc phần tư thứ mấy?',
+        options: [
+          { id: 'A', text: 'Góc phần tư thứ nhất' },
+          { id: 'B', text: 'Góc phần tư thứ hai' },
+          { id: 'C', text: 'Góc phần tư thứ ba' },
+          { id: 'D', text: 'Góc phần tư thứ tư' },
+        ],
+        correctOption: 'A',
+        explanation: 'Ta có $-675^\\circ = 45^\\circ - 2 \\cdot 360^\\circ$, có cùng điểm biểu diễn với góc $45^\\circ$ nên nằm ở góc phần tư thứ nhất.',
+      },
+      {
+        id: 'g11-1-q3',
+        type: 'mcq',
+        number: 3,
+        question: 'Cho góc lượng giác $\\alpha$ thỏa mãn $\\frac{\\pi}{2} < \\alpha < \\pi$. Khẳng định nào sau đây đúng?',
+        options: [
+          { id: 'A', text: '$\\sin \\alpha > 0, \\cos \\alpha > 0$' },
+          { id: 'B', text: '$\\sin \\alpha > 0, \\cos \\alpha < 0$' },
+          { id: 'C', text: '$\\sin \\alpha < 0, \\cos \\alpha > 0$' },
+          { id: 'D', text: '$\\sin \\alpha < 0, \\cos \\alpha < 0$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Vì $\\frac{\\pi}{2} < \\alpha < \\pi$ nên điểm biểu diễn thuộc góc phần tư thứ II, suy ra $\\sin \\alpha > 0$ và $\\cos \\alpha < 0$.',
+      },
+      {
+        id: 'g11-1-q4',
+        type: 'mcq',
+        number: 4,
+        question: 'Cho $\\cos \\alpha = -\\frac{3}{5}$ với $\\pi < \\alpha < \\frac{3\\pi}{2}$. Giá trị của $\\sin \\alpha$ bằng:',
+        options: [
+          { id: 'A', text: '$\\frac{4}{5}$' },
+          { id: 'B', text: '$-\\frac{4}{5}$' },
+          { id: 'C', text: '$\\frac{3}{4}$' },
+          { id: 'D', text: '$-\\frac{3}{4}$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Ta có $\\sin^2 \\alpha = 1 - \\cos^2 \\alpha = 1 - \\frac{9}{25} = \\frac{16}{25}$. Vì $\\pi < \\alpha < \\frac{3\\pi}{2}$ (góc phần tư thứ III) nên $\\sin \\alpha < 0 \\implies \\sin \\alpha = -\\frac{4}{5}$.',
+      },
+      {
+        id: 'g11-1-q5',
+        type: 'mcq',
+        number: 5,
+        question: 'Rút gọn biểu thức $A = \\cos\\left(\\frac{\\pi}{2} - \\alpha\\right) + \\sin(\\pi + \\alpha)$, ta được kết quả là:',
+        options: [
+          { id: 'A', text: '$2\\sin \\alpha$' },
+          { id: 'B', text: '$-2\\sin \\alpha$' },
+          { id: 'C', text: '$0$' },
+          { id: 'D', text: '$2\\cos \\alpha$' },
+        ],
+        correctOption: 'C',
+        explanation: 'Ta có $\\cos\\left(\\frac{\\pi}{2} - \\alpha\\right) = \\sin \\alpha$ và $\\sin(\\pi + \\alpha) = -\\sin \\alpha$, suy ra $A = \\sin \\alpha - \\sin \\alpha = 0$.',
+      },
+      {
+        id: 'g11-1-q6',
+        type: 'mcq',
+        number: 6,
+        question: 'Giá trị của biểu thức $P = \\sin^2 10^\\circ + \\sin^2 20^\\circ + \\sin^2 70^\\circ + \\sin^2 80^\\circ$ bằng:',
+        options: [
+          { id: 'A', text: '$1$' },
+          { id: 'B', text: '$2$' },
+          { id: 'C', text: '$4$' },
+          { id: 'D', text: '$0$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Vì $\\sin 80^\\circ = \\cos 10^\\circ$ và $\\sin 70^\\circ = \\cos 20^\\circ$ nên $P = (\\sin^2 10^\\circ + \\cos^2 10^\\circ) + (\\sin^2 20^\\circ + \\cos^2 20^\\circ) = 1 + 1 = 2$.',
+      },
+      {
+        id: 'g11-1-q7',
+        type: 'mcq',
+        number: 7,
+        question: 'Cho $\\tan \\alpha = 2$. Giá trị của biểu thức $B = \\frac{3\\sin \\alpha - 2\\cos \\alpha}{\\sin \\alpha + \\cos \\alpha}$ bằng:',
+        options: [
+          { id: 'A', text: '$3$' },
+          { id: 'B', text: '$4$' },
+          { id: 'C', text: '$\\frac{4}{3}$' },
+          { id: 'D', text: '$2$' },
+        ],
+        correctOption: 'C',
+        explanation: 'Chia cả tử và mẫu cho $\\cos \\alpha \\neq 0$: $B = \\frac{3\\tan \\alpha - 2}{\\tan \\alpha + 1} = \\frac{3 \\cdot 2 - 2}{2 + 1} = \\frac{4}{3}$.',
+      },
+      {
+        id: 'g11-1-q8',
+        type: 'mcq',
+        number: 8,
+        question: 'Số đo theo đơn vị độ của góc lượng giác có số đo $\\frac{7\\pi}{12}\\text{ rad}$ là:',
+        options: [
+          { id: 'A', text: '$105^\\circ$' },
+          { id: 'B', text: '$120^\\circ$' },
+          { id: 'C', text: '$135^\\circ$' },
+          { id: 'D', text: '$150^\\circ$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Ta có $\\frac{7\\pi}{12} \\cdot \\frac{180^\\circ}{\\pi} = 7 \\cdot 15^\\circ = 105^\\circ$.',
+      },
+      {
+        id: 'g11-1-q9',
+        type: 'mcq',
+        number: 9,
+        question: 'Cho biết $\\sin \\alpha + \\cos \\alpha = \\frac{1}{2}$. Giá trị của biểu thức $P = \\sin \\alpha \\cdot \\cos \\alpha$ là:',
+        options: [
+          { id: 'A', text: '$\\frac{3}{8}$' },
+          { id: 'B', text: '$-\\frac{3}{8}$' },
+          { id: 'C', text: '$\\frac{1}{4}$' },
+          { id: 'D', text: '$-\\frac{1}{4}$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Bình phương hai vế: $(\\sin \\alpha + \\cos \\alpha)^2 = \\frac{1}{4} \\Leftrightarrow 1 + 2\\sin \\alpha \\cos \\alpha = \\frac{1}{4} \\Leftrightarrow \\sin \\alpha \\cos \\alpha = -\\frac{3}{8}$.',
+      },
+      {
+        id: 'g11-1-q10',
+        type: 'mcq',
+        number: 10,
+        question: 'Giá trị của biểu thức $S = \\cos 0^\\circ + \\cos 20^\\circ + \\cos 40^\\circ + \\dots + \\cos 180^\\circ$ bằng:',
+        options: [
+          { id: 'A', text: '$1$' },
+          { id: 'B', text: '$0$' },
+          { id: 'C', text: '$-1$' },
+          { id: 'D', text: '$2$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Ghép từng cặp góc bù nhau $\\cos \\alpha + \\cos(180^\\circ - \\alpha) = 0$: $(\\cos 0^\\circ + \\cos 180^\\circ) + (\\cos 20^\\circ + \\cos 160^\\circ) + \\dots = 0$.',
+      },
+      {
+        id: 'g11-1-q11',
+        type: 'mcq',
+        number: 11,
+        question: 'Nếu một cung tròn có độ dài bằng bán kính của đường tròn thì số đo radian của cung tròn đó bằng:',
+        options: [
+          { id: 'A', text: '$1^\\circ$' },
+          { id: 'B', text: '$1$' },
+          { id: 'C', text: '$\\pi$' },
+          { id: 'D', text: '$\\frac{\\pi}{2}$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Theo định nghĩa, độ dài cung $l = R \\cdot \\alpha \\implies \\alpha = \\frac{l}{R} = 1\\text{ rad}$.',
+      },
+      {
+        id: 'g11-1-q12',
+        type: 'mcq',
+        number: 12,
+        question: 'Cho $\\cot \\alpha = 3$. Giá trị của biểu thức $T = \\frac{\\sin^2 \\alpha - 2\\sin \\alpha \\cos \\alpha}{\\cos^2 \\alpha + \\sin \\alpha \\cos \\alpha}$ bằng:',
+        options: [
+          { id: 'A', text: '$-\\frac{5}{12}$' },
+          { id: 'B', text: '$\\frac{5}{12}$' },
+          { id: 'C', text: '$-\\frac{1}{4}$' },
+          { id: 'D', text: '$\\frac{1}{4}$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Chia cả tử và mẫu cho $\\sin^2 \\alpha \\neq 0$: $T = \\frac{1 - 2\\cot \\alpha}{\\cot^2 \\alpha + \\cot \\alpha} = \\frac{1 - 2(3)}{3^2 + 3} = \\frac{-5}{12} = -\\frac{5}{12}$.',
+      },
     ],
-    questionsPart2: [],
-    questionsPart3: []
+    questionsPart2: [
+      {
+        id: 'g11-1-q13',
+        type: 'true_false',
+        number: 13,
+        question: 'Cho góc lượng giác $\\alpha$ có $\\sin \\alpha = \\frac{3}{5}$ với $\\frac{\\pi}{2} < \\alpha < \\pi$.',
+        statements: [
+          { id: 'a', text: 'Góc $\\alpha$ thuộc góc phần tư thứ hai của đường tròn lượng giác.', correct: true },
+          { id: 'b', text: 'Giá trị của $\\cos \\alpha = -\\frac{4}{5}$.', correct: true },
+          { id: 'c', text: 'Giá trị của $\\tan \\alpha = -\\frac{4}{3}$.', correct: false },
+          { id: 'd', text: 'Giá trị của $\\cot \\alpha = -\\frac{4}{3}$.', correct: true },
+        ],
+        explanation: 'a) Đúng vì $\\frac{\\pi}{2} < \\alpha < \\pi$. b) Đúng vì $\\cos \\alpha = -\\sqrt{1 - \\frac{9}{25}} = -\\frac{4}{5}$. c) Sai vì $\\tan \\alpha = \\frac{\\sin \\alpha}{\\cos \\alpha} = -\\frac{3}{4}$. d) Đúng vì $\\cot \\alpha = \\frac{1}{\\tan \\alpha} = -\\frac{4}{3}$.',
+      },
+      {
+        id: 'g11-1-q14',
+        type: 'true_false',
+        number: 14,
+        question: 'Xét các hệ thức lượng giác cơ bản sau:',
+        statements: [
+          { id: 'a', text: '$\\sin^2 x + \\cos^2 x = 1$ đúng với mọi số thực $x$.', correct: true },
+          { id: 'b', text: '$\\tan x \\cdot \\cot x = 1$ với mọi $x \\neq \\frac{k\\pi}{2}$ ($k \\in \\mathbb{Z}$).', correct: true },
+          { id: 'c', text: '$1 + \\tan^2 x = \\frac{1}{\\cos^2 x}$ với $x \\neq \\frac{\\pi}{2} + k\\pi$ ($k \\in \\mathbb{Z}$).', correct: true },
+          { id: 'd', text: '$\\sin(-x) = \\sin x$ với mọi số thực $x$.', correct: false },
+        ],
+        explanation: 'a), b), c) đều là các hằng đẳng thức lượng giác cơ bản (Đúng). d) Sai vì hàm $\\sin$ là hàm lẻ: $\\sin(-x) = -\\sin x$.',
+      },
+    ],
+    questionsPart3: [
+      {
+        id: 'g11-1-q15',
+        type: 'short',
+        number: 15,
+        question: 'Cho $\\cos \\alpha = \\frac{1}{3}$. Tính giá trị biểu thức $M = 3\\sin^2 \\alpha + \\cos^2 \\alpha$ (viết kết quả dưới dạng phân số tối giản hoặc số thập phân làm tròn đến hàng phần trăm).',
+        correctAnswer: '2.78',
+        acceptableAnswers: ['2.78', '2,78', '25/9'],
+        explanation: 'Ta có $M = 3(1 - \\cos^2 \\alpha) + \\cos^2 \\alpha = 3 - 2\\cos^2 \\alpha = 3 - 2 \\cdot \\frac{1}{9} = \\frac{25}{9} \\approx 2,78$.',
+      },
+      {
+        id: 'g11-1-q16',
+        type: 'short',
+        number: 16,
+        question: 'Một bánh xe quay được $15$ vòng trong $1$ phút. Hỏi trong $4$ giây, một điểm trên vành bánh xe quay được một góc có số đo bằng bao nhiêu độ?',
+        correctAnswer: '360',
+        acceptableAnswers: ['360'],
+        explanation: 'Trong $1$ phút ($60$ giây) quay được $15$ vòng nên trong $4$ giây quay được $\\frac{4}{60} \\cdot 15 = 1$ vòng, tương ứng góc $360^\\circ$.',
+      },
+    ],
   },
   {
     id: 'g11-2',
-    title: 'Đề số 2: Các phép biến đổi lượng giác',
-    durationMinutes: 90,
-    description: '12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    title: 'Đề số 2: Công thức biến đổi lượng giác',
+    durationMinutes: 45,
+    description: 'Ôn tập công thức cộng, công thức nhân đôi, biến đổi tích thành tổng và tổng thành tích',
     questionsPart1: [
-      { id: 'g11-2-q1', type: 'mcq', number: 1, question: 'Công thức nào sau đây sai?', options: [{id:'A', text:'$\\cos(a - b) = \\cos a \\cos b + \\sin a \\sin b$'}, {id:'B', text:'$\\sin(a + b) = \\sin a \\cos b + \\cos a \\sin b$'}, {id:'C', text:'$\\tan(a - b) = \\frac{\\tan a - \\tan b}{1 + \\tan a \\tan b}$'}, {id:'D', text:'$\\cos(a + b) = \\cos a \\cos b + \\sin a \\sin b$'}], correctOption: 'D', explanation: '$\\cos(a+b) = \\cos a \\cos b - \\sin a \\sin b$.' }
+      {
+        id: 'g11-2-q1',
+        type: 'mcq',
+        number: 1,
+        question: 'Công thức nào sau đây **sai**?',
+        options: [
+          { id: 'A', text: '$\\cos(a - b) = \\cos a \\cos b + \\sin a \\sin b$' },
+          { id: 'B', text: '$\\sin(a + b) = \\sin a \\cos b + \\cos a \\sin b$' },
+          { id: 'C', text: '$\\tan(a - b) = \\frac{\\tan a - \\tan b}{1 + \\tan a \\tan b}$' },
+          { id: 'D', text: '$\\cos(a + b) = \\cos a \\cos b + \\sin a \\sin b$' },
+        ],
+        correctOption: 'D',
+        explanation: 'Công thức đúng là $\\cos(a + b) = \\cos a \\cos b - \\sin a \\sin b$.',
+      },
+      {
+        id: 'g11-2-q2',
+        type: 'mcq',
+        number: 2,
+        question: 'Với mọi góc lượng giác $\\alpha$, khẳng định nào sau đây đúng?',
+        options: [
+          { id: 'A', text: '$\\cos 2\\alpha = 2\\cos^2 \\alpha - 1$' },
+          { id: 'B', text: '$\\cos 2\\alpha = 1 + 2\\sin^2 \\alpha$' },
+          { id: 'C', text: '$\\sin 2\\alpha = \\sin \\alpha \\cos \\alpha$' },
+          { id: 'D', text: '$\\cos 2\\alpha = \\sin^2 \\alpha - \\cos^2 \\alpha$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Theo công thức nhân đôi: $\\cos 2\\alpha = \\cos^2 \\alpha - \\sin^2 \\alpha = 2\\cos^2 \\alpha - 1 = 1 - 2\\sin^2 \\alpha$.',
+      },
+      {
+        id: 'g11-2-q3',
+        type: 'mcq',
+        number: 3,
+        question: 'Giá trị của biểu thức $A = \\sin 15^\\circ \\cos 15^\\circ$ bằng:',
+        options: [
+          { id: 'A', text: '$\\frac{1}{2}$' },
+          { id: 'B', text: '$\\frac{1}{4}$' },
+          { id: 'C', text: '$\\frac{\\sqrt{3}}{4}$' },
+          { id: 'D', text: '$\\frac{\\sqrt{2}}{4}$' },
+        ],
+        correctOption: 'B',
+        explanation: '$A = \\frac{1}{2}\\sin 30^\\circ = \\frac{1}{2} \\cdot \\frac{1}{2} = \\frac{1}{4}$.',
+      },
+      {
+        id: 'g11-2-q4',
+        type: 'mcq',
+        number: 4,
+        question: 'Cho $\\sin \\alpha = \\frac{1}{3}$. Giá trị của $\\cos 2\\alpha$ bằng:',
+        options: [
+          { id: 'A', text: '$\\frac{7}{9}$' },
+          { id: 'B', text: '$\\frac{8}{9}$' },
+          { id: 'C', text: '$-\\frac{7}{9}$' },
+          { id: 'D', text: '$\\frac{5}{9}$' },
+        ],
+        correctOption: 'A',
+        explanation: '$\\cos 2\\alpha = 1 - 2\\sin^2 \\alpha = 1 - 2 \\cdot \\frac{1}{9} = \\frac{7}{9}$.',
+      },
     ],
     questionsPart2: [],
-    questionsPart3: []
+    questionsPart3: [],
   },
   {
     id: 'g11-3',
     title: 'Đề số 3: Hàm số lượng giác',
-    durationMinutes: 90,
-    description: '12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    durationMinutes: 45,
+    description: 'Tập xác định, tập giá trị, tính chẵn lẻ và tính tuần hoàn của hàm số lượng giác',
     questionsPart1: [
-      { id: 'g11-3-q1', type: 'mcq', number: 1, question: 'Tập xác định của hàm số $y = \\sin x$ là:', options: [{id:'A', text:'$\\mathbb{R}$'}, {id:'B', text:'$\\mathbb{R} \\setminus \\{\\frac{\\pi}{2} + k\\pi\\}$'}, {id:'C', text:'$[-1; 1]$'}, {id:'D', text:'$\\mathbb{R} \\setminus \\{k\\pi\\}$'}], correctOption: 'A', explanation: 'Hàm sin xác định trên toàn trục số thực.' }
+      {
+        id: 'g11-3-q1',
+        type: 'mcq',
+        number: 1,
+        question: 'Tập xác định của hàm số $y = \\sin x$ là:',
+        options: [
+          { id: 'A', text: '$\\mathbb{R}$' },
+          { id: 'B', text: '$\\mathbb{R} \\setminus \\left\\{\\frac{\\pi}{2} + k\\pi \\mid k \\in \\mathbb{Z}\\right\\}$' },
+          { id: 'C', text: '$[-1; 1]$' },
+          { id: 'D', text: '$\\mathbb{R} \\setminus \\{k\\pi \\mid k \\in \\mathbb{Z}\\}$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Hàm số $y = \\sin x$ xác định với mọi $x \\in \\mathbb{R}$.',
+      },
+      {
+        id: 'g11-3-q2',
+        type: 'mcq',
+        number: 2,
+        question: 'Trong các hàm số sau, hàm số nào là hàm số chẵn?',
+        options: [
+          { id: 'A', text: '$y = \\sin x$' },
+          { id: 'B', text: '$y = \\cos x$' },
+          { id: 'C', text: '$y = \\tan x$' },
+          { id: 'D', text: '$y = \\cot x$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Với mọi $x \\in \\mathbb{R}$, ta có $\\cos(-x) = \\cos x$ nên $y = \\cos x$ là hàm số chẵn.',
+      },
+      {
+        id: 'g11-3-q3',
+        type: 'mcq',
+        number: 3,
+        question: 'Giá trị lớn nhất của hàm số $y = 3\\sin x - 2$ trên $\\mathbb{R}$ bằng:',
+        options: [
+          { id: 'A', text: '$1$' },
+          { id: 'B', text: '$3$' },
+          { id: 'C', text: '$5$' },
+          { id: 'D', text: '$-5$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Vì $-1 \\le \\sin x \\le 1 \\implies -5 \\le 3\\sin x - 2 \\le 1$. Vậy giá trị lớn nhất bằng $1$.',
+      },
     ],
     questionsPart2: [],
-    questionsPart3: []
+    questionsPart3: [],
   },
   {
     id: 'g11-4',
     title: 'Đề số 4: Phương trình lượng giác cơ bản',
-    durationMinutes: 90,
-    description: '12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    durationMinutes: 45,
+    description: 'Giải phương trình $\\sin x = m$, $\\cos x = m$, $\\tan x = m$, $\\cot x = m$',
     questionsPart1: [
-      { id: 'g11-4-q1', type: 'mcq', number: 1, question: 'Nghiệm của phương trình $\\sin x = 1$ là:', options: [{id:'A', text:'$x = \\frac{\\pi}{2} + k2\\pi$'}, {id:'B', text:'$x = k\\pi$'}, {id:'C', text:'$x = \\frac{\\pi}{2} + k\\pi$'}, {id:'D', text:'$x = k2\\pi$'}], correctOption: 'A', explanation: 'Nghiệm cơ bản của $\\sin x = 1$.' }
+      {
+        id: 'g11-4-q1',
+        type: 'mcq',
+        number: 1,
+        question: 'Nghiệm của phương trình $\\sin x = 1$ là:',
+        options: [
+          { id: 'A', text: '$x = \\frac{\\pi}{2} + k2\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'B', text: '$x = k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'C', text: '$x = \\frac{\\pi}{2} + k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'D', text: '$x = k2\\pi$ ($k \\in \\mathbb{Z}$)' },
+        ],
+        correctOption: 'A',
+        explanation: 'Phương trình đặc biệt $\\sin x = 1 \\Leftrightarrow x = \\frac{\\pi}{2} + k2\\pi$ ($k \\in \\mathbb{Z}$).',
+      },
+      {
+        id: 'g11-4-q2',
+        type: 'mcq',
+        number: 2,
+        question: 'Nghiệm của phương trình $\\cos x = 0$ là:',
+        options: [
+          { id: 'A', text: '$x = k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'B', text: '$x = \\frac{\\pi}{2} + k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'C', text: '$x = \\frac{\\pi}{2} + k2\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'D', text: '$x = k2\\pi$ ($k \\in \\mathbb{Z}$)' },
+        ],
+        correctOption: 'B',
+        explanation: 'Phương trình đặc biệt $\\cos x = 0 \\Leftrightarrow x = \\frac{\\pi}{2} + k\\pi$ ($k \\in \\mathbb{Z}$).',
+      },
+      {
+        id: 'g11-4-q3',
+        type: 'mcq',
+        number: 3,
+        question: 'Phương trình $\\tan x = \\sqrt{3}$ có nghiệm là:',
+        options: [
+          { id: 'A', text: '$x = \\frac{\\pi}{6} + k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'B', text: '$x = \\frac{\\pi}{3} + k\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'C', text: '$x = \\frac{\\pi}{3} + k2\\pi$ ($k \\in \\mathbb{Z}$)' },
+          { id: 'D', text: '$x = -\\frac{\\pi}{3} + k\\pi$ ($k \\in \\mathbb{Z}$)' },
+        ],
+        correctOption: 'B',
+        explanation: 'Vì $\\tan \\frac{\\pi}{3} = \\sqrt{3}$ nên $\\tan x = \\sqrt{3} \\Leftrightarrow x = \\frac{\\pi}{3} + k\\pi$ ($k \\in \\mathbb{Z}$).',
+      },
     ],
     questionsPart2: [],
-    questionsPart3: []
+    questionsPart3: [],
   },
   {
     id: 'g11-5',
-    title: 'Đề số 5: Ôn tập Chương I - Hàm số lượng giác và PT lượng giác',
-    durationMinutes: 90,
-    description: '12 MCQ + 4 Đúng/Sai + 6 Trả lời ngắn',
+    title: 'Đề số 5: Ôn tập Chương I – Hàm số lượng giác & Phương trình lượng giác',
+    durationMinutes: 45,
+    description: 'Tổng hợp kiến thức trọng tâm Chương I Toán 11 KNTT',
     questionsPart1: [
-      { id: 'g11-5-q1', type: 'mcq', number: 1, question: 'Đổi góc $150^\\circ$ sang ra-đi-an ta được:', options: [{id:'A', text:'$\\frac{5\\pi}{6}$'}, {id:'B', text:'$\\frac{2\\pi}{3}$'}, {id:'C', text:'$\\frac{3\\pi}{4}$'}, {id:'D', text:'$\\frac{5\\pi}{4}$'}], correctOption: 'A', explanation: '$150 \\cdot \\frac{\\pi}{180} = \\frac{5\\pi}{6}$.' }
+      {
+        id: 'g11-5-q1',
+        type: 'mcq',
+        number: 1,
+        question: 'Đổi góc $150^\\circ$ sang radian ta được:',
+        options: [
+          { id: 'A', text: '$\\frac{5\\pi}{6}$' },
+          { id: 'B', text: '$\\frac{2\\pi}{3}$' },
+          { id: 'C', text: '$\\frac{3\\pi}{4}$' },
+          { id: 'D', text: '$\\frac{5\\pi}{4}$' },
+        ],
+        correctOption: 'A',
+        explanation: 'Ta có $150^\\circ = 150 \\cdot \\frac{\\pi}{180} = \\frac{5\\pi}{6}$.',
+      },
+      {
+        id: 'g11-5-q2',
+        type: 'mcq',
+        number: 2,
+        question: 'Số nghiệm của phương trình $\\sin x = \\frac{1}{2}$ trên đoạn $[0; 2\\pi]$ là:',
+        options: [
+          { id: 'A', text: '$1$' },
+          { id: 'B', text: '$2$' },
+          { id: 'C', text: '$3$' },
+          { id: 'D', text: '$4$' },
+        ],
+        correctOption: 'B',
+        explanation: 'Trên $[0; 2\\pi]$, phương trình $\\sin x = \\frac{1}{2}$ có đúng $2$ nghiệm là $x = \\frac{\\pi}{6}$ và $x = \\frac{5\\pi}{6}$.',
+      },
     ],
     questionsPart2: [],
-    questionsPart3: []
-  }
+    questionsPart3: [],
+  },
 ];
 
-export const Grade11Exams: React.FC = () => {
-  const [selectedExam, setSelectedExam] = useState<ExamPaper | null>(null);
+interface Grade11ExamsProps {
+  onBack?: () => void;
+}
 
-  if (selectedExam) {
-    return (
-      <>
-        <AntiCheatGuard
-          isActive={true}
-          examTitle={selectedExam.title}
-          onAutoSubmit={() => setSelectedExam(null)}
-        />
-        <div className="p-6 max-w-4xl mx-auto pt-14">
-          <h2 className="text-2xl font-bold mb-4">{selectedExam.title}</h2>
-          <div className="space-y-6">
-            <h3 className="font-bold text-lg">Phần I: Trắc nghiệm</h3>
-            {selectedExam.questionsPart1.map(q => (
-                <div key={q.id} className="p-4 bg-white dark:bg-slate-800 rounded shadow">
-                    <p className="font-medium">{q.number}. {q.question}</p>
-                    <div className="mt-2 space-y-1">
-                        {q.options.map(o => <p key={o.id}>{o.id}. {o.text}</p>)}
-                    </div>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Đáp án: {q.correctOption} - {q.explanation}</p>
-                </div>
-            ))}
-          </div>
-          <button onClick={() => setSelectedExam(null)} className="mt-6 p-2 bg-blue-500 text-white rounded">Quay lại</button>
-        </div>
-      </>
-    );
-  }
-
+export const Grade11Exams: React.FC<Grade11ExamsProps> = ({ onBack }) => {
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Ôn thi THPT Online - Lớp 11: Hàm số lượng giác & Phương trình lượng giác</h2>
-      <div className="grid gap-4">
-        {GRADE11_EXAM_PAPERS.map((exam) => (
-          <button key={exam.id} onClick={() => setSelectedExam(exam)} className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow hover:shadow-md text-left">
-            <h3 className="font-bold">{exam.title}</h3>
-            <p className="text-sm text-slate-500">{exam.description}</p>
-          </button>
-        ))}
-      </div>
-    </div>
+    <StaticExamRunner
+      heading="Ôn thi THPT Online – Lớp 11: Chương I · Hàm số lượng giác & Phương trình lượng giác"
+      subheading="Luyện tập trực tuyến chuẩn KaTeX – Đáp án và lời giải chi tiết hiển thị sau khi nộp bài."
+      gradeLabel="Toán 11 · Chương I (KNTT)"
+      papers={GRADE11_EXAM_PAPERS}
+      storagePrefix="edubot_g11_trig"
+      onBack={onBack}
+    />
   );
 };

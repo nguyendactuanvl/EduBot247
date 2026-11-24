@@ -1,11 +1,19 @@
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, Type } from '@google/genai';
+import { ThinkingLevel, Type } from '@google/genai';
 import mammoth from 'mammoth';
+import {
+  classifyServerGeminiError,
+  createServerGoogleGenAI,
+  generateStructuredExamServer,
+  runServerGeminiWithRotation,
+  SERVER_GEMINI_MODELS,
+  ServerGeminiRotationError,
+} from './server/grade12VectorsExamGenerator';
 
 const app = express();
-// Cấu hình giới hạn payload lớn hơn để nhận file đính kèm
+// Cấu hình giới hạn payload lớn hơn để nhận file & ảnh Rubik độ phân giải cao
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -15,166 +23,326 @@ app.get(['/app-ads.txt', '/ads.txt'], (_req, res) => {
   res.send('google.com, pub-5320880447374751, DIRECT, f08c47fec0942fa0');
 });
 
-// API Routes
+const DEFAULT_CHAT_SYSTEM_INSTRUCTION = `Bạn là "EduBot 247" – Trợ lý học tập thông minh chuẩn Chương trình GDPT 2018 dành cho học sinh Việt Nam (Lớp 1 đến Lớp 12).
+- Mọi công thức, biến số, ký hiệu Toán – Lý – Hóa – Sinh BẮT BUỘC đặt trong cặp dấu $...$ (nội dòng) hoặc $$...$$ (khối riêng), dùng \\frac thay vì \\dfrac.
+- Hóa học dùng 100% danh pháp IUPAC quốc tế mới (Iron, Copper, Sodium hydroxide, Sulfuric acid...).
+- Trình bày ngắn gọn, rõ ràng, dễ hiểu, có hướng dẫn bấm máy Casio fx-580VN X / fx-880BTG và lưu ý lỗi sai khi phù hợp.`;
+
+// 1. Server-side Chat & Multimodal Homework Helper (supports multi-key rotation + automatic server key fallback)
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, userApiKey, file, grade, subject } = req.body;
-    
-    const apiKey = userApiKey || process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Chưa có API Key. Cậu hãy nhập API Key của mình để sử dụng nhé.' });
-    }
+    const { message, userApiKey, apiKeys, file, grade, subject, systemInstruction } = req.body || {};
 
-    const ai = new GoogleGenAI({ apiKey });
-    
-    const systemInstruction = `VAI TRÒ VÀ SỨ MỆNH
-Bạn là "EduBot 247" – Siêu ứng dụng học tập và tra cứu thông minh thế hệ mới dành riêng cho học sinh Việt Nam (Lớp 1 đến Lớp 12).
-Học sinh đang hỏi về môn học: ${subject || 'Chưa xác định'}, Khối lớp: ${grade || 'Chưa xác định'}.
-Nhiệm vụ của bạn là biến những công thức khô khan của các môn học thành cẩm nang sống động, chuẩn xác tuyệt đối theo Chương trình GDPT 2018, đồng thời đóng vai trò là một "Gia sư luyện thi bỏ túi" và bạn đồng hành đầy năng lượng của học sinh.
+    const mergedKeys = Array.isArray(apiKeys) && apiKeys.length > 0
+      ? apiKeys
+      : userApiKey
+        ? [{ key: String(userApiKey), label: 'Key cá nhân' }]
+        : undefined;
 
-NGUYÊN TẮC HỌC THUẬT & KỸ THUẬT
-1. Chuẩn GDPT 2018 tuyệt đối:
-   - Hóa học: Bắt buộc dùng 100% danh pháp IUPAC quốc tế mới (ví dụ: Iron, Copper, Sodium hydroxide, Sulfuric acid, Methane...).
-   - Toán - Lý - Sinh: Ký hiệu theo đúng SGK mới nhất; cấu trúc câu hỏi bám sát định dạng thi mới.
-   - Toán, Lý, Hóa, Sinh: Mọi biểu thức, phương trình, đơn vị đo phải viết bằng mã LaTeX chuẩn ($ inline $ hoặc $$ block $$).
-   - Tiếng Anh: Trình bày rõ cấu trúc ngữ pháp ($S + V + O$), bôi đậm thành phần nhận biết.
-2. Tone & Vibe (Phong cách):
-   - Nhiệt huyết, hóm hỉnh, thấu hiểu tâm lý tuổi teen như một đàn anh/đàn chị thủ khoa khóa trên; luôn động viên tích cực.
-
-CẤU TRÚC PHẢN HỒI KHI TRA CỨU CÔNG THỨC / CHỦ ĐỀ
-Mỗi khi học sinh nhập từ khóa, bạn PHẢI xuất phản hồi theo đúng 8 module sau (nếu phù hợp với câu hỏi hoặc bài tập đưa ra):
-
-⚡ 1. CÔNG THỨC SPOTLIGHT (Tâm Điểm)
-Đặt công thức/cấu trúc cốt lõi trong khối nổi bật, ưu tiên LaTeX trực quan.
-
-📌 2. CHEAT SHEET (Giải Mã Thông Số & Ký Hiệu)
-Bảng tra nhanh: Ký hiệu | Ý nghĩa | Đơn vị chuẩn (SI) & Lưu ý đổi đơn vị.
-
-🎛️ 3. INTERACTIVE SANDBOX (Mô Phỏng Trực Quan)
-Mô tả ngắn gọn cơ chế biến thiên để học sinh "thấy" được quy luật (ví dụ: Nếu tăng X thì Y thay đổi ra sao).
-
-📟 4. CASIO HACK (Bấm Máy Siêu Tốc)
-Hướng dẫn từng bước thao tác bấm phím trên Casio fx-580VN X và Casio fx-880BTG (nếu có thể áp dụng).
-
-🚨 5. RED FLAGS (Bẫy Phòng Thi Kinh Điển)
-Chỉ ra 1 - 2 lỗi sai ngớ ngẩn mà học sinh hay mắc khiến mất điểm oan.
-
-🧠 6. BRAIN HACK (Mẹo Nhớ Nhanh & 1-Step Example)
-Câu thơ vui, khẩu quyết hoặc từ gợi nhớ (mnemonic). Kèm 1 ví dụ áp dụng ngắn gọn 1-2 dòng.
-
-🎯 7. 1-CLICK QUIZ (Chẩn Đoán Phản Xạ Tức Thì)
-Đúng 2 câu hỏi test nhanh (1 trắc nghiệm nhận biết, 1 Đúng/Sai hoặc điền ngắn). Kèm đáp án giải thích siêu ngắn.
-
-🏆 8. STREAK & BADGE (Góc Động Lực)
-Một câu khích lệ ngắn kèm "Huy hiệu thành tích" vui nhộn.
-
-CÁC KỊCH BẢN TƯƠNG TÁC ĐẶC BIỆT
-- Khi gửi bài tập/ảnh: Nhận diện lỗ hổng, giải bài tập và gợi ý sơ đồ 2 bước giải (scaffolding) để học sinh hiểu cách tự làm.
-- Sổ Tay Lỗi Sai: Phân tích nguyên nhân sai, tự tạo 1 câu hỏi biến thể để phục thù.
-- Tiếng Anh: Bổ sung "Paraphrase & Upgrade" (cấu trúc viết lại câu, collocations xịn).`;
+    const contextPrefix =
+      grade || subject
+        ? `[Học sinh đang học: ${subject || 'Chưa rõ'}, ${grade || 'Chưa rõ'}]\n`
+        : '';
 
     const requestParts: any[] = [];
-    if (message) {
-      requestParts.push(message);
+    if (message && String(message).trim()) {
+      requestParts.push({ text: `${contextPrefix}${message}` });
     } else {
-      requestParts.push("Hãy giải và hướng dẫn chi tiết tài liệu/bài tập đính kèm giúp tớ.");
+      requestParts.push({
+        text: `${contextPrefix}Hãy giải và hướng dẫn chi tiết tài liệu/hình ảnh đính kèm giúp mình.`,
+      });
     }
 
-    if (file) {
+    if (file?.data) {
       if (file.type === 'image' || file.type === 'pdf') {
-        const base64Data = file.data.split(',')[1];
-        const mimeType = file.data.split(';')[0].split(':')[1];
-        requestParts.push({
-          inlineData: {
-            data: base64Data,
-            mimeType: mimeType
-          }
-        });
+        const splitParts = String(file.data).split(',');
+        const base64Data = splitParts[1] || '';
+        const mimeMatch = (splitParts[0] || '').match(/data:([^;]+);/);
+        const mimeType = mimeMatch ? mimeMatch[1] : file.type === 'pdf' ? 'application/pdf' : 'image/png';
+        if (base64Data) {
+          requestParts.push({
+            inlineData: {
+              data: base64Data,
+              mimeType,
+            },
+          });
+        }
       } else if (file.type === 'docx') {
-        const base64Data = file.data.split(',')[1];
+        const base64Data = String(file.data).split(',')[1] || '';
         const buffer = Buffer.from(base64Data, 'base64');
         const result = await mammoth.extractRawText({ buffer });
-        requestParts.push("Nội dung tài liệu đính kèm (đã trích xuất văn bản):\n\n" + result.value);
+        requestParts.push({
+          text: 'Nội dung tài liệu đính kèm (đã trích xuất văn bản):\n\n' + result.value,
+        });
       }
     }
 
-    const generateEducationalImageTool = {
-      functionDeclarations: [
-        {
-          name: "generateEducationalImage",
-          description: "Tạo một bức ảnh minh họa chuyên nghiệp hoặc hình vẽ liên quan đến bài học, khoa học, thực tế đời sống mà học sinh yêu cầu.",
-          parameters: {
-            type: Type.OBJECT,
-            properties: {
-              prompt: {
-                type: Type.STRING,
-                description: "Mô tả chi tiết bằng tiếng Anh của bức ảnh cần tạo. Có thể thêm các từ khóa như 'photorealistic', 'educational diagram', 'high quality'."
-              }
-            },
-            required: ["prompt"]
-          }
-        }
-      ]
-    };
+    const { data: text, meta } = await runServerGeminiWithRotation(mergedKeys, async (ai, model) => {
+      const response = await ai.models.generateContent({
+        model,
+        contents: { parts: requestParts },
+        config: {
+          systemInstruction: systemInstruction || DEFAULT_CHAT_SYSTEM_INSTRUCTION,
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+        },
+      });
+      const out = response.text || '';
+      if (!out.trim()) {
+        throw new Error('Gemini API không trả về nội dung văn bản.');
+      }
+      return out;
+    });
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: requestParts,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-        tools: [generateEducationalImageTool]
+    return res.json({ text, meta });
+  } catch (error: any) {
+    if (error instanceof ServerGeminiRotationError) {
+      console.warn(`[Chat API] ${error.primaryReason} (${error.httpStatus}): ${error.message}`);
+      return res.status(error.httpStatus).json({
+        error: error.message,
+        reason: error.primaryReason,
+        failedKeys: error.failedKeys,
+      });
+    }
+    console.error('Chat API Error:', error);
+    const errorMessage = String(error?.message || 'Đã có lỗi xảy ra khi gọi Gemini AI.');
+    const kind = classifyServerGeminiError(error);
+    const statusCode = kind === 'quota' ? 429 : kind === 'invalid' ? 403 : kind === 'overloaded' ? 503 : 500;
+    return res.status(statusCode).json({ error: errorMessage });
+  }
+});
+
+// 2. Unified Online Exam Generator (All Online Chapters)
+app.post(['/api/exams/generate', '/api/exams/grade12-vectors/generate'], async (req, res) => {
+  try {
+    const { examId, chapter, variantNumber, apiKeys } = req.body || {};
+    if (!examId || typeof examId !== 'string') {
+      return res.status(400).json({ error: 'Thiếu mã đề thi (examId) hợp lệ.' });
+    }
+
+    const safeVariant =
+      typeof variantNumber === 'number' && Number.isFinite(variantNumber) && variantNumber >= 1
+        ? Math.floor(variantNumber)
+        : 1;
+
+    const { exam, meta } = await generateStructuredExamServer({
+      examId,
+      chapter,
+      variantNumber: safeVariant,
+      apiKeys,
+    });
+    return res.json({ exam, meta });
+  } catch (error: any) {
+    if (error instanceof ServerGeminiRotationError) {
+      console.warn(`[Online Exam API] ${error.primaryReason} (${error.httpStatus}): ${error.message}`);
+      return res.status(error.httpStatus).json({
+        error: error.message,
+        reason: error.primaryReason,
+        failedKeys: error.failedKeys,
+      });
+    }
+    console.error('Online Exam Generation Error:', error);
+    const errorMessage = String(error?.message || 'Đã xảy ra lỗi khi biên soạn đề thi từ Gemini API.');
+    const kind = classifyServerGeminiError(error);
+    const statusCode = kind === 'quota' ? 429 : kind === 'invalid' ? 403 : kind === 'overloaded' ? 503 : 500;
+    return res.status(statusCode).json({ error: errorMessage });
+  }
+});
+
+// 3. Server-side API Key Connectivity Test (with automatic fallback model on 503 high demand)
+app.post('/api/gemini/test-key', async (req, res) => {
+  try {
+    const rawKey = String(req.body?.apiKey || '').trim();
+    if (!rawKey) {
+      return res.status(400).json({ ok: false, message: 'Thiếu API Key cần kiểm tra.' });
+    }
+
+    const ai = createServerGoogleGenAI(rawKey);
+    let lastError: any = null;
+
+    for (const model of SERVER_GEMINI_MODELS) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: 'Reply with a single word: OK',
+          config: {
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+          },
+        });
+
+        if (response.text) {
+          return res.json({ ok: true, message: 'Kết nối Gemini thành công!' });
+        }
+      } catch (err: any) {
+        lastError = err;
+        const kind = classifyServerGeminiError(err);
+        if (kind === 'invalid' || kind === 'quota') {
+          break;
+        }
+      }
+    }
+
+    if (lastError) {
+      throw lastError;
+    }
+    return res.json({ ok: false, message: 'Gemini không trả về phản hồi.' });
+  } catch (error: any) {
+    const kind = classifyServerGeminiError(error);
+    const message =
+      kind === 'quota'
+        ? 'Hết quota / 429 (đang tạm nghỉ 60s)'
+        : kind === 'invalid'
+          ? 'API Key không hợp lệ hoặc không có quyền truy cập'
+          : kind === 'overloaded'
+            ? 'API Key hợp lệ nhưng Gemini đang quá tải tạm thời (503). Hãy thử lại sau vài giây.'
+            : String(error?.message || 'Lỗi kết nối Gemini').slice(0, 180);
+    return res.json({ ok: false, kind, message });
+  }
+});
+
+// 4. Rubik Photo Solver (Multimodal Gemini Vision -> structured move-by-move guide)
+const RUBIK_PHOTO_RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    detectedCubeType: {
+      type: Type.STRING,
+      description: 'Loại khối Rubik nhận diện được: ví dụ "Rubik 3x3x3", "Rubik 2x2x2", "Rubik 4x4x4", "Pyraminx", "Skewb".',
+    },
+    isSupported3x3Simulation: {
+      type: Type.BOOLEAN,
+      description: 'true nếu là khối 3x3x3 và các bước xoay chính dùng ký hiệu Singmaster chuẩn U/D/L/R/F/B.',
+    },
+    confidenceSummary: {
+      type: Type.STRING,
+      description: 'Nhận xét ngắn gọn về độ rõ của ảnh, các mặt nhìn thấy được và màu sắc chủ đạo.',
+    },
+    orientationGuide: {
+      type: Type.STRING,
+      description: 'Hướng dẫn rõ ràng cách cầm khối Rubik trên tay trước khi bắt đầu xoay (mặt nào hướng lên trên U, mặt nào hướng về phía người chơi F).',
+    },
+    detectedFaces: {
+      type: Type.ARRAY,
+      description: 'Danh sách các mặt nhìn thấy trong ảnh và mô tả màu các ô theo hàng từ trên xuống dưới, trái sang phải.',
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          faceLabel: { type: Type.STRING, description: 'Ví dụ: "Mặt Trước (F)", "Mặt Trên (U)", "Mặt Phải (R)".' },
+          centerColor: { type: Type.STRING, description: 'Màu tâm: Trắng, Vàng, Đỏ, Cam, Xanh lá, hoặc Xanh dương.' },
+          gridColors: {
+            type: Type.ARRAY,
+            description: 'Mảng các mã màu 1 ký tự (W=Trắng, Y=Vàng, R=Đỏ, O=Cam, G=Xanh lá, B=Xanh dương) theo thứ tự từ trái sang phải, trên xuống dưới (9 ô cho 3x3, 4 ô cho 2x2).',
+            items: { type: Type.STRING },
+          },
+        },
+        required: ['faceLabel', 'centerColor', 'gridColors'],
+      },
+    },
+    stages: {
+      type: Type.ARRAY,
+      description: 'Các giai đoạn giải khối Rubik từ trạng thái hiện tại trong ảnh cho tới khi hoàn thành.',
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          stageTitle: { type: Type.STRING, description: 'Tên giai đoạn (ví dụ: "Bước 1: Hoàn thiện chữ thập trắng").' },
+          goal: { type: Type.STRING, description: 'Mục tiêu cần đạt ở giai đoạn này.' },
+          moves: {
+            type: Type.ARRAY,
+            description: 'Danh sách từng nước xoay chuẩn Singmaster (chỉ dùng các nước đơn như "R", "R\'", "U", "U\'", "F", "F\'", "L", "L\'", "D", "D\'", "B", "B\'" — nếu cần xoay 180 độ thì tách thành 2 lần hoặc ghi "R2").',
+            items: { type: Type.STRING },
+          },
+          explanation: { type: Type.STRING, description: 'Giải thích cụ thể từng thao tác bằng tiếng Việt dễ hiểu cho học sinh.' },
+        },
+        required: ['stageTitle', 'goal', 'moves', 'explanation'],
+      },
+    },
+    tips: {
+      type: Type.STRING,
+      description: 'Mẹo nhỏ khi thực hiện hoặc lưu ý nếu ảnh chưa thấy đủ 6 mặt.',
+    },
+  },
+  required: [
+    'detectedCubeType',
+    'isSupported3x3Simulation',
+    'confidenceSummary',
+    'orientationGuide',
+    'detectedFaces',
+    'stages',
+    'tips',
+  ],
+};
+
+app.post('/api/rubik/solve-photo', async (req, res) => {
+  try {
+    const { images, cubeTypeHint, apiKeys } = req.body || {};
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ error: 'Vui lòng chụp hoặc tải lên ít nhất 1 ảnh khối Rubik.' });
+    }
+
+    const parts: any[] = [];
+    const safeImages = images.slice(0, 6);
+
+    safeImages.forEach((img: { label?: string; dataUrl: string }, idx: number) => {
+      if (!img?.dataUrl) return;
+      const splitParts = String(img.dataUrl).split(',');
+      const base64Data = splitParts[1] || '';
+      const mimeMatch = (splitParts[0] || '').match(/data:([^;]+);/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+      if (base64Data) {
+        parts.push({ text: `Ảnh #${idx + 1} (${img.label || 'Góc chụp khối Rubik'}):` });
+        parts.push({ inlineData: { data: base64Data, mimeType } });
       }
     });
 
-    let finalResponseText = response.text || "";
-
-    if (response.functionCalls && response.functionCalls.length > 0) {
-       const call = response.functionCalls.find((c: any) => c.name === 'generateEducationalImage');
-       if (call) {
-          try {
-             const imgPrompt = call.args.prompt;
-             const imgResponse = await ai.models.generateContent({
-                model: 'gemini-3.1-flash-image',
-                contents: imgPrompt,
-                config: { imageConfig: { aspectRatio: "16:9", imageSize: "1K" } }
-             });
-             
-             let base64 = "";
-             for (const part of imgResponse.candidates[0].content.parts) {
-                if (part.inlineData) {
-                   base64 = part.inlineData.data;
-                   break;
-                }
-             }
-             if (base64) {
-                 finalResponseText = "Tớ đã tạo xong bức ảnh minh họa cho cậu rồi đây! 🎨\n\n![Ảnh minh họa](data:image/png;base64," + base64 + ")\n\n" + finalResponseText;
-             }
-          } catch (imgError) {
-             console.error("Lỗi khi tạo ảnh:", imgError);
-             finalResponseText = "Rất tiếc, đã có sự cố khi tạo ảnh minh họa cho cậu. Cậu thử lại sau nhé!\n\n" + finalResponseText;
-          }
-       }
+    if (parts.length === 0) {
+      return res.status(400).json({ error: 'Dữ liệu ảnh không hợp lệ. Vui lòng chụp lại rõ nét hơn.' });
     }
 
-    res.json({ text: finalResponseText });
+    parts.push({
+      text: `Hãy phân tích kỹ ${safeImages.length} ảnh chụp khối Rubik thực tế của người dùng ở trên.
+Gợi ý loại Rubik từ người dùng: ${cubeTypeHint || 'Tự động nhận diện từ ảnh'}.
+
+NHIỆM VỤ:
+1. Nhận diện chính xác loại khối Rubik (3x3x3, 2x2x2, 4x4x4, Pyraminx, Skewb...) và đọc đúng màu từng ô (W=Trắng, Y=Vàng, R=Đỏ, O=Cam, G=Xanh lá, B=Xanh dương) trên từng mặt nhìn thấy trong ảnh.
+2. Xác định rõ hướng cầm khối Rubik ban đầu (mặt nào hướng lên trên U, mặt nào hướng về phía người chơi F) để học sinh cầm khớp 100% với công thức.
+3. Đưa ra lộ trình giải chi tiết từng giai đoạn (stages) với các nước xoay ký hiệu Singmaster chuẩn (ví dụ: R, R', U, U', F, F', L, L', D, D', B, B'). Nếu nhìn thấy chưa đủ cả 6 mặt, hãy giải chính xác phần các mặt nhìn thấy trước (ví dụ hoàn thành tầng 1 / tầng 2 dựa trên các viên đang thấy rõ trong ảnh) và hướng dẫn ngay bước tiếp theo kèm lưu ý chụp đủ 6 mặt nếu cần lời giải tối ưu toàn khối.
+4. Viết bằng tiếng Việt dễ hiểu, mạch lạc, thân thiện với học sinh. Trả về đúng JSON theo responseSchema.`,
+    });
+
+    const { data: solution, meta } = await runServerGeminiWithRotation(apiKeys, async (ai, model) => {
+      const response = await ai.models.generateContent({
+        model,
+        contents: { parts },
+        config: {
+          systemInstruction:
+            'Bạn là huấn luyện viên Speedcubing WCA chuyên nghiệp, giỏi nhận diện màu sắc và trạng thái khối Rubik qua hình ảnh. Luôn mô tả trung thực những gì quan sát được trong ảnh, đưa ra hướng dẫn cầm khối rõ ràng và chuỗi bước xoay Singmaster chuẩn xác, dễ thực hiện.',
+          responseMimeType: 'application/json',
+          responseSchema: RUBIK_PHOTO_RESPONSE_SCHEMA,
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+        },
+      });
+
+      const rawText = (response.text || '').trim();
+      if (!rawText) {
+        throw new Error('AI không trả về kết quả phân tích ảnh Rubik.');
+      }
+      const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      return JSON.parse(cleaned);
+    });
+
+    return res.json({ solution, meta });
   } catch (error: any) {
-    console.error('Chat API Error:', error);
-    
-    const errorMessage = error?.message || '';
-    if (errorMessage.includes('API key not valid') || errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API_KEY')) {
-      return res.status(400).json({ 
-        error: 'Lỗi API Key: API Key của Gemini không hợp lệ hoặc chưa được thiết lập. Bạn vui lòng kiểm tra lại GEMINI_API_KEY hoặc nhập API Key cá nhân trong cài đặt nhé!' 
+    if (error instanceof ServerGeminiRotationError) {
+      console.warn(`[Rubik Photo API] ${error.primaryReason} (${error.httpStatus}): ${error.message}`);
+      return res.status(error.httpStatus).json({
+        error: error.message,
+        reason: error.primaryReason,
+        failedKeys: error.failedKeys,
       });
     }
-
-    if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
-      return res.status(429).json({ 
-        error: 'Ôi, có vẻ như "Gia sư" đang bị quá tải do hết lượt tra cứu miễn phí từ Google Gemini (API Quota Exceeded). Cậu hãy thử lại sau ít phút hoặc nhập API Key cá nhân nhé! 😥' 
-      });
-    }
-
-    res.status(500).json({ error: errorMessage || 'Đã có lỗi xảy ra từ máy chủ khi gọi AI. Cậu thử lại sau nhé!' });
+    console.error('Rubik Photo Solver Error:', error);
+    const errorMessage = String(error?.message || 'Không thể phân tích ảnh Rubik lúc này.');
+    const kind = classifyServerGeminiError(error);
+    const statusCode = kind === 'quota' ? 429 : kind === 'invalid' ? 403 : kind === 'overloaded' ? 503 : 500;
+    return res.status(statusCode).json({ error: errorMessage });
   }
 });
 
@@ -273,7 +441,11 @@ async function startServer() {
   // Vite integration
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+        ws: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
